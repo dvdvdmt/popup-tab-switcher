@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+  "version": "1.0.0",
+  "name": "Popup tab switcher",
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "browser_action": {
+    "default_icon": {
+      "32": "images/icon-32.png"
+    },
+    "default_title": "Popup tab switcher",
+    "default_popup": "popup.html"
+  }
+}
