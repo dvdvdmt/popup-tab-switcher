@@ -4,6 +4,7 @@
   "description": "A browser extension that makes switching between tabs more convenient.",
   "main": "index.js",
   "scripts": {
+    "build": "webpack",
     "test": "eslint"
   },
   "keywords": [
@@ -15,7 +16,10 @@
   "license": "ISC",
   "devDependencies": {
     "eslint": "^5.9.0",
-    "webpack": "^4.26.1"
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "webpack": "^4.26.1",
+    "webpack-cli": "^3.1.2"
   },
   "dependencies": {
     "webextension-polyfill": "^0.3.1"
