@@ -1,0 +1,23 @@
+{
+  "name": "popup-tab-switcher",
+  "version": "1.0.0",
+  "description": "A browser extension that makes switching between tabs more convenient.",
+  "main": "index.js",
+  "scripts": {
+    "test": "eslint"
+  },
+  "keywords": [
+    "extension",
+    "tabs",
+    "switching"
+  ],
+  "author": "Dmitriy Davydov",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^5.9.0",
+    "webpack": "^4.26.1"
+  },
+  "dependencies": {
+    "webextension-polyfill": "^0.3.1"
+  }
+}

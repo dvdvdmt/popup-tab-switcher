@@ -1,0 +1,7 @@
+{
+  "extends": "airbnb-base",
+  "rules": {
+    "no-restricted-syntax": "off",
+    "prefer-destructuring": "warn"
+  }
+}
