@@ -1,5 +1,6 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
 
 const conf = {
   mode: 'development',
@@ -13,7 +14,7 @@ const conf = {
     path: path.resolve(__dirname, 'dist'),
   },
 
-  devtool: 'eval-source-map',
+  devtool: 'cheap-module-source-map',
 
   plugins: [
     new CopyWebpackPlugin([
@@ -24,6 +25,7 @@ const conf = {
       },
       'src/popup.html',
     ]),
+    new ChromeExtensionReloader(),
   ],
 
 };
