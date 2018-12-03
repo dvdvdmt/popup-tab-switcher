@@ -7,6 +7,7 @@ const conf = {
 
   entry: {
     background: './src/background.js',
+    content: './src/content.js',
   },
 
   output: {
@@ -24,6 +25,7 @@ const conf = {
         to: 'images',
       },
       'src/popup.html',
+      'src/content.css',
     ]),
     new ChromeExtensionReloader(),
   ],
