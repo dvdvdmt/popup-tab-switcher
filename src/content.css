@@ -12,6 +12,7 @@
 
 .popup-tab-switcher__card {
   background: gray;
+  color: white;
   width: 300px;
   height: 300px;
 }

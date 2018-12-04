@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "name": "Popup tab switcher",
   "permissions": [
-    "activeTab"
+    "tabs",
+    "<all_urls>"
   ],
   "background": {
     "scripts": [
