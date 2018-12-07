@@ -1,5 +1,6 @@
 import browser from 'webextension-polyfill';
 
+const maxTabsNumber = 10;
 const initializedTabs = {};
 
 browser.commands.onCommand.addListener(async (command) => {
@@ -11,16 +12,24 @@ browser.commands.onCommand.addListener(async (command) => {
   if (!initializedTabs[currentTab.id]) {
     await browser.tabs.insertCSS({ file: 'content.css' });
     await browser.tabs.executeScript({ file: 'content.js' });
+    const allTabs = await browser.tabs.query({});
+    await browser.tabs.sendMessage(currentTab.id, {
+      type: 'initialize',
+      tabs: allTabs.slice(0, maxTabsNumber)
+        .map(({ url, title, favIconUrl }) => ({
+          url,
+          title,
+          favIconUrl,
+        })),
+    });
+
     initializedTabs[currentTab.id] = currentTab;
   }
 
-  const allTabs = await browser.tabs.query({});
-  const message = {
-    tabs: allTabs.map(({ url, title, favIconUrl }) => ({
-      url,
-      title,
-      favIconUrl,
-    })),
-  };
-  browser.tabs.sendMessage(currentTab.id, message);
+  // Send separate message instead of listening 'keydown' event
+  // in content script because Chrome doesn't allow listening
+  // for extension shortcuts in content scripts
+  browser.tabs.sendMessage(currentTab.id, {
+    type: 'next-tab',
+  });
 });

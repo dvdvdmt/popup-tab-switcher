@@ -6,14 +6,46 @@ overlay.className = 'popup-tab-switcher';
 
 const card = document.createElement('pre');
 card.className = 'popup-tab-switcher__card';
-card.textContent = 'Hello!';
 
 overlay.append(card);
 document.body.append(overlay);
 
-browser.runtime.onMessage.addListener((message) => {
-  if (message.tabs) {
-    card.textContent = JSON.stringify(message.tabs, null, 2);
+function getTabElements(tabs, selectedId) {
+  return tabs.map(({ title }, i) => {
+    const tabEl = document.createElement('div');
+    tabEl.className = 'popup-tab-switcher__tab';
+    if (i === selectedId) {
+      tabEl.classList.add('popup-tab-switcher__tab--selected');
+    }
+    tabEl.textContent = title;
+    return tabEl;
+  });
+}
+
+function renderTabs(tabs, selectedId) {
+  card.innerHTML = '';
+  const tabElements = getTabElements(tabs, selectedId);
+  for (const tabElement of tabElements) {
+    card.append(tabElement);
+  }
+}
+
+let selectedTabIndex = 0;
+let tabsArray;
+
+function selectNextTab() {
+  selectedTabIndex = (selectedTabIndex + 1) % tabsArray.length;
+  renderTabs(tabsArray, selectedTabIndex);
+}
+
+browser.runtime.onMessage.addListener(({ type, tabs }) => {
+  if (type === 'initialize') {
+    tabsArray = tabs;
+    renderTabs(tabsArray, selectedTabIndex);
+  }
+
+  if (type === 'next-tab') {
+    selectNextTab();
   }
 });
 
@@ -24,7 +56,15 @@ function hideOverlay() {
 overlay.addEventListener('click', hideOverlay);
 
 document.addEventListener('keyup', ({ key }) => {
-  if (key === 'Alt') {
-    hideOverlay();
+  // if (key === 'Alt') {
+  //   hideOverlay();
+  // }
+});
+
+
+document.addEventListener('keydown', ({ key, ctrlKey, shiftKey }) => {
+  console.log(ctrlKey, key);
+  if (ctrlKey && key.toLowerCase() === 'y') {
+    selectNextTab();
   }
 });

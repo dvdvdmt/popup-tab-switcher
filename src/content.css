@@ -16,3 +16,11 @@
   width: 300px;
   height: 300px;
 }
+
+.popup-tab-switcher__tab {
+
+}
+
+.popup-tab-switcher__tab--selected::before {
+  content: '>'
+}
