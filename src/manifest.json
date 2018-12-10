@@ -21,8 +21,7 @@
   "commands": {
     "go_forward": {
       "suggested_key": {
-        "default": "Ctrl+Y",
-        "mac": "MacCtrl+Y"
+        "default": "Alt+Y"
       },
       "description": "Open recent tabs list. Select next"
     }
