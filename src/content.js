@@ -33,8 +33,20 @@ function renderTabs(tabs, selectedId) {
 let selectedTabIndex = 0;
 let tabsArray;
 
+/**
+ * Restricts result of a number increment between [0, maxInteger - 1]
+ */
+function rangedIncrement(number, increment, maxInteger) {
+  return (number + (increment % maxInteger) + maxInteger) % maxInteger;
+}
+
 function selectNextTab() {
-  selectedTabIndex = (selectedTabIndex + 1) % tabsArray.length;
+  selectedTabIndex = rangedIncrement(selectedTabIndex, +1, tabsArray.length);
+  renderTabs(tabsArray, selectedTabIndex);
+}
+
+function selectPreviousTab() {
+  selectedTabIndex = rangedIncrement(selectedTabIndex, -1, tabsArray.length);
   renderTabs(tabsArray, selectedTabIndex);
 }
 
@@ -42,10 +54,10 @@ browser.runtime.onMessage.addListener(({ type, tabs }) => {
   if (type === 'initialize') {
     tabsArray = tabs;
     renderTabs(tabsArray, selectedTabIndex);
-  }
-
-  if (type === 'next-tab') {
+  } else if (type === 'next') {
     selectNextTab();
+  } else if (type === 'previous') {
+    selectPreviousTab();
   }
 });
 

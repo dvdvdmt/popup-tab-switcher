@@ -19,11 +19,17 @@
     "default_popup": "popup.html"
   },
   "commands": {
-    "go_forward": {
+    "next": {
       "suggested_key": {
         "default": "Alt+Y"
       },
       "description": "Open recent tabs list. Select next"
+    },
+    "previous": {
+      "suggested_key": {
+        "default": "Alt+Shift+Y"
+      },
+      "description": "Open recent tabs list. Select previous"
     }
   }
 }

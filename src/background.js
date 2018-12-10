@@ -30,6 +30,6 @@ browser.commands.onCommand.addListener(async (command) => {
   // in content script because Chrome doesn't allow listening
   // for extension shortcuts in content scripts
   browser.tabs.sendMessage(currentTab.id, {
-    type: 'next-tab',
+    type: command,
   });
 });
