@@ -12,10 +12,13 @@ browser.commands.onCommand.addListener(async (command) => {
   if (!initializedTabs[currentTab.id]) {
     await browser.tabs.insertCSS({ file: 'content.css' });
     await browser.tabs.executeScript({ file: 'content.js' });
-    const allTabs = await browser.tabs.query({});
+    const otherTabs = (await browser.tabs.query({}))
+      .slice(0, maxTabsNumber)
+      .filter(({ windowId, index }) => windowId !== currentTab.windowId
+                                       && index !== currentTab.index);
     await browser.tabs.sendMessage(currentTab.id, {
       type: 'initialize',
-      tabs: allTabs.slice(0, maxTabsNumber)
+      tabs: [currentTab, ...otherTabs]
         .map(({ url, title, favIconUrl }) => ({
           url,
           title,
