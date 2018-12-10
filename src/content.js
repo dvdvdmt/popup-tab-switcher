@@ -60,11 +60,3 @@ document.addEventListener('keyup', ({ key }) => {
   //   hideOverlay();
   // }
 });
-
-
-document.addEventListener('keydown', ({ key, ctrlKey, shiftKey }) => {
-  console.log(ctrlKey, key);
-  if (ctrlKey && key.toLowerCase() === 'y') {
-    selectNextTab();
-  }
-});
