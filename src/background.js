@@ -1,7 +1,5 @@
 import browser from 'webextension-polyfill';
-
-const maxTabsNumber = 10;
-const initializedTabs = {};
+import * as tabs from './tabs';
 
 browser.commands.onCommand.addListener(async (command) => {
   const [currentTab] = await browser.tabs.query({
@@ -9,24 +7,17 @@ browser.commands.onCommand.addListener(async (command) => {
     currentWindow: true,
   });
 
-  if (!initializedTabs[currentTab.id]) {
+  if (!tabs.isInitialized(currentTab)) {
     await browser.tabs.insertCSS({ file: 'content.css' });
     await browser.tabs.executeScript({ file: 'content.js' });
-    const otherTabs = (await browser.tabs.query({}))
-      .slice(0, maxTabsNumber)
-      .filter(({ windowId, index }) => windowId !== currentTab.windowId
-                                       && index !== currentTab.index);
+
+    tabs.pushToRegistry(currentTab);
     await browser.tabs.sendMessage(currentTab.id, {
       type: 'initialize',
-      tabs: [currentTab, ...otherTabs]
-        .map(({ url, title, favIconUrl }) => ({
-          url,
-          title,
-          favIconUrl,
-        })),
+      tabs: tabs.getForRender(),
     });
 
-    initializedTabs[currentTab.id] = currentTab;
+    tabs.markAsInitialized(currentTab);
   }
 
   // Send separate message instead of listening 'keydown' event
