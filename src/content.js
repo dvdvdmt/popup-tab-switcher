@@ -50,10 +50,9 @@ function selectPreviousTab() {
   renderTabs(tabsArray, selectedTabIndex);
 }
 
-browser.runtime.onMessage.addListener(({ type, tabs }) => {
-  if (type === 'initialize') {
-    tabsArray = tabs;
-    renderTabs(tabsArray, selectedTabIndex);
+browser.runtime.onMessage.addListener(({ type, tabsData }) => {
+  if (type === 'update') {
+    tabsArray = tabsData;
   } else if (type === 'next') {
     selectNextTab();
   } else if (type === 'previous') {

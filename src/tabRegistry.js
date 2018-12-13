@@ -1,14 +1,14 @@
-const tabsRegistry = [];
-const maxTabsNumber = 10;
+let tabsRegistry = [];
+const maxTabsNumber = 7;
 const initializedTabs = {};
 
-export function pushToRegistry(current) {
+export function push(current) {
+  tabsRegistry = tabsRegistry.filter(({ id }) => id !== current.id);
   tabsRegistry.unshift(current);
-  return tabsRegistry
-    .filter(({ id }, i) => (i > 0 && id !== current.id) || i < maxTabsNumber);
+  tabsRegistry = tabsRegistry.slice(0, maxTabsNumber - 1);
 }
 
-export function getForRender(tabs = tabsRegistry) {
+export function getTabsData(tabs = tabsRegistry) {
   return tabs
     .map(({ url, title, favIconUrl }) => ({
       url,
