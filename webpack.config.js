@@ -27,15 +27,18 @@ const conf = {
       'src/popup.html',
       'src/content.css',
     ]),
-    new ChromeExtensionReloader(),
   ],
-
 };
 
 module.exports = (env, argv) => {
   if (env.production) {
     conf.mode = argv.mode;
     conf.devtool = 'source-map';
+  } else if (env.development) {
+    conf.plugins = [
+      ...conf.plugins,
+      new ChromeExtensionReloader(),
+    ];
   }
   return conf;
 };
