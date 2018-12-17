@@ -9,6 +9,7 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --env.production",
+    "build-e2e": "webpack --env.e2e",
     "start": "webpack --env.development --watch",
     "test": "mocha --require @babel/register ./**/*.unit.test.js",
     "lint": "eslint"

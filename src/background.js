@@ -17,6 +17,9 @@ browser.commands.onCommand.addListener(async (command) => {
   if (!tabRegistry.isInitialized(currentTab)) {
     await browser.tabs.insertCSS({ file: 'content.css' });
     await browser.tabs.executeScript({ file: 'content.js' });
+    if (E2E) {
+      console.log('inject script for handling e2e tests');
+    }
 
     tabRegistry.push(currentTab);
     await updateTabsData(currentTab.id, tabRegistry.getTabsData());

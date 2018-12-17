@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
 
@@ -30,14 +31,30 @@ const conf = {
   ],
 };
 
-module.exports = (env, argv) => {
+module.exports = (env) => {
   if (env.production) {
-    conf.mode = argv.mode;
+    conf.mode = 'production';
     conf.devtool = 'source-map';
+    conf.plugins = [
+      ...conf.plugins,
+      new webpack.DefinePlugin({
+        E2E: 'false',
+      }),
+    ];
   } else if (env.development) {
     conf.plugins = [
       ...conf.plugins,
+      new webpack.DefinePlugin({
+        E2E: 'false',
+      }),
       new ChromeExtensionReloader(),
+    ];
+  } else if (env.e2e) {
+    conf.plugins = [
+      ...conf.plugins,
+      new webpack.DefinePlugin({
+        E2E: 'true',
+      }),
     ];
   }
   return conf;
