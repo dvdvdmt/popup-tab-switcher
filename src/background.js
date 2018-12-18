@@ -8,18 +8,15 @@ async function updateTabsData(tabId, tabsData) {
   });
 }
 
-browser.commands.onCommand.addListener(async (command) => {
+async function handleCommand(command) {
   const [currentTab] = await browser.tabs.query({
     active: true,
     currentWindow: true,
   });
 
   if (!tabRegistry.isInitialized(currentTab)) {
-    await browser.tabs.insertCSS({ file: 'content.css' });
-    await browser.tabs.executeScript({ file: 'content.js' });
-    if (E2E) {
-      console.log('inject script for handling e2e tests');
-    }
+    await browser.tabs.insertCSS(currentTab.id, { file: 'content.css' });
+    await browser.tabs.executeScript(currentTab.id, { file: 'content.js' });
 
     tabRegistry.push(currentTab);
     await updateTabsData(currentTab.id, tabRegistry.getTabsData());
@@ -32,7 +29,9 @@ browser.commands.onCommand.addListener(async (command) => {
   browser.tabs.sendMessage(currentTab.id, {
     type: command,
   });
-});
+}
+
+browser.commands.onCommand.addListener(handleCommand);
 
 browser.tabs.onActivated.addListener(async () => {
   const [currentTab] = await browser.tabs.query({
@@ -44,3 +43,21 @@ browser.tabs.onActivated.addListener(async () => {
     await updateTabsData(currentTab.id, tabRegistry.getTabsData());
   }
 });
+
+if (E2E) {
+  browser.runtime.onConnect.addListener((port) => {
+    if (port.name === 'commands bridge') {
+      port.onMessage.addListener(async ({ command }) => {
+        await handleCommand(command);
+      });
+    }
+  });
+
+  const tabsWithCommandsBridge = {};
+  browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+    if (changeInfo.status === 'complete' && !tabsWithCommandsBridge[tabId]) {
+      await browser.tabs.executeScript(tabId, { file: 'e2eTestCommandsBridge.js' });
+      tabsWithCommandsBridge[tabId] = true;
+    }
+  });
+}

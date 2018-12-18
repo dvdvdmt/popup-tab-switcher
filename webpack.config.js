@@ -9,6 +9,7 @@ const conf = {
   entry: {
     background: './src/background.js',
     content: './src/content.js',
+    e2eTestCommandsBridge: './src/e2eTestCommandsBridge.js',
   },
 
   output: {

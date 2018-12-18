@@ -1,5 +1,9 @@
 {
   "extends": "airbnb-base",
+  "globals": {
+    "E2E": true,
+    "window": true
+  },
   "rules": {
     "no-restricted-syntax": "off",
     "prefer-destructuring": "warn"

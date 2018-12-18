@@ -67,7 +67,7 @@ function hideOverlay() {
 overlay.addEventListener('click', hideOverlay);
 
 document.addEventListener('keyup', ({ key }) => {
-  // if (key === 'Alt') {
-  //   hideOverlay();
-  // }
+  if (key === 'Alt') {
+    hideOverlay();
+  }
 });
