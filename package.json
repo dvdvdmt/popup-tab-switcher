@@ -8,11 +8,12 @@
   },
   "main": "index.js",
   "scripts": {
-    "build": "webpack --env.production",
-    "build-e2e": "webpack --env.e2e",
-    "start": "webpack --env.development --watch",
+    "build": "npm run clean && webpack --env.production",
+    "build-e2e": "npm run clean && webpack --env.e2e",
+    "start": "npm run clean && webpack --env.development --watch",
     "test": "mocha --require @babel/register ./**/*.unit.test.js",
     "test-e2e": "npm run build-e2e && node ./src/e2e.test.js",
+    "clean": "rm -rf dist",
     "lint": "eslint"
   },
   "keywords": [
