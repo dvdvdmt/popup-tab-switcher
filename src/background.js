@@ -53,11 +53,9 @@ if (E2E) {
     }
   });
 
-  const tabsWithCommandsBridge = {};
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
-    if (changeInfo.status === 'complete' && !tabsWithCommandsBridge[tabId]) {
+    if (changeInfo.status === 'complete') {
       await browser.tabs.executeScript(tabId, { file: 'e2eTestCommandsBridge.js' });
-      tabsWithCommandsBridge[tabId] = true;
     }
   });
 }

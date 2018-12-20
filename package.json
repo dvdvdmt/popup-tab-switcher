@@ -12,7 +12,7 @@
     "build-e2e": "npm run clean && webpack --env.e2e",
     "start": "npm run clean && webpack --env.development --watch",
     "test": "mocha --require @babel/register ./**/*.unit.test.js",
-    "test-e2e": "npm run build-e2e && node ./src/e2e.test.js",
+    "test-e2e": "npm run build-e2e && mocha ./**/*.e2e.test.js",
     "clean": "rm -rf dist",
     "lint": "eslint"
   },
