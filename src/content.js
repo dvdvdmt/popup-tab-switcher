@@ -10,6 +10,14 @@ card.className = 'popup-tab-switcher__card';
 overlay.append(card);
 document.body.append(overlay);
 
+function hideOverlay() {
+  overlay.style.display = 'none';
+}
+
+function showOverlay() {
+  overlay.style.display = 'flex';
+}
+
 function getTabElements(tabs, selectedId) {
   return tabs.map(({ title }, i) => {
     const tabEl = document.createElement('div');
@@ -28,6 +36,7 @@ function renderTabs(tabs, selectedId) {
   for (const tabElement of tabElements) {
     card.append(tabElement);
   }
+  showOverlay();
 }
 
 let selectedTabIndex = 0;
@@ -59,10 +68,6 @@ browser.runtime.onMessage.addListener(({ type, tabsData }) => {
     selectPreviousTab();
   }
 });
-
-function hideOverlay() {
-  overlay.style.display = 'none';
-}
 
 overlay.addEventListener('click', hideOverlay);
 
