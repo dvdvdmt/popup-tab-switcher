@@ -2,10 +2,27 @@ let tabs = [];
 const maxTabsNumber = 7;
 const initializedTabs = {};
 
+export function addToInitialized(tab) {
+  initializedTabs[tab.id] = tab;
+}
+
+export function removeFromInitialized(tabId) {
+  delete initializedTabs[tabId];
+}
+
 export function push(current) {
   tabs = tabs.filter(({ id }) => id !== current.id);
   tabs.unshift(current);
   tabs = tabs.slice(0, maxTabsNumber - 1);
+}
+
+export function remove(tabId) {
+  tabs = tabs.filter(({ id }) => id !== tabId);
+  removeFromInitialized(tabId);
+}
+
+export function init(initialTabs = []) {
+  tabs = initialTabs;
 }
 
 export function getTabs() {
@@ -23,8 +40,4 @@ export function getTabsData() {
 
 export function isInitialized(tab) {
   return initializedTabs[tab.id];
-}
-
-export function markAsInitialized(tab) {
-  initializedTabs[tab.id] = tab;
 }

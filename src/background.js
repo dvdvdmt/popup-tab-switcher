@@ -20,7 +20,7 @@ async function handleCommand(command) {
 
     tabRegistry.push(currentTab);
     await updateTabsData(currentTab.id, tabRegistry.getTabsData());
-    tabRegistry.markAsInitialized(currentTab);
+    tabRegistry.addToInitialized(currentTab);
   }
 
   // Send separate message instead of listening 'keydown' event
@@ -42,6 +42,16 @@ browser.tabs.onActivated.addListener(async () => {
   if (tabRegistry.isInitialized(currentTab)) {
     await updateTabsData(currentTab.id, tabRegistry.getTabsData());
   }
+});
+
+browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+  if (changeInfo.status === 'complete') {
+    tabRegistry.removeFromInitialized(tabId);
+  }
+});
+
+browser.tabs.onRemoved.addListener(async (tabId) => {
+  tabRegistry.remove(tabId);
 });
 
 if (E2E) {

@@ -3,6 +3,9 @@ const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
 
+const buildProdFolder = path.resolve(__dirname, 'build-prod');
+const buildDevFolder = path.resolve(__dirname, 'build-dev');
+const buildE2eFolder = path.resolve(__dirname, 'build-e2e');
 const conf = {
   mode: 'development',
 
@@ -14,7 +17,7 @@ const conf = {
 
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, 'dist'),
+    path: buildDevFolder,
   },
 
   devtool: 'eval-source-map',
@@ -36,6 +39,7 @@ module.exports = (env) => {
   if (env.production) {
     conf.mode = 'production';
     conf.devtool = 'source-map';
+    conf.output.path = buildProdFolder;
     conf.plugins = [
       ...conf.plugins,
       new webpack.DefinePlugin({
@@ -51,6 +55,7 @@ module.exports = (env) => {
       new ChromeExtensionReloader(),
     ];
   } else if (env.e2e) {
+    conf.output.path = buildE2eFolder;
     conf.plugins = [
       ...conf.plugins,
       new webpack.DefinePlugin({
