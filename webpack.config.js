@@ -21,43 +21,51 @@ const conf = {
   },
 
   devtool: 'eval-source-map',
-
-  plugins: [
-    new CopyWebpackPlugin([
-      'src/manifest.json',
-      {
-        from: 'src/images/',
-        to: 'images',
-      },
-      'src/popup.html',
-      'src/content.css',
-    ]),
-  ],
 };
 
 module.exports = (env) => {
+  const copyWebpackPluginOptions = [
+    {
+      from: 'src/manifest.json',
+      transform(content) {
+        // generates the manifest file using the package.json information
+        return JSON.stringify({
+          description: process.env.npm_package_description,
+          version: process.env.npm_package_version,
+          ...JSON.parse(content.toString()),
+          ...(env.development ? { content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'" } : {}),
+        }, null, 2);
+      },
+    },
+    {
+      from: 'src/images/',
+      to: 'images',
+    },
+    'src/popup.html',
+    'src/content.css',
+  ];
   if (env.production) {
     conf.mode = 'production';
     conf.devtool = 'source-map';
     conf.output.path = buildProdFolder;
     conf.plugins = [
-      ...conf.plugins,
+      new CopyWebpackPlugin(copyWebpackPluginOptions),
       new webpack.DefinePlugin({
         E2E: 'false',
       }),
     ];
   } else if (env.development) {
     conf.plugins = [
-      ...conf.plugins,
+      new CopyWebpackPlugin(copyWebpackPluginOptions),
       new webpack.DefinePlugin({
         E2E: 'false',
       }),
-      new ChromeExtensionReloader(),
+      env.watch ? new ChromeExtensionReloader() : () => {},
     ];
   } else if (env.e2e) {
     conf.output.path = buildE2eFolder;
     conf.plugins = [
-      ...conf.plugins,
+      new CopyWebpackPlugin(copyWebpackPluginOptions),
       new webpack.DefinePlugin({
         E2E: 'true',
       }),
