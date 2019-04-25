@@ -26,7 +26,7 @@ async function handleCommand(command) {
   // Send separate message instead of listening 'keydown' event
   // in content script because Chrome doesn't allow listening
   // for extension shortcuts in content scripts
-  browser.tabs.sendMessage(currentTab.id, {
+  await browser.tabs.sendMessage(currentTab.id, {
     type: command,
   });
 }
@@ -54,6 +54,7 @@ browser.tabs.onRemoved.addListener(async (tabId) => {
   tabRegistry.remove(tabId);
 });
 
+// code that runs only in end-to-end tests
 if (E2E) {
   browser.runtime.onConnect.addListener((port) => {
     if (port.name === 'commands bridge') {
