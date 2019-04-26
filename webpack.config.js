@@ -63,6 +63,8 @@ module.exports = (env) => {
       env.watch ? new ChromeExtensionReloader() : () => {},
     ];
   } else if (env.e2e) {
+    conf.mode = 'production';
+    conf.devtool = 'source-map';
     conf.output.path = buildE2eFolder;
     conf.plugins = [
       new CopyWebpackPlugin(copyWebpackPluginOptions),
