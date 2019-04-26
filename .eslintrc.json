@@ -18,6 +18,12 @@
         "prefer-arrow-callback": "off",
         "func-names": "off"
       }
+    },
+    {
+      "files": "*e2e.test.js",
+      "env": {
+        "browser": true
+      }
     }
   ]
 }
