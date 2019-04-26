@@ -31,14 +31,16 @@ async function openPopup(page) {
   await page.keyboard.press('KeyY');
 }
 
+async function closeTabs() {
+  await Promise.all((await browser.pages()).map(p => p.close()));
+}
+
 describe('Pop-up', function () {
   this.timeout(10000);
   describe('One page', function () {
     let page;
 
-    after(async () => {
-      (await browser.pages()).forEach(p => p.close());
-    });
+    after(closeTabs);
 
     beforeEach(async () => {
       [page] = await browser.pages();
@@ -48,24 +50,28 @@ describe('Pop-up', function () {
     async function popupOpens() {
       await openPopup(page);
 
-      const display = await page.$eval('.popup-tab-switcher', popup => getComputedStyle(popup).getPropertyValue('display'));
+      const display = await page.$eval('.popup-tab-switcher', popup => getComputedStyle(popup)
+        .getPropertyValue('display'));
       assert.notStrictEqual(display, 'none', 'popup visible');
     }
 
-    it('opens on "Alt+Y"', popupOpens);
+    it('Opens on "Alt+Y"', popupOpens);
 
-    it('works after page reload', popupOpens);
+    it('Works after page reload', popupOpens);
 
-    it('hides on "Alt" release', async () => {
+    it('Hides on "Alt" release', async () => {
       await popupOpens();
 
       await page.keyboard.up('Alt');
-      const display = await page.$eval('.popup-tab-switcher', popup => getComputedStyle(popup).getPropertyValue('display'));
+      const display = await page.$eval('.popup-tab-switcher', popup => getComputedStyle(popup)
+        .getPropertyValue('display'));
       assert.strictEqual(display, 'none', 'popup hidden');
     });
   });
   describe('Many pages', function () {
-    it('adds visited pages to the registry in correct order', async () => {
+    beforeEach(closeTabs);
+
+    it('Adds visited pages to the registry in correct order', async () => {
       const expectedTexts = [
         'About - Stack Overflow',
         'Example Domain',
@@ -81,14 +87,22 @@ describe('Pop-up', function () {
       const elTexts = await pageStOverflow.$$eval('.popup-tab-switcher__tab', els => els.map(el => el.textContent));
       assert.deepStrictEqual(elTexts, expectedTexts, '3 tabs were added');
     });
-    // it('preserves the list of tabs registry after page reload', async () => {
-    //   const [pageWikipedia] = await browser.pages();
-    //   await pageWikipedia.goto(getPagePath('wikipedia'));
-    //   const pageExample = await browser.newPage();
-    //   await pageExample.goto(getPagePath('example'));
-    //   const pageStack = await browser.newPage();
-    //   await pageStack.goto(getPagePath('stackoverflow'));
-    //   await openPopup(pageStack);
-    // });
+
+    it('Updates tab list on closing open tabs', async () => {
+      const expectedTexts = [
+        'About - Stack Overflow',
+        'Wikipedia',
+      ];
+      const pageWikipedia = await browser.newPage();
+      await pageWikipedia.goto(getPagePath('wikipedia'));
+      const pageExample = await browser.newPage();
+      await pageExample.goto(getPagePath('example'));
+      const pageStOverflow = await browser.newPage();
+      await pageStOverflow.goto(getPagePath('stackoverflow'));
+      await pageExample.close();
+      await openPopup(pageStOverflow);
+      const elTexts = await pageStOverflow.$$eval('.popup-tab-switcher__tab', els => els.map(el => el.textContent));
+      assert.deepStrictEqual(elTexts, expectedTexts, '2 tabs were left');
+    });
   });
 });
