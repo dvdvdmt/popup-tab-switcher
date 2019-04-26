@@ -66,6 +66,11 @@ describe('Pop-up', function () {
   });
   describe('Many pages', function () {
     it('adds visited pages to the registry in correct order', async () => {
+      const expectedTexts = [
+        'About - Stack Overflow',
+        'Example Domain',
+        'Wikipedia',
+      ];
       const pageWikipedia = await browser.newPage();
       await pageWikipedia.goto(getPagePath('wikipedia'));
       const pageExample = await browser.newPage();
@@ -73,8 +78,8 @@ describe('Pop-up', function () {
       const pageStOverflow = await browser.newPage();
       await pageStOverflow.goto(getPagePath('stackoverflow'));
       await openPopup(pageStOverflow);
-      const tabs = await pageStOverflow.$$('.popup-tab-switcher__tab');
-      assert.strictEqual(tabs.length, 3, '3 tabs were added');
+      const elTexts = await pageStOverflow.$$eval('.popup-tab-switcher__tab', els => els.map(el => el.textContent));
+      assert.deepStrictEqual(elTexts, expectedTexts, '3 tabs were added');
     });
     // it('preserves the list of tabs registry after page reload', async () => {
     //   const [pageWikipedia] = await browser.pages();

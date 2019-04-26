@@ -21,6 +21,15 @@ export function remove(tabId) {
   removeFromInitialized(tabId);
 }
 
+export function update(tabToUpdate) {
+  tabs = tabs.map((t) => {
+    if (t.id === tabToUpdate.id) {
+      return tabToUpdate;
+    }
+    return t;
+  });
+}
+
 export function init(initialTabs = []) {
   tabs = initialTabs;
 }

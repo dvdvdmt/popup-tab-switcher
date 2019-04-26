@@ -44,9 +44,10 @@ browser.tabs.onActivated.addListener(async () => {
   }
 });
 
-browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete') {
     tabRegistry.removeFromInitialized(tabId);
+    tabRegistry.update(tab);
   }
 });
 
