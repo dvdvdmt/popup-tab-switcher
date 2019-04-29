@@ -5,7 +5,7 @@ const puppeteer = require('puppeteer');
 const pathToExtension = path.join(__dirname, '../build-e2e');
 const launchOptions = {
   headless: false,
-  slowMo: 50,
+  slowMo: 20,
   args: [
     `--disable-extensions-except=${pathToExtension}`,
     `--load-extension=${pathToExtension}`,
@@ -103,6 +103,29 @@ describe('Pop-up', function () {
       await openPopup(pageStOverflow);
       const elTexts = await pageStOverflow.$$eval('.popup-tab-switcher__tab', els => els.map(el => el.textContent));
       assert.deepStrictEqual(elTexts, expectedTexts, '2 tabs were left');
+    });
+
+    it('Selects proper tab names in the popup', async () => {
+      const pageWikipedia = await browser.newPage();
+      await pageWikipedia.goto(getPagePath('wikipedia'));
+      const pageExample = await browser.newPage();
+      await pageExample.goto(getPagePath('example'));
+      const pageStOverflow = await browser.newPage();
+      await pageStOverflow.goto(getPagePath('stackoverflow'));
+      await openPopup(pageStOverflow);
+      let elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
+      assert.strictEqual(elText, 'Example Domain');
+      await pageStOverflow.keyboard.press('KeyY');
+      elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
+      await pageStOverflow.keyboard.press('KeyY');
+      elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
+      assert.strictEqual(elText, 'About - Stack Overflow');
+      await pageStOverflow.keyboard.up('Alt');
+      await pageExample.close();
+      await openPopup(pageStOverflow);
+      elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
     });
   });
 });

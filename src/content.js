@@ -60,9 +60,8 @@ function selectPreviousTab() {
 }
 
 browser.runtime.onMessage.addListener(({ type, tabsData }) => {
-  if (type === 'update') {
-    tabsArray = tabsData;
-  } else if (type === 'next') {
+  tabsArray = tabsData;
+  if (type === 'next') {
     selectNextTab();
   } else if (type === 'previous') {
     selectPreviousTab();

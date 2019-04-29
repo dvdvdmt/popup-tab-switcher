@@ -1,13 +1,6 @@
 import browser from 'webextension-polyfill';
 import * as tabRegistry from './tabRegistry';
 
-async function updateTabsData(tabId, tabsData) {
-  await browser.tabs.sendMessage(tabId, {
-    type: 'update',
-    tabsData,
-  });
-}
-
 async function handleCommand(command) {
   const [currentTab] = await browser.tabs.query({
     active: true,
@@ -19,7 +12,6 @@ async function handleCommand(command) {
     await browser.tabs.executeScript(currentTab.id, { file: 'content.js' });
 
     tabRegistry.push(currentTab);
-    await updateTabsData(currentTab.id, tabRegistry.getTabsData());
     tabRegistry.addToInitialized(currentTab);
   }
 
@@ -28,6 +20,7 @@ async function handleCommand(command) {
   // for extension shortcuts in content scripts
   await browser.tabs.sendMessage(currentTab.id, {
     type: command,
+    tabsData: tabRegistry.getTabsData(),
   });
 }
 
@@ -38,9 +31,9 @@ browser.tabs.onActivated.addListener(async () => {
     active: true,
     currentWindow: true,
   });
-  tabRegistry.push(currentTab);
-  if (tabRegistry.isInitialized(currentTab)) {
-    await updateTabsData(currentTab.id, tabRegistry.getTabsData());
+  // the tab can be instantly closed and therefore currentTab can be null
+  if (currentTab) {
+    tabRegistry.push(currentTab);
   }
 });
 
@@ -55,6 +48,10 @@ browser.tabs.onRemoved.addListener(async (tabId) => {
   tabRegistry.remove(tabId);
 });
 
+function isAllowedUrl(url) {
+  return url !== 'about:blank' && !url.startsWith('chrome:');
+}
+
 // code that runs only in end-to-end tests
 if (E2E) {
   browser.runtime.onConnect.addListener((port) => {
@@ -65,8 +62,8 @@ if (E2E) {
     }
   });
 
-  browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
-    if (changeInfo.status === 'complete') {
+  browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    if (changeInfo.status === 'complete' && isAllowedUrl(tab.url)) {
       await browser.tabs.executeScript(tabId, { file: 'e2eTestCommandsBridge.js' });
     }
   });
