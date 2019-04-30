@@ -31,6 +31,21 @@ async function openPopup(page) {
   await page.keyboard.press('KeyY');
 }
 
+async function getActiveTab() {
+  const pages = await browser.pages();
+  const promises = pages.map((p, i) => p.evaluate(index => document.visibilityState === 'visible' && index, `${i}`));
+  return pages[(await Promise.all(promises)).find(i => i)];
+}
+
+async function switchTab(page, times = 1) {
+  for (let i = 0; i < times; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    await openPopup(page);
+  }
+  await page.keyboard.up('Alt');
+  return getActiveTab();
+}
+
 async function closeTabs() {
   await Promise.all((await browser.pages()).map(p => p.close()));
 }
@@ -126,6 +141,30 @@ describe('Pop-up', function () {
       await openPopup(pageStOverflow);
       elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
+    });
+
+    it('Switches between tabs on Alt release', async () => {
+      const pageWikipedia = await browser.newPage();
+      await pageWikipedia.goto(getPagePath('wikipedia'));
+      const pageExample = await browser.newPage();
+      await pageExample.goto(getPagePath('example'));
+      const pageStOverflow = await browser.newPage();
+      await pageStOverflow.goto(getPagePath('stackoverflow'));
+      let curTab = await switchTab(pageStOverflow);
+      let elText = await curTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'Example Domain');
+      curTab = await switchTab(curTab);
+      elText = await curTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'About - Stack Overflow');
+      curTab = await switchTab(curTab, 2);
+      elText = await curTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
+      curTab = await switchTab(curTab, 3);
+      elText = await curTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
+      curTab = await switchTab(curTab, 2);
+      elText = await curTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'Example Domain');
     });
   });
 });

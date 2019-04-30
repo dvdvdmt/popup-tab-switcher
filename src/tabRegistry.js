@@ -40,7 +40,10 @@ export function getTabs() {
 
 export function getTabsData() {
   return tabs
-    .map(({ url, title, favIconUrl }) => ({
+    .map(({
+      id, url, title, favIconUrl,
+    }) => ({
+      id,
       url,
       title,
       favIconUrl,

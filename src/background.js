@@ -52,6 +52,14 @@ function isAllowedUrl(url) {
   return url !== 'about:blank' && !url.startsWith('chrome:');
 }
 
+browser.runtime.onConnect.addListener((port) => {
+  if (port.name === 'content script') {
+    port.onMessage.addListener(async ({ selectedTab }) => {
+      await browser.tabs.update(selectedTab.id, { active: true });
+    });
+  }
+});
+
 // code that runs only in end-to-end tests
 if (E2E) {
   browser.runtime.onConnect.addListener((port) => {

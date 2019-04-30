@@ -60,7 +60,12 @@ module.exports = (env) => {
       new webpack.DefinePlugin({
         E2E: 'false',
       }),
-      env.watch ? new ChromeExtensionReloader() : () => {},
+      env.watch ? new ChromeExtensionReloader({
+        entries: {
+          contentScript: 'content',
+          background: 'background',
+        },
+      }) : () => {},
     ];
   } else if (env.e2e) {
     conf.mode = 'production';

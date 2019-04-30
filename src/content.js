@@ -70,8 +70,12 @@ browser.runtime.onMessage.addListener(({ type, tabsData }) => {
 
 overlay.addEventListener('click', hideOverlay);
 
+const port = browser.runtime.connect({ name: 'content script' });
+
 document.addEventListener('keyup', ({ key }) => {
   if (key === 'Alt') {
     hideOverlay();
+    port.postMessage({ command: 'switch tab', selectedTab: tabsArray[selectedTabIndex] });
+    selectedTabIndex = 0;
   }
 });
