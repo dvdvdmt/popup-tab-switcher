@@ -26,23 +26,37 @@ function getPagePath(pageName) {
   return `file:${path.join(__dirname, 'web-pages', pageName, 'index.html')}`;
 }
 
-async function openPopup(page) {
-  await page.keyboard.down('Alt');
-  await page.keyboard.press('KeyY');
-}
-
 async function getActiveTab() {
   const pages = await browser.pages();
   const promises = pages.map((p, i) => p.evaluate(index => document.visibilityState === 'visible' && index, `${i}`));
   return pages[(await Promise.all(promises)).find(i => i)];
 }
 
+async function selectTabForward() {
+  const page = await getActiveTab();
+  await page.keyboard.down('Alt');
+  await page.keyboard.press('KeyY');
+}
+
+async function selectTabBackward() {
+  const page = await getActiveTab();
+  await page.keyboard.down('Alt');
+  await page.keyboard.down('Shift');
+  await page.keyboard.press('KeyY');
+}
+
+async function switchToSelectedTab() {
+  const page = await getActiveTab();
+  await page.keyboard.up('Alt');
+  await page.keyboard.up('Shift');
+}
+
 async function switchTab(page, times = 1) {
   for (let i = 0; i < times; i += 1) {
     // eslint-disable-next-line no-await-in-loop
-    await openPopup(page);
+    await selectTabForward(page);
   }
-  await page.keyboard.up('Alt');
+  await switchToSelectedTab();
   return getActiveTab();
 }
 
@@ -51,7 +65,7 @@ async function closeTabs() {
 }
 
 describe('Pop-up', function () {
-  this.timeout(10000);
+  this.timeout(100000);
   describe('One page', function () {
     let page;
 
@@ -63,7 +77,7 @@ describe('Pop-up', function () {
     });
 
     async function popupOpens() {
-      await openPopup(page);
+      await selectTabForward();
 
       const display = await page.$eval('.popup-tab-switcher', popup => getComputedStyle(popup)
         .getPropertyValue('display'));
@@ -98,7 +112,7 @@ describe('Pop-up', function () {
       await pageExample.goto(getPagePath('example'));
       const pageStOverflow = await browser.newPage();
       await pageStOverflow.goto(getPagePath('stackoverflow'));
-      await openPopup(pageStOverflow);
+      await selectTabForward();
       const elTexts = await pageStOverflow.$$eval('.popup-tab-switcher__tab', els => els.map(el => el.textContent));
       assert.deepStrictEqual(elTexts, expectedTexts, '3 tabs were added');
     });
@@ -115,7 +129,7 @@ describe('Pop-up', function () {
       const pageStOverflow = await browser.newPage();
       await pageStOverflow.goto(getPagePath('stackoverflow'));
       await pageExample.close();
-      await openPopup(pageStOverflow);
+      await selectTabForward();
       const elTexts = await pageStOverflow.$$eval('.popup-tab-switcher__tab', els => els.map(el => el.textContent));
       assert.deepStrictEqual(elTexts, expectedTexts, '2 tabs were left');
     });
@@ -127,7 +141,7 @@ describe('Pop-up', function () {
       await pageExample.goto(getPagePath('example'));
       const pageStOverflow = await browser.newPage();
       await pageStOverflow.goto(getPagePath('stackoverflow'));
-      await openPopup(pageStOverflow);
+      await selectTabForward();
       let elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
       assert.strictEqual(elText, 'Example Domain');
       await pageStOverflow.keyboard.press('KeyY');
@@ -136,9 +150,16 @@ describe('Pop-up', function () {
       await pageStOverflow.keyboard.press('KeyY');
       elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
       assert.strictEqual(elText, 'About - Stack Overflow');
-      await pageStOverflow.keyboard.up('Alt');
+      await switchToSelectedTab();
+      await selectTabBackward();
+      elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
+      await selectTabBackward();
+      elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
+      assert.strictEqual(elText, 'Example Domain');
+      await selectTabBackward(); // selected About - Stack Overflow
       await pageExample.close();
-      await openPopup(pageStOverflow);
+      await selectTabForward();
       elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
     });
