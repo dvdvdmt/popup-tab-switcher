@@ -46,6 +46,10 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
 browser.tabs.onRemoved.addListener(async (tabId) => {
   tabRegistry.remove(tabId);
+  const currentTab = tabRegistry.getTabs()[0];
+  if (currentTab) {
+    await browser.tabs.update(currentTab.id, { active: true });
+  }
 });
 
 function isAllowedUrl(url) {

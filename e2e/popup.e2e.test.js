@@ -51,10 +51,10 @@ async function switchToSelectedTab() {
   await page.keyboard.up('Shift');
 }
 
-async function switchTab(page, times = 1) {
+async function switchTab(times = 1) {
   for (let i = 0; i < times; i += 1) {
     // eslint-disable-next-line no-await-in-loop
-    await selectTabForward(page);
+    await selectTabForward();
   }
   await switchToSelectedTab();
   return getActiveTab();
@@ -171,21 +171,42 @@ describe('Pop-up', function () {
       await pageExample.goto(getPagePath('example'));
       const pageStOverflow = await browser.newPage();
       await pageStOverflow.goto(getPagePath('stackoverflow'));
-      let curTab = await switchTab(pageStOverflow);
+      let curTab = await switchTab();
       let elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Example Domain');
-      curTab = await switchTab(curTab);
+      curTab = await switchTab();
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'About - Stack Overflow');
-      curTab = await switchTab(curTab, 2);
+      curTab = await switchTab(2);
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
-      curTab = await switchTab(curTab, 3);
+      curTab = await switchTab(3);
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
-      curTab = await switchTab(curTab, 2);
+      curTab = await switchTab(2);
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Example Domain');
+    });
+
+    it('Switches to previously opened tab when current one closes', async () => {
+      let pageWikipedia = await browser.newPage();
+      await pageWikipedia.goto(getPagePath('wikipedia'));
+      const pageExample = await browser.newPage();
+      await pageExample.goto(getPagePath('example'));
+      const pageStOverflow = await browser.newPage();
+      await pageStOverflow.goto(getPagePath('stackoverflow'));
+      await pageWikipedia.bringToFront();
+      await pageWikipedia.close();
+      let curTab = await getActiveTab();
+      let elText = await curTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'About - Stack Overflow');
+      pageWikipedia = await browser.newPage();
+      await pageWikipedia.goto(getPagePath('wikipedia'));
+      await pageExample.bringToFront();
+      await pageExample.close();
+      curTab = await getActiveTab();
+      elText = await curTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
     });
   });
 });
