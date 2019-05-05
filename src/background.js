@@ -8,7 +8,6 @@ async function handleCommand(command) {
   });
 
   if (!tabRegistry.isInitialized(currentTab)) {
-    await browser.tabs.insertCSS(currentTab.id, { file: 'content.css' });
     await browser.tabs.executeScript(currentTab.id, { file: 'content.js' });
 
     tabRegistry.push(currentTab);

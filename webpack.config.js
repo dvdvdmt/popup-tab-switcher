@@ -20,6 +20,25 @@ const conf = {
     path: buildDevFolder,
   },
 
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+              importLoaders: 1,
+              localIdentName: '[name]__[local]___[hash:base64:5]',
+            },
+          },
+        ],
+      },
+    ],
+  },
+
   devtool: 'eval-source-map',
 };
 
@@ -42,7 +61,6 @@ module.exports = (env) => {
       to: 'images',
     },
     'src/popup.html',
-    'src/content.css',
   ];
   if (env.production) {
     conf.mode = 'production';

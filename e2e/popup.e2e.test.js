@@ -65,7 +65,7 @@ async function closeTabs() {
 }
 
 describe('Pop-up', function () {
-  this.timeout(100000);
+  this.timeout(1000000);
   describe('One page', function () {
     let page;
 
@@ -79,7 +79,7 @@ describe('Pop-up', function () {
     async function popupOpens() {
       await selectTabForward();
 
-      const display = await page.$eval('.popup-tab-switcher', popup => getComputedStyle(popup)
+      const display = await page.$eval('[class*=content__overlay]', popup => getComputedStyle(popup)
         .getPropertyValue('display'));
       assert.notStrictEqual(display, 'none', 'popup visible');
     }
@@ -92,7 +92,7 @@ describe('Pop-up', function () {
       await popupOpens();
 
       await page.keyboard.up('Alt');
-      const display = await page.$eval('.popup-tab-switcher', popup => getComputedStyle(popup)
+      const display = await page.$eval('[class*=content__overlay]', popup => getComputedStyle(popup)
         .getPropertyValue('display'));
       assert.strictEqual(display, 'none', 'popup hidden');
     });
@@ -113,7 +113,7 @@ describe('Pop-up', function () {
       const pageStOverflow = await browser.newPage();
       await pageStOverflow.goto(getPagePath('stackoverflow'));
       await selectTabForward();
-      const elTexts = await pageStOverflow.$$eval('.popup-tab-switcher__tab', els => els.map(el => el.textContent));
+      const elTexts = await pageStOverflow.$$eval('[class*=content__tab]', els => els.map(el => el.textContent));
       assert.deepStrictEqual(elTexts, expectedTexts, '3 tabs were added');
     });
 
@@ -130,7 +130,7 @@ describe('Pop-up', function () {
       await pageStOverflow.goto(getPagePath('stackoverflow'));
       await pageExample.close();
       await selectTabForward();
-      const elTexts = await pageStOverflow.$$eval('.popup-tab-switcher__tab', els => els.map(el => el.textContent));
+      const elTexts = await pageStOverflow.$$eval('[class*=content__tab]', els => els.map(el => el.textContent));
       assert.deepStrictEqual(elTexts, expectedTexts, '2 tabs were left');
     });
 
@@ -142,25 +142,25 @@ describe('Pop-up', function () {
       const pageStOverflow = await browser.newPage();
       await pageStOverflow.goto(getPagePath('stackoverflow'));
       await selectTabForward();
-      let elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
+      let elText = await pageStOverflow.$eval('[class*=content__tab_selected]', el => el.textContent);
       assert.strictEqual(elText, 'Example Domain');
       await pageStOverflow.keyboard.press('KeyY');
-      elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
+      elText = await pageStOverflow.$eval('[class*=content__tab_selected]', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
       await pageStOverflow.keyboard.press('KeyY');
-      elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
+      elText = await pageStOverflow.$eval('[class*=content__tab_selected]', el => el.textContent);
       assert.strictEqual(elText, 'About - Stack Overflow');
       await switchToSelectedTab();
       await selectTabBackward();
-      elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
+      elText = await pageStOverflow.$eval('[class*=content__tab_selected]', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
       await selectTabBackward();
-      elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
+      elText = await pageStOverflow.$eval('[class*=content__tab_selected]', el => el.textContent);
       assert.strictEqual(elText, 'Example Domain');
       await selectTabBackward(); // selected About - Stack Overflow
       await pageExample.close();
       await selectTabForward();
-      elText = await pageStOverflow.$eval('.popup-tab-switcher__tab--selected', el => el.textContent);
+      elText = await pageStOverflow.$eval('[class*=content__tab_selected]', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
     });
 

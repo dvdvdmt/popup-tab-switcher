@@ -1,11 +1,12 @@
 /* eslint-disable no-undef */
 import browser from 'webextension-polyfill';
+import styles from './content.css';
 
 const overlay = document.createElement('div');
-overlay.className = 'popup-tab-switcher';
+overlay.className = styles.overlay;
 
 const card = document.createElement('pre');
-card.className = 'popup-tab-switcher__card';
+card.className = styles.card;
 
 overlay.append(card);
 document.body.append(overlay);
@@ -21,9 +22,9 @@ function showOverlay() {
 function getTabElements(tabs, selectedId) {
   return tabs.map(({ title }, i) => {
     const tabEl = document.createElement('div');
-    tabEl.className = 'popup-tab-switcher__tab';
+    tabEl.className = styles.tab;
     if (i === selectedId) {
-      tabEl.classList.add('popup-tab-switcher__tab--selected');
+      tabEl.classList.add(styles.tab_selected);
     }
     tabEl.textContent = title;
     return tabEl;

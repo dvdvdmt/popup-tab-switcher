@@ -1,4 +1,4 @@
-.popup-tab-switcher {
+.overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -10,17 +10,17 @@
   z-index: 1000;
 }
 
-.popup-tab-switcher__card {
+.card {
   background: gray;
   color: white;
   width: 300px;
   height: 300px;
 }
 
-.popup-tab-switcher__tab {
+.tab {
 
 }
 
-.popup-tab-switcher__tab--selected::before {
+.tab_selected::before {
   content: '>'
 }
