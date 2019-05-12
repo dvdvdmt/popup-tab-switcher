@@ -2,7 +2,13 @@
 import browser from 'webextension-polyfill';
 import styles from './content.css';
 
+const sizes = {
+  popupWidth: 300,
+  popupHeight: 300,
+  font: 16,
+};
 const overlay = document.createElement('div');
+overlay.style.display = 'none';
 overlay.className = styles.overlay;
 
 const card = document.createElement('pre');
@@ -16,6 +22,9 @@ function hideOverlay() {
 }
 
 function showOverlay() {
+  overlay.style.setProperty('--popup-width-factor', sizes.popupWidth / window.outerWidth);
+  overlay.style.setProperty('--popup-height-factor', sizes.popupHeight / window.outerHeight);
+  overlay.style.setProperty('--font-size-factor', sizes.font / window.outerHeight);
   overlay.style.display = 'flex';
 }
 

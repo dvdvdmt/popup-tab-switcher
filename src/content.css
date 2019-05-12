@@ -9,14 +9,19 @@
   top: 0;
   width: 100vw;
   z-index: 1000;
+
+  --popup-height-factor: 0.3;
+  --popup-width-factor: 0.3;
+  --font-size-factor: 0.017994859; /* 14px */
 }
 
 .card {
   all: unset;
   background: gray;
   color: white;
-  height: 300px;
-  width: 400px;
+  font-size: calc(var(--font-size-factor)*100vh);
+  height: calc(var(--popup-height-factor)*100vh);
+  width: calc(var(--popup-width-factor)*100vw);
 }
 
 .tab {
