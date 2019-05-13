@@ -6,6 +6,7 @@ const sizes = {
   popupWidth: 300,
   popupHeight: 300,
   font: 16,
+  icon: 18,
 };
 const overlay = document.createElement('div');
 overlay.style.display = 'none';
@@ -25,17 +26,25 @@ function showOverlay() {
   overlay.style.setProperty('--popup-width-factor', sizes.popupWidth / window.outerWidth);
   overlay.style.setProperty('--popup-height-factor', sizes.popupHeight / window.outerHeight);
   overlay.style.setProperty('--font-size-factor', sizes.font / window.outerHeight);
+  overlay.style.setProperty('--icon-size-factor', sizes.icon / window.outerHeight);
   overlay.style.display = 'flex';
 }
 
 function getTabElements(tabs, selectedId) {
-  return tabs.map(({ title }, i) => {
+  return tabs.map(({ title, favIconUrl }, i) => {
     const tabEl = document.createElement('div');
     tabEl.className = styles.tab;
     if (i === selectedId) {
       tabEl.classList.add(styles.tab_selected);
     }
-    tabEl.textContent = title;
+    const iconEl = document.createElement('img');
+    iconEl.src = favIconUrl;
+    iconEl.className = styles.tabIcon;
+    tabEl.append(iconEl);
+    const textEl = document.createElement('span');
+    textEl.textContent = title;
+    textEl.className = styles.tabText;
+    tabEl.append(textEl);
     return tabEl;
   });
 }
