@@ -113,7 +113,7 @@ describe('Pop-up', function () {
       const pageStOverflow = await browser.newPage();
       await pageStOverflow.goto(getPagePath('stackoverflow'));
       await selectTabForward();
-      const elTexts = await pageStOverflow.$$eval('[class*=content__tab]', els => els.map(el => el.textContent));
+      const elTexts = await pageStOverflow.$$eval('[class*=content__tab_]', els => els.map(el => el.textContent));
       assert.deepStrictEqual(elTexts, expectedTexts, '3 tabs were added');
     });
 
@@ -130,7 +130,7 @@ describe('Pop-up', function () {
       await pageStOverflow.goto(getPagePath('stackoverflow'));
       await pageExample.close();
       await selectTabForward();
-      const elTexts = await pageStOverflow.$$eval('[class*=content__tab]', els => els.map(el => el.textContent));
+      const elTexts = await pageStOverflow.$$eval('[class*=content__tab_]', els => els.map(el => el.textContent));
       assert.deepStrictEqual(elTexts, expectedTexts, '2 tabs were left');
     });
 
