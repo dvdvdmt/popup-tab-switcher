@@ -3,16 +3,18 @@ import browser from 'webextension-polyfill';
 import styles from './content.css';
 
 const sizes = {
-  popupWidth: 300,
-  popupHeight: 300,
+  popupWidth: 420,
+  popupHeight: 448,
+  popupBorderRadius: 8,
+  tabHeight: 40,
   font: 16,
-  icon: 18,
+  icon: 24,
 };
 const overlay = document.createElement('div');
 overlay.style.display = 'none';
 overlay.className = styles.overlay;
 
-const card = document.createElement('pre');
+const card = document.createElement('div');
 card.className = styles.card;
 
 overlay.append(card);
@@ -24,9 +26,12 @@ function hideOverlay() {
 
 function showOverlay() {
   overlay.style.setProperty('--popup-width-factor', sizes.popupWidth / window.outerWidth);
-  overlay.style.setProperty('--popup-height-factor', sizes.popupHeight / window.outerHeight);
-  overlay.style.setProperty('--font-size-factor', sizes.font / window.outerHeight);
-  overlay.style.setProperty('--icon-size-factor', sizes.icon / window.outerHeight);
+  overlay.style.setProperty('--popup-height-factor', sizes.popupHeight / window.outerWidth);
+  overlay.style.setProperty('--popup-border-radius-factor', sizes.popupBorderRadius / window.outerWidth);
+  overlay.style.setProperty('--tab-height-factor', sizes.tabHeight / window.outerWidth);
+  overlay.style.setProperty('--font-size-factor', sizes.font / window.outerWidth);
+  overlay.style.setProperty('--icon-size-factor', sizes.icon / window.outerWidth);
+  overlay.style.setProperty('--size-window-width', window.outerWidth);
   overlay.style.display = 'flex';
 }
 
