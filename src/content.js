@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 import browser from 'webextension-polyfill';
 import styles from './content.css';
+import tabCornerSymbol from './images/tab-corner.svg';
 
 const sizes = {
   popupWidth: 420,
@@ -35,6 +36,16 @@ function showOverlay() {
   overlay.style.display = 'flex';
 }
 
+function createSVGIcon(symbol, className) {
+  const cornerEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  cornerEl.setAttribute('viewBox', symbol.viewBox);
+  cornerEl.classList.add(...className.split(' '));
+  const cornerUseEl = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  cornerUseEl.setAttribute('href', `#${symbol.id}`);
+  cornerEl.append(cornerUseEl);
+  return cornerEl;
+}
+
 function getTabElements(tabs, selectedId) {
   return tabs.map(({ title, favIconUrl }, i) => {
     const tabEl = document.createElement('div');
@@ -49,6 +60,8 @@ function getTabElements(tabs, selectedId) {
     const textEl = document.createElement('span');
     textEl.textContent = title;
     textEl.className = styles.tabText;
+    tabEl.append(createSVGIcon(tabCornerSymbol, styles.tabCornerIcon_top));
+    tabEl.append(createSVGIcon(tabCornerSymbol, styles.tabCornerIcon_bottom));
     tabEl.append(textEl);
     return tabEl;
   });

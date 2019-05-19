@@ -36,6 +36,10 @@ const conf = {
           },
         ],
       },
+      {
+        test: /\.svg$/,
+        loader: 'svg-sprite-loader',
+      },
     ],
   },
 
