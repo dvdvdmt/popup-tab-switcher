@@ -41,12 +41,12 @@ export function getTabs() {
 export function getTabsData() {
   return tabs
     .map(({
-      id, url, title, favIconUrl,
+      id, url, title, favIconDataUrl,
     }) => ({
       id,
       url,
       title,
-      favIconUrl,
+      favIconDataUrl,
     }));
 }
 

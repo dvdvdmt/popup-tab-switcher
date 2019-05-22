@@ -47,14 +47,14 @@ function createSVGIcon(symbol, className) {
 }
 
 function getTabElements(tabs, selectedId) {
-  return tabs.map(({ title, favIconUrl }, i) => {
+  return tabs.map(({ title, favIconDataUrl }, i) => {
     const tabEl = document.createElement('div');
     tabEl.className = styles.tab;
     if (i === selectedId) {
       tabEl.classList.add(styles.tab_selected);
     }
     const iconEl = document.createElement('img');
-    iconEl.src = favIconUrl;
+    iconEl.src = favIconDataUrl;
     iconEl.className = styles.tabIcon;
     tabEl.append(iconEl);
     const textEl = document.createElement('span');

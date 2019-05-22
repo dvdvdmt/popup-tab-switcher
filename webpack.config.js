@@ -37,8 +37,26 @@ const conf = {
         ],
       },
       {
-        test: /\.svg$/,
+        test: /tab-corner\.svg$/,
         loader: 'svg-sprite-loader',
+      },
+      {
+        test: /default-favicon\.svg$/,
+        loader: 'url-loader',
+        options: {
+          limit: 10000,
+        },
+      },
+      {
+        test: /\.svg$/,
+        loader: 'svgo-loader',
+        options: {
+          plugins: [
+            { removeTitle: true },
+            { convertColors: { shorthex: false } },
+            { convertPathData: false },
+          ],
+        },
       },
     ],
   },
