@@ -106,12 +106,11 @@
 .tabTimeoutIndicator {
   all: unset;
   position: absolute;
-  width: 80%;
+  width: 95%;
   height: calc(2 / var(--size-window-width) * 100vw);
-  border-radius: calc(1 / var(--size-window-width) * 100vw);
   background: var(--color-blue-dodger);
   bottom: 0;
-  left: 10%;
+  left: calc(var(--popup-border-radius-factor) * 100vw);
   animation-name: shrunk-indicator;
   animation-duration: var(--time-auto-switch-timeout);
   animation-timing-function: linear;
@@ -121,6 +120,5 @@
 @keyframes shrunk-indicator {
   to {
     width: 0;
-    left: 50%;
   }
 }

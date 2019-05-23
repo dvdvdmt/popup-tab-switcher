@@ -4,7 +4,7 @@ import styles from './content.css';
 import tabCornerSymbol from './images/tab-corner.svg';
 
 const settings = {
-  autoSwitchingTimeout: 500,
+  autoSwitchingTimeout: 1000,
   sizes: {
     popupWidth: 420,
     popupHeight: 448,
