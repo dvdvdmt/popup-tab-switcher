@@ -37,6 +37,7 @@ function showOverlay() {
   overlay.style.setProperty('--font-size-factor', sizes.font / window.outerWidth);
   overlay.style.setProperty('--icon-size-factor', sizes.icon / window.outerWidth);
   overlay.style.setProperty('--size-window-width', window.outerWidth);
+  overlay.style.setProperty('--time-auto-switch-timeout', `${settings.autoSwitchingTimeout}ms`);
   overlay.style.display = 'flex';
 }
 
@@ -56,6 +57,12 @@ function getTabElements(tabs, selectedId) {
     tabEl.className = styles.tab;
     if (i === selectedId) {
       tabEl.classList.add(styles.tab_selected);
+      if (!document.hasFocus()) {
+        const indicator = document.createElement('div');
+        indicator.className = styles.tabTimeoutIndicator;
+        tabEl.append(indicator);
+        tabEl.classList.add(styles.tab_timeout);
+      }
     }
     const iconEl = document.createElement('img');
     iconEl.src = favIconDataUrl;
