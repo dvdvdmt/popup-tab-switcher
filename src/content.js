@@ -3,14 +3,18 @@ import browser from 'webextension-polyfill';
 import styles from './content.css';
 import tabCornerSymbol from './images/tab-corner.svg';
 
-const sizes = {
-  popupWidth: 420,
-  popupHeight: 448,
-  popupBorderRadius: 8,
-  tabHeight: 40,
-  font: 16,
-  icon: 24,
+const settings = {
+  autoSwitchingTimeout: 500,
+  sizes: {
+    popupWidth: 420,
+    popupHeight: 448,
+    popupBorderRadius: 8,
+    tabHeight: 40,
+    font: 16,
+    icon: 24,
+  },
 };
+const { sizes } = settings;
 const overlay = document.createElement('div');
 overlay.style.display = 'none';
 overlay.className = styles.overlay;
@@ -78,6 +82,7 @@ function renderTabs(tabs, selectedId) {
 
 let selectedTabIndex = 0;
 let tabsArray;
+let timeout;
 
 /**
  * Restricts result of a number increment between [0, maxInteger - 1]
@@ -96,6 +101,17 @@ function selectPreviousTab() {
   renderTabs(tabsArray, selectedTabIndex);
 }
 
+const port = browser.runtime.connect({ name: 'content script' });
+
+function switchToSelectedTab() {
+  hideOverlay();
+  port.postMessage({
+    command: 'switch tab',
+    selectedTab: tabsArray[selectedTabIndex],
+  });
+  selectedTabIndex = 0;
+}
+
 browser.runtime.onMessage.addListener(({ type, tabsData }) => {
   tabsArray = tabsData;
   if (type === 'next') {
@@ -103,16 +119,20 @@ browser.runtime.onMessage.addListener(({ type, tabsData }) => {
   } else if (type === 'previous') {
     selectPreviousTab();
   }
+  // When the focus is on the address bar or the 'search in the page' field
+  // then the extension should switch a tab at the end of a timer.
+  // Because there is no way to handle key pressings when a page has no focus.
+  // https://stackoverflow.com/a/20940788/3167855
+  if (!document.hasFocus()) {
+    clearTimeout(timeout);
+    timeout = setTimeout(switchToSelectedTab, settings.autoSwitchingTimeout);
+  }
 });
 
 overlay.addEventListener('click', hideOverlay);
 
-const port = browser.runtime.connect({ name: 'content script' });
-
 document.addEventListener('keyup', ({ key }) => {
   if (key === 'Alt') {
-    hideOverlay();
-    port.postMessage({ command: 'switch tab', selectedTab: tabsArray[selectedTabIndex] });
-    selectedTabIndex = 0;
+    switchToSelectedTab();
   }
 });
