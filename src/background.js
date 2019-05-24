@@ -4,31 +4,7 @@ import tabRegistryDataUrlIconHandler from './utils/tabRegistryDataUrlIconHandler
 
 const tabRegistry = new Proxy(tabRegistryBase, tabRegistryDataUrlIconHandler);
 
-async function handleCommand(command) {
-  const [currentTab] = await browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-
-  if (!tabRegistry.isInitialized(currentTab)) {
-    await browser.tabs.executeScript(currentTab.id, { file: 'content.js' });
-
-    tabRegistry.push(currentTab);
-    tabRegistry.addToInitialized(currentTab);
-  }
-
-  // Send separate message instead of listening 'keydown' event
-  // in content script because Chrome doesn't allow listening
-  // for extension shortcuts in content scripts
-  await browser.tabs.sendMessage(currentTab.id, {
-    type: command,
-    tabsData: tabRegistry.getTabsData(),
-  });
-}
-
-browser.commands.onCommand.addListener(handleCommand);
-
-browser.tabs.onActivated.addListener(async () => {
+async function addCurrentTabToRegistry() {
   const [currentTab] = await browser.tabs.query({
     active: true,
     currentWindow: true,
@@ -37,7 +13,44 @@ browser.tabs.onActivated.addListener(async () => {
   if (currentTab) {
     tabRegistry.push(currentTab);
   }
-});
+}
+
+// initialize registry with currently active tab
+addCurrentTabToRegistry();
+
+async function handleCommand(command) {
+  const [currentTab] = await browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+
+  if (!currentTab) return;
+
+  // handle special chrome tabs separately
+  if (currentTab.url.startsWith('chrome://')) {
+    const previousTab = tabRegistry.getTabs()[1];
+    if (previousTab) {
+      await browser.tabs.update(previousTab.id, { active: true });
+    }
+    return;
+  }
+
+  // initialize content script
+  if (!tabRegistry.isInitialized(currentTab)) {
+    await browser.tabs.executeScript(currentTab.id, { file: 'content.js' });
+    tabRegistry.addToInitialized(currentTab);
+  }
+
+  // send the command to the content script
+  await browser.tabs.sendMessage(currentTab.id, {
+    type: command,
+    tabsData: tabRegistry.getTabsData(),
+  });
+}
+
+browser.commands.onCommand.addListener(handleCommand);
+
+browser.tabs.onActivated.addListener(addCurrentTabToRegistry);
 
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete') {

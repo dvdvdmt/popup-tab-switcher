@@ -208,5 +208,22 @@ describe('Pop-up', function () {
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
     });
+
+    /*
+    NOTE: It can't be tested because you cant inject content scripts into special Chrome tabs
+
+    it('Switches from a special tab back to previous without showing a popup', async () => {
+      const pageWikipedia = await browser.newPage();
+      await pageWikipedia.goto(getPagePath('wikipedia'));
+      await browser.newPage();
+      let curTab = await switchTab();
+      let elText = await curTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
+      const pageSettings = await browser.newPage();
+      await pageSettings.goto('chrome://settings');
+      curTab = await switchTab();
+      elText = await curTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
+    }); */
   });
 });
