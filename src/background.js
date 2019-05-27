@@ -1,8 +1,5 @@
 import browser from 'webextension-polyfill';
-import * as tabRegistryBase from './tabRegistry';
-import tabRegistryDataUrlIconHandler from './utils/tabRegistryDataUrlIconHandler';
-
-const tabRegistry = new Proxy(tabRegistryBase, tabRegistryDataUrlIconHandler);
+import * as tabRegistry from './tabRegistry';
 
 async function addCurrentTabToRegistry() {
   const [currentTab] = await browser.tabs.query({
@@ -44,7 +41,7 @@ async function handleCommand(command) {
   // send the command to the content script
   await browser.tabs.sendMessage(currentTab.id, {
     type: command,
-    tabsData: tabRegistry.getTabsData(),
+    tabsData: tabRegistry.getTabs(),
   });
 }
 

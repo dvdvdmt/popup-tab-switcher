@@ -2,6 +2,21 @@
 import browser from 'webextension-polyfill';
 import styles from './content.css';
 import tabCornerSymbol from './images/tab-corner.svg';
+import noFaviconSymbol from './images/no-favicon-icon.svg';
+import settingsSymbol from './images/settings-icon.svg';
+import downloadsSymbol from './images/downloads-icon.svg';
+import extensionsSymbol from './images/extensions-icon.svg';
+import historySymbol from './images/history-icon.svg';
+import bookmarksSymbol from './images/bookmarks-icon.svg';
+
+const favIcons = {
+  default: noFaviconSymbol,
+  settings: settingsSymbol,
+  downloads: downloadsSymbol,
+  extensions: extensionsSymbol,
+  history: historySymbol,
+  bookmarks: bookmarksSymbol,
+};
 
 const settings = {
   autoSwitchingTimeout: 1000,
@@ -42,17 +57,37 @@ function showOverlay() {
 }
 
 function createSVGIcon(symbol, className) {
-  const cornerEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  cornerEl.setAttribute('viewBox', symbol.viewBox);
-  cornerEl.classList.add(...className.split(' '));
-  const cornerUseEl = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-  cornerUseEl.setAttribute('href', `#${symbol.id}`);
-  cornerEl.append(cornerUseEl);
-  return cornerEl;
+  const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svgEl.setAttribute('viewBox', symbol.viewBox);
+  svgEl.classList.add(...className.split(' '));
+  const useEl = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  useEl.setAttribute('href', `#${symbol.id}`);
+  svgEl.append(useEl);
+  return svgEl;
+}
+
+function getIconEl(favIconUrl, url) {
+  let iconEl;
+  if (!favIconUrl && url) {
+    const matches = /chrome:\/\/(\w*?)\//.exec(url);
+    if (matches && matches[1] === 'newtab') {
+      iconEl = document.createElement('div');
+      iconEl.className = styles.tabIcon;
+      return iconEl;
+    }
+    if (matches && matches[1] && favIcons[matches[1]]) {
+      return createSVGIcon(favIcons[matches[1]], styles.tabIcon);
+    }
+    return createSVGIcon(favIcons.default, `${styles.tabIcon} ${styles.tabIcon_noFavIcon}`);
+  }
+  iconEl = document.createElement('img');
+  iconEl.src = favIconUrl;
+  iconEl.className = styles.tabIcon;
+  return iconEl;
 }
 
 function getTabElements(tabs, selectedId) {
-  return tabs.map(({ title, favIconDataUrl }, i) => {
+  return tabs.map(({ title, url, favIconUrl }, i) => {
     const tabEl = document.createElement('div');
     tabEl.className = styles.tab;
     if (i === selectedId) {
@@ -64,9 +99,7 @@ function getTabElements(tabs, selectedId) {
         tabEl.classList.add(styles.tab_timeout);
       }
     }
-    const iconEl = document.createElement('img');
-    iconEl.src = favIconDataUrl;
-    iconEl.className = styles.tabIcon;
+    const iconEl = getIconEl(favIconUrl, url);
     tabEl.append(iconEl);
     const textEl = document.createElement('span');
     textEl.textContent = title;

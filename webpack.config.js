@@ -37,15 +37,8 @@ const conf = {
         ],
       },
       {
-        test: /tab-corner\.svg$/,
+        test: /\.svg$/,
         loader: 'svg-sprite-loader',
-      },
-      {
-        test: /default-favicon\.svg$/,
-        loader: 'url-loader',
-        options: {
-          limit: 10000,
-        },
       },
       {
         test: /\.svg$/,

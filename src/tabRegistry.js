@@ -38,18 +38,6 @@ export function getTabs() {
   return tabs.slice();
 }
 
-export function getTabsData() {
-  return tabs
-    .map(({
-      id, url, title, favIconDataUrl,
-    }) => ({
-      id,
-      url,
-      title,
-      favIconDataUrl,
-    }));
-}
-
 export function isInitialized(tab) {
   return initializedTabs[tab.id];
 }
