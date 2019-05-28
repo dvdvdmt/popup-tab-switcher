@@ -19,6 +19,8 @@ const favIcons = {
 };
 
 const settings = {
+  textScrollDelay: 1000,
+  textScrollCoefficient: 2500,
   autoSwitchingTimeout: 1000,
   sizes: {
     popupWidth: 420,
@@ -131,16 +133,6 @@ function rangedIncrement(number, increment, maxInteger) {
   return (number + (increment % maxInteger) + maxInteger) % maxInteger;
 }
 
-function selectNextTab() {
-  selectedTabIndex = rangedIncrement(selectedTabIndex, +1, tabsArray.length);
-  renderTabs(tabsArray, selectedTabIndex);
-}
-
-function selectPreviousTab() {
-  selectedTabIndex = rangedIncrement(selectedTabIndex, -1, tabsArray.length);
-  renderTabs(tabsArray, selectedTabIndex);
-}
-
 const port = browser.runtime.connect({ name: 'content script' });
 
 function switchToSelectedTab() {
@@ -152,13 +144,37 @@ function switchToSelectedTab() {
   selectedTabIndex = 0;
 }
 
+function scrollLongTextOfSelectedTab() {
+  const textEl = overlay.querySelector(`.${styles.tab_selected} .${styles.tabText}`);
+  const textIndent = textEl.scrollWidth - textEl.offsetWidth;
+  if (textIndent) {
+    const scrollTime = textIndent / textEl.offsetWidth * settings.textScrollCoefficient;
+    const startDelayOffset = settings.textScrollDelay / (2 * settings.textScrollDelay + scrollTime);
+    const endDelayOffset = 1 - startDelayOffset;
+    textEl.style.setProperty('text-overflow', 'unset');
+    textEl.animate([{
+      textIndent: 'unset',
+    }, {
+      textIndent: 'unset',
+      offset: startDelayOffset,
+    }, {
+      textIndent: `-${textIndent}px`,
+      offset: endDelayOffset,
+    }, {
+      textIndent: `-${textIndent}px`,
+    }], { duration: scrollTime + 2 * settings.textScrollDelay, iterations: Infinity });
+  }
+}
+
 browser.runtime.onMessage.addListener(({ type, tabsData }) => {
   tabsArray = tabsData;
   if (type === 'next') {
-    selectNextTab();
+    selectedTabIndex = rangedIncrement(selectedTabIndex, +1, tabsArray.length);
   } else if (type === 'previous') {
-    selectPreviousTab();
+    selectedTabIndex = rangedIncrement(selectedTabIndex, -1, tabsArray.length);
   }
+  renderTabs(tabsArray, selectedTabIndex);
+  scrollLongTextOfSelectedTab();
   // When the focus is on the address bar or the 'search in the page' field
   // then the extension should switch a tab at the end of a timer.
   // Because there is no way to handle key pressings when a page has no focus.

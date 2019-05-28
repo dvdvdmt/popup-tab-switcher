@@ -9,7 +9,7 @@
   position: fixed;
   top: 0;
   width: 100vw;
-  z-index: 10000;
+  z-index: 100000;
 
   --time-auto-switch-timeout: 500ms;
 
@@ -111,6 +111,7 @@
   all: unset;
   height: auto;
   width: calc(var(--icon-size-factor) * 100vw);
+  min-width: calc(var(--icon-size-factor) * 100vw);
   fill: var(--tabIcon-fill);
 }
 
