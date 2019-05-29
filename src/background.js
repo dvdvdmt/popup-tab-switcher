@@ -15,6 +15,10 @@ async function addCurrentTabToRegistry() {
 // initialize registry with currently active tab
 addCurrentTabToRegistry();
 
+function isSpecialTab(currentTab) {
+  return /^chrome:|^view-source:/.test(currentTab.url);
+}
+
 async function handleCommand(command) {
   const [currentTab] = await browser.tabs.query({
     active: true,
@@ -23,8 +27,8 @@ async function handleCommand(command) {
 
   if (!currentTab) return;
 
-  // handle special chrome tabs separately
-  if (currentTab.url.startsWith('chrome://')) {
+  // handle special chrome tabs separately because they do not allow script executions
+  if (isSpecialTab(currentTab)) {
     const previousTab = tabRegistry.getTabs()[1];
     if (previousTab) {
       await browser.tabs.update(previousTab.id, { active: true });

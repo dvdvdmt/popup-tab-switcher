@@ -25,7 +25,11 @@ const conf = {
       {
         test: /\.css$/,
         use: [
-          'style-loader',
+          {
+            loader: 'style-loader',
+            // eslint-disable-next-line no-undef
+            options: { insertInto: () => document.querySelector('head,body') },
+          },
           {
             loader: 'css-loader',
             options: {
@@ -67,7 +71,7 @@ module.exports = (env) => {
           description: process.env.npm_package_description,
           version: process.env.npm_package_version,
           ...JSON.parse(content.toString()),
-          ...(env.development ? { content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'" } : {}),
+          ...(env.development ? { content_security_policy: 'script-src \'self\' \'unsafe-eval\'; object-src \'self\'' } : {}),
         }, null, 2);
       },
     },
@@ -98,7 +102,8 @@ module.exports = (env) => {
           contentScript: 'content',
           background: 'background',
         },
-      }) : () => {},
+      }) : () => {
+      },
     ];
   } else if (env.e2e) {
     conf.mode = 'production';
