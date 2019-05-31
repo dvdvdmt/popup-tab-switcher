@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import './webcomponents-sd-ce';
+import '@webcomponents/custom-elements';
 import PopupTabSwitcher from './PopupTabSwitcher';
 
 customElements.define('popup-tab-switcher', PopupTabSwitcher);

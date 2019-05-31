@@ -47,6 +47,8 @@
     "webpack-cli": "^3.3.0"
   },
   "dependencies": {
+    "@webcomponents/custom-elements": "^1.2.4",
+    "svg-baker-runtime": "latest",
     "webextension-polyfill": "^0.4.0"
   }
 }
