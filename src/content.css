@@ -1,25 +1,25 @@
-.overlay {
-  all: initial;
-  align-items: center;
-  box-sizing: border-box;
-  display: flex;
-  height: 100vh;
-  justify-content: center;
-  left: 0;
+:host {
+  display: none;
   position: fixed;
-  top: 0;
+  height: 100vh;
   width: 100vw;
+  top: 0;
+  left: 0;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
   z-index: 2147483647;
 
   --time-auto-switch-timeout: 500ms;
 
   --size-window-width: 0;
-  --popup-height-factor: 1;
-  --popup-width-factor: 1;
-  --popup-border-radius-factor: 1;
-  --tab-height-factor: 1;
-  --font-size-factor: 1;
-  --icon-size-factor: 1;
+  --popup-height-factor: 0;
+  --popup-width-factor: 0;
+  --popup-border-radius-factor: 0;
+  --tab-height-factor: 0;
+  --font-size-factor: 0;
+  --icon-size-factor: 0;
 
   /* colors */
   --color-black: black;
@@ -43,7 +43,6 @@
 }
 
 .card {
-  all: unset;
   background: var(--card-background);
   border-radius: calc(var(--popup-border-radius-factor) * 100vw);
   border-left: calc(var(--popup-border-radius-factor) * 100vw) solid white;
@@ -52,7 +51,6 @@
   0 3px 4px rgba(0, 0, 0, 0.12),
   0 2px 4px rgba(0, 0, 0, 0.14);
   color: var(--card-color);
-  font-family: 'Arial', sans-serif;
   font-size: calc(var(--font-size-factor) * 100vw);
   height: calc(var(--popup-height-factor) * 100vw);
   width: calc(var(--popup-width-factor) * 100vw);
@@ -60,7 +58,6 @@
 }
 
 .tab {
-  all: unset;
   display: flex;
   align-items: center;
   height: calc(var(--tab-height-factor) * 100vw);
@@ -97,18 +94,15 @@
 }
 
 .tabCornerIcon_bottom {
-  composes: tabCornerIcon;
   bottom: calc(-1 * var(--popup-border-radius-factor) * 100vw);
   transform: rotate(90deg);
 }
 
 .tabCornerIcon_top {
-  composes: tabCornerIcon;
   top: calc(-1 * var(--popup-border-radius-factor) * 100vw);
 }
 
 .tabIcon {
-  all: unset;
   height: auto;
   width: calc(var(--icon-size-factor) * 100vw);
   min-width: calc(var(--icon-size-factor) * 100vw);
@@ -128,7 +122,6 @@
 }
 
 .tabTimeoutIndicator {
-  all: unset;
   position: absolute;
   width: 95%;
   height: calc(2 / var(--size-window-width) * 100vw);

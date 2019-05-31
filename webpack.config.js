@@ -23,26 +23,15 @@ const conf = {
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: [
-          {
-            loader: 'style-loader',
-            // eslint-disable-next-line no-undef
-            options: { insertInto: () => document.querySelector('head,body') },
-          },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-              importLoaders: 1,
-              localIdentName: '[name]__[local]___[hash:base64:5]',
-            },
-          },
-        ],
+        test: /content.css$/,
+        use: 'raw-loader',
       },
       {
         test: /\.svg$/,
         loader: 'svg-sprite-loader',
+        options: {
+          spriteModule: './src/utils/sprite',
+        },
       },
       {
         test: /\.svg$/,
