@@ -94,6 +94,18 @@ describe('Pop-up', function () {
 
     it('Works after page reload', popupOpens);
 
+    it('Opens on file pages', async () => {
+      const imagePath = path.resolve('./e2e/web-pages/wikipedia/Wikipedia-logo-v2@2x.png');
+      await page.goto(`file://${imagePath}`);
+      await popupOpens();
+      const pdfPath = path.resolve('./e2e/web-pages/pdf-sample.pdf');
+      await page.goto(`file://${pdfPath}`);
+      await popupOpens();
+      const textPath = path.resolve('./e2e/web-pages/wikipedia/index-66c9b3efbd.js');
+      await page.goto(`file://${textPath}`);
+      await popupOpens();
+    });
+
     it('Hides on "Alt" release', async () => {
       await popupOpens();
 
@@ -231,5 +243,12 @@ describe('Pop-up', function () {
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
     }); */
+
+    // it('Switches from PDF and other file types pages', async () => {
+    //   const pageWikipedia = await browser.newPage();
+    //   await pageWikipedia.goto(getPagePath('wikipedia'));
+    //
+    //
+    // });
   });
 });
