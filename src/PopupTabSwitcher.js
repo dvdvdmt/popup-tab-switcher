@@ -1,5 +1,4 @@
 /* eslint-disable no-undef */
-import browser from 'webextension-polyfill';
 import styles from './content.css';
 import sprite from './utils/sprite';
 import tabCornerSymbol from './images/tab-corner.svg';
@@ -102,7 +101,7 @@ function rangedIncrement(number, increment, maxInteger) {
   return (number + (increment % maxInteger) + maxInteger) % maxInteger;
 }
 
-const port = browser.runtime.connect({ name: 'content script' });
+const port = chrome.runtime.connect({ name: 'content script' });
 
 
 export default class PopupTabSwitcher extends HTMLElement {
@@ -124,7 +123,7 @@ export default class PopupTabSwitcher extends HTMLElement {
         this.switchToSelectedTab();
       }
     });
-    browser.runtime.onMessage.addListener(({ type, tabsData }) => {
+    chrome.runtime.onMessage.addListener(({ type, tabsData }) => {
       tabsArray = tabsData;
       if (type === 'next') {
         selectedTabIndex = rangedIncrement(selectedTabIndex, +1, tabsArray.length);
@@ -139,7 +138,7 @@ export default class PopupTabSwitcher extends HTMLElement {
       // https://stackoverflow.com/a/20940788/3167855
       if (!document.hasFocus()) {
         clearTimeout(timeout);
-        timeout = setTimeout(this.switchToSelectedTab, settings.autoSwitchingTimeout);
+        timeout = setTimeout(this.switchToSelectedTab.bind(this), settings.autoSwitchingTimeout);
       }
     });
   }
@@ -170,7 +169,7 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   scrollLongTextOfSelectedTab() {
-    const textEl = this.querySelector('.tab_selected .tabText');
+    const textEl = this.shadowRoot.querySelector('.tab_selected .tabText');
     const textIndent = textEl.scrollWidth - textEl.offsetWidth;
     if (textIndent) {
       const scrollTime = textIndent / textEl.offsetWidth * settings.textScrollCoefficient;
@@ -188,7 +187,10 @@ export default class PopupTabSwitcher extends HTMLElement {
         offset: endDelayOffset,
       }, {
         textIndent: `-${textIndent}px`,
-      }], { duration: scrollTime + 2 * settings.textScrollDelay, iterations: Infinity });
+      }], {
+        duration: scrollTime + 2 * settings.textScrollDelay,
+        iterations: Infinity,
+      });
     }
   }
 
