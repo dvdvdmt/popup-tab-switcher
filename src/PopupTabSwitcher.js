@@ -176,11 +176,11 @@ export default class PopupTabSwitcher extends HTMLElement {
       const totalTime = 2 * settings.textScrollDelay + scrollTime;
       const startDelayOffset = settings.textScrollDelay / totalTime;
       const endDelayOffset = 1 - startDelayOffset;
-      textEl.style.setProperty('text-overflow', 'unset');
+      textEl.style.setProperty('text-overflow', 'initial');
       textEl.animate([{
-        textIndent: 'unset',
+        textIndent: 'initial',
       }, {
-        textIndent: 'unset',
+        textIndent: 'initial',
         offset: startDelayOffset,
       }, {
         textIndent: `-${textIndent}px`,
