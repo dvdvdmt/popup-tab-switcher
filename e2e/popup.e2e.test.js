@@ -228,6 +228,46 @@ describe('Pop-up', function () {
     });
 
     /*
+    NOTE: Chrome does not support el.getAnimations()
+      and web-animations-js polyfill does not help also because getAnimations() returns
+      empty array. Apparently it is because the polyfill does not support custom elements.
+
+    it('Scrolls long text of selected tab', async () => {
+    function getDelayedPromise(timeBeforeReject = 1000) {
+      let resolvePromise;
+      const promise = new Promise((resolve, reject) => {
+        resolvePromise = resolve;
+        setTimeout(reject, timeBeforeReject);
+      });
+      return { promise, resolvePromise };
+    }
+
+      const pageWithLongTitle = await browser.newPage();
+      await pageWithLongTitle.goto(getPagePath('page-with-long-title'));
+      const pageWikipedia = await browser.newPage();
+      const { promise, resolvePromise } = getDelayedPromise();
+      await pageWikipedia.exposeFunction('onAnimationFinish', () => {
+        resolvePromise();
+      });
+      await pageWikipedia.goto(getPagePath('wikipedia'));
+      const polyfillPath = './node_modules/web-animations-js/web-animations-next.min.js';
+      const animationsPolyfill = fs.readFileSync(polyfillPath, 'utf8');
+      await pageWikipedia.evaluate(animationsPolyfill);
+      await selectTabForward();
+      await pageWikipedia.evaluate(() => {
+        const textEl = document.querySelector('popup-tab-switcher')
+          .shadowRoot
+          .querySelector('.tab_selected .tabText');
+        Promise.all(textEl.getAnimations().map(a => a.finished)).then(window.onAnimationFinish);
+      });
+      try {
+        await promise;
+      } catch (e) {
+        assert.fail('text scroll animation did not start');
+      }
+    }) */
+
+    /*
     NOTE: It can't be tested because you cant inject content scripts into special Chrome tabs
 
     it('Switches from a special tab back to previous without showing a popup', async () => {
