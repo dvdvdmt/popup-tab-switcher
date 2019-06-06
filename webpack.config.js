@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
 
@@ -12,6 +13,7 @@ const conf = {
   entry: {
     background: './src/background.js',
     content: './src/content.js',
+    popup: './src/popup/popup.js',
     e2eTestCommandsBridge: './src/e2eTestCommandsBridge.js',
   },
 
@@ -22,6 +24,10 @@ const conf = {
 
   module: {
     rules: [
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader',
+      },
       {
         test: /content.css$/,
         use: 'raw-loader',
@@ -44,6 +50,7 @@ const conf = {
           ],
         },
       },
+      { test: /\.css$/, loader: 'css-loader' },
     ],
   },
 
@@ -68,7 +75,7 @@ module.exports = (env) => {
       from: 'src/images/',
       to: 'images',
     },
-    'src/popup.html',
+    'src/popup/popup.html',
   ];
   if (env.production) {
     conf.mode = 'production';
@@ -79,6 +86,7 @@ module.exports = (env) => {
       new webpack.DefinePlugin({
         E2E: 'false',
       }),
+      new VueLoaderPlugin(),
     ];
   } else if (env.development) {
     conf.plugins = [
@@ -93,6 +101,7 @@ module.exports = (env) => {
         },
       }) : () => {
       },
+      new VueLoaderPlugin(),
     ];
   } else if (env.e2e) {
     conf.mode = 'production';
@@ -103,6 +112,7 @@ module.exports = (env) => {
       new webpack.DefinePlugin({
         E2E: 'true',
       }),
+      new VueLoaderPlugin(),
     ];
   }
   return conf;
