@@ -50,7 +50,14 @@ const conf = {
           ],
         },
       },
-      { test: /\.css$/, loader: 'css-loader' },
+      {
+        test: /\.scss$/,
+        use: ['style-loader', 'css-loader', {
+          loader: 'sass-loader',
+          options: { includePaths: ['./node_modules'] },
+        }],
+      },
+      { test: /\.css$/, use: ['style-loader', 'css-loader'] },
     ],
   },
 
@@ -76,6 +83,7 @@ module.exports = (env) => {
       to: 'images',
     },
     'src/popup/popup.html',
+    { from: 'src/popup/fonts/', to: 'fonts' },
   ];
   if (env.production) {
     conf.mode = 'production';

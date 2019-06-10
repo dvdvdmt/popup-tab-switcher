@@ -34,8 +34,10 @@
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.17.2",
     "mocha": "^6.1.4",
+    "node-sass": "^4.12.0",
     "puppeteer": "^1.14.0",
     "raw-loader": "^2.0.0",
+    "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "svg-sprite-loader": "^4.1.6",
     "svgo": "^1.2.2",
@@ -50,6 +52,7 @@
   },
   "dependencies": {
     "@webcomponents/custom-elements": "^1.2.4",
+    "material-components-web": "^2.3.0",
     "svg-baker-runtime": "latest",
     "vue": "^2.6.10",
     "webextension-polyfill": "^0.4.0"
