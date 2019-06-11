@@ -12,6 +12,16 @@
   import debounce from '../utils/debounce';
   import MSwitch from './components/MSwitch.vue';
 
+  function readSettings() {
+    if (localStorage.settings) {
+      try {
+        return JSON.parse(localStorage.settings);
+      } catch (e) {
+        return {};
+      }
+    }
+  }
+
   export default {
     name: 'Popup',
     data() {
@@ -19,6 +29,7 @@
         msg: 'Dark theme',
         settings: {
           isDarkTheme: false,
+          ...readSettings()
         }
       };
     },
@@ -29,10 +40,10 @@
     },
     created() {
       function saveSettings() {
-        console.log('Settings saved', JSON.stringify(this.settings));
+        localStorage.settings = JSON.stringify(this.settings);
       }
 
-      this.$watch('settings', debounce(saveSettings, 500), {deep: true});
+      this.$watch('settings', debounce(saveSettings, 500), { deep: true });
     },
     components: {
       MSwitch
