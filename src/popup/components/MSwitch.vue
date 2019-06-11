@@ -1,25 +1,43 @@
 <template>
-    <div class="mdc-switch">
-      <div class="mdc-switch__track"></div>
-      <div class="mdc-switch__thumb-underlay">
-        <div class="mdc-switch__thumb">
-          <input type="checkbox" id="basic-switch" class="mdc-switch__native-control" role="switch">
-        </div>
+  <div class="mdc-switch">
+    <div class="mdc-switch__track"></div>
+    <div class="mdc-switch__thumb-underlay">
+      <div class="mdc-switch__thumb">
+        <input v-model="model"
+               type="checkbox"
+               id="basic-switch"
+               class="mdc-switch__native-control"
+               role="switch">
       </div>
     </div>
+  </div>
 </template>
 
 <script>
-  import {MDCSwitch} from '@material/switch/index';
+  import { MDCSwitch } from '@material/switch/index';
+
   export default {
     name: 'MSwitch',
-    data () {
-      return {}
+    props: {
+      value: {
+        type: Boolean,
+        default: false
+      }
+    },
+    computed: {
+      model: {
+        get() {
+          return this.value;
+        },
+        set(state) {
+          this.$emit('input', state);
+        }
+      }
     },
     mounted() {
-      new MDCSwitch(this.$el);
+      MDCSwitch.attachTo(this.$el);
     }
-  }
+  };
 </script>
 
 <style lang="scss">
