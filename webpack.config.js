@@ -4,9 +4,11 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
 
-const buildProdFolder = path.resolve(__dirname, 'build-prod');
-const buildDevFolder = path.resolve(__dirname, 'build-dev');
-const buildE2eFolder = path.resolve(__dirname, 'build-e2e');
+const buildProdDir = path.resolve(__dirname, './build-prod');
+const buildDevDir = path.resolve(__dirname, './build-dev');
+const buildE2eDir = path.resolve(__dirname, './build-e2e');
+const popupDir = path.resolve(__dirname, './src/popup');
+
 const conf = {
   mode: 'development',
 
@@ -19,7 +21,7 @@ const conf = {
 
   output: {
     filename: '[name].js',
-    path: buildDevFolder,
+    path: buildDevDir,
   },
 
   module: {
@@ -27,10 +29,6 @@ const conf = {
       {
         test: /\.vue$/,
         loader: 'vue-loader',
-      },
-      {
-        test: /content.css$/,
-        use: 'raw-loader',
       },
       {
         test: /\.svg$/,
@@ -52,12 +50,21 @@ const conf = {
       },
       {
         test: /\.scss$/,
+        include: popupDir,
         use: ['style-loader', 'css-loader', {
           loader: 'sass-loader',
           options: { includePaths: ['./node_modules'] },
         }],
       },
-      { test: /\.css$/, use: ['style-loader', 'css-loader'] },
+      {
+        test: /\.css$/,
+        include: popupDir,
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /content.css$/,
+        use: 'raw-loader',
+      },
     ],
   },
 
@@ -83,12 +90,15 @@ module.exports = (env) => {
       to: 'images',
     },
     'src/popup/popup.html',
-    { from: 'src/popup/fonts/', to: 'fonts' },
+    {
+      from: 'src/popup/fonts/',
+      to: 'fonts',
+    },
   ];
   if (env.production) {
     conf.mode = 'production';
     conf.devtool = 'source-map';
-    conf.output.path = buildProdFolder;
+    conf.output.path = buildProdDir;
     conf.plugins = [
       new CopyWebpackPlugin(copyWebpackPluginOptions),
       new webpack.DefinePlugin({
@@ -114,7 +124,7 @@ module.exports = (env) => {
   } else if (env.e2e) {
     conf.mode = 'production';
     conf.devtool = 'source-map';
-    conf.output.path = buildE2eFolder;
+    conf.output.path = buildE2eDir;
     conf.plugins = [
       new CopyWebpackPlugin(copyWebpackPluginOptions),
       new webpack.DefinePlugin({
