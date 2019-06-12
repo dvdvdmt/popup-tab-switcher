@@ -1,4 +1,5 @@
 :host {
+  all: initial;
   display: none;
   position: fixed;
   height: 100vh;
@@ -22,22 +23,26 @@
   --icon-size-factor: 0;
 
   /* colors */
-  --color-black: black;
   --color-gray-athens: #E4E7EA;
   --color-gray-athens-light: #F1F2F5;
   --color-gray-abbey: #4D5055;
+  --color-gray-outer-space: #35393C;
+  --color-gray-porcelain: #E9EBEC;
+  --color-gray-shark: #252629;
+  --color-gray-shark-light: #2E3133;
   --color-blue-dodger: #448AFF;
   --color-blue-royal: #2376E5;
 
-  /* theme */
+  /* light theme */
+  --card-color: black;
+  --card-background: var(--color-gray-athens);
+  --card-border-left-color: white;
+  --tabCornerIcon-fill: var(--color-gray-athens);
+  --tab_selected-background: white;
   --tab_selected-tabCornerIcon-fill: white;
   --tab_hover-background: var(--color-gray-athens-light);
   --tab_hover-tabCornerIcon-fill: var(--color-gray-athens-light);
-  --tabCornerIcon-fill: var(--color-gray-athens);
-  --tab_selected-background: white;
   --tabTimeoutIndicator-background: var(--color-blue-dodger);
-  --card-background: var(--color-gray-athens);
-  --card-color: black;
   --tabIcon-fill: var(--color-blue-royal);
   --tabIcon_noFavIcon-fill: var(--color-gray-abbey);
 }
@@ -45,7 +50,8 @@
 .card {
   background: var(--card-background);
   border-radius: calc(var(--popup-border-radius-factor) * 100vw);
-  border-left: calc(var(--popup-border-radius-factor) * 100vw) solid white;
+  border-left: calc(var(--popup-border-radius-factor) * 100vw) solid;
+  border-left-color: var(--card-border-left-color);
   border-right: calc(var(--popup-border-radius-factor) * 100vw) solid transparent;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2),
   0 3px 4px rgba(0, 0, 0, 0.12),
@@ -55,6 +61,20 @@
   height: calc(var(--popup-height-factor) * 100vw);
   width: calc(var(--popup-width-factor) * 100vw);
   overflow: hidden;
+
+  &--dark {
+    --card-color: var(--color-gray-porcelain);
+    --card-background: var(--color-gray-shark);
+    --card-border-left-color: var(--color-gray-outer-space);
+    --tabCornerIcon-fill: var(--color-gray-shark);
+    --tab_selected-background: var(--color-gray-outer-space);
+    --tab_selected-tabCornerIcon-fill: var(--color-gray-outer-space);
+    --tab_hover-background: var(--color-gray-shark-light);
+    --tab_hover-tabCornerIcon-fill: var(--color-gray-shark-light);
+    --tabTimeoutIndicator-background: var(--color-blue-dodger);
+    --tabIcon-fill: white;
+    --tabIcon_noFavIcon-fill: white;
+  }
 }
 
 .tab {

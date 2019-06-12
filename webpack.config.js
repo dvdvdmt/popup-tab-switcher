@@ -62,8 +62,8 @@ const conf = {
         use: ['style-loader', 'css-loader'],
       },
       {
-        test: /content.css$/,
-        use: 'raw-loader',
+        test: path.resolve(__dirname, './src/content.scss'),
+        use: ['raw-loader', 'sass-loader'],
       },
     ],
   },
@@ -114,7 +114,7 @@ module.exports = (env) => {
       }),
       env.watch ? new ChromeExtensionReloader({
         entries: {
-          contentScript: 'content',
+          contentScript: 'content.scss',
           background: 'background',
         },
       }) : () => {

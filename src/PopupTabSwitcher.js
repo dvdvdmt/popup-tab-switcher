@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import styles from './content.css';
+import styles from './content.scss';
 import sprite from './utils/sprite';
 import tabCornerSymbol from './images/tab-corner.svg';
 import noFaviconSymbol from './images/no-favicon-icon.svg';
@@ -22,6 +22,7 @@ const settings = {
   textScrollDelay: 1000,
   textScrollCoefficient: 2500,
   autoSwitchingTimeout: 1000,
+  isDarkTheme: false,
   sizes: {
     popupWidth: 420,
     popupHeight: 448,
@@ -114,6 +115,9 @@ export default class PopupTabSwitcher extends HTMLElement {
     style.textContent = styles;
     this.card = document.createElement('div');
     this.card.className = 'card';
+    if (settings.isDarkTheme) {
+      this.card.classList.add('card--dark');
+    }
     shadow.appendChild(style);
     shadow.appendChild(this.card);
 
