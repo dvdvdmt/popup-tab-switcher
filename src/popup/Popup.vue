@@ -9,7 +9,7 @@
 </template>
 
 <script>
-  import debounce from '../utils/debounce';
+  import * as settings from '../utils/settings';
   import MSwitch from './components/MSwitch.vue';
 
   export default {
@@ -17,15 +17,15 @@
     data() {
       return {
         msg: 'Dark theme',
-        settings: JSON.parse(localStorage.settings)
+        settings: settings.get()
       };
     },
     created() {
       function saveSettings() {
-        localStorage.settings = JSON.stringify(this.settings);
+        settings.update(this.settings)
       }
 
-      this.$watch('settings', debounce(saveSettings, 500), { deep: true });
+      this.$watch('settings', saveSettings, { deep: true });
     },
     components: {
       MSwitch

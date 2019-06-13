@@ -1,18 +1,8 @@
 import browser from 'webextension-polyfill';
 import * as tabRegistry from './tabRegistry';
-import defaultSettings from './defaultSettings.json';
+import * as settings from './utils/settings';
 
-function initializeSettings() {
-  let settings;
-  try {
-    settings = JSON.parse(localStorage.settings);
-  } catch (e) {
-    settings = {};
-  }
-  localStorage.settings = JSON.stringify({ ...defaultSettings, ...settings });
-}
-
-initializeSettings();
+settings.initialize();
 
 async function addCurrentTabToRegistry() {
   const [currentTab] = await browser.tabs.query({
@@ -51,8 +41,8 @@ async function handleCommand(command) {
 
   // initialize content script
   if (!tabRegistry.isInitialized(currentTab)) {
-    const { settings } = localStorage;
-    await browser.tabs.executeScript(currentTab.id, { code: `window.settings = ${settings};` });
+    const settingsString = settings.getString();
+    await browser.tabs.executeScript(currentTab.id, { code: `window.settings = ${settingsString};` });
     await browser.tabs.executeScript(currentTab.id, { file: 'content.js' });
     tabRegistry.addToInitialized(currentTab);
   }

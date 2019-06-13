@@ -29,7 +29,8 @@
       "files": [
         "*background.js",
         "*content.js",
-        "*PopupTabSwitcher.js"
+        "*PopupTabSwitcher.js",
+        "*settings.js"
       ],
       "env": {
         "browser": true,
