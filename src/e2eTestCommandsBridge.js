@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
+import { COMMANDS_BRIDGE_PORT } from './utils/constants';
 
-const port = browser.runtime.connect({ name: 'commands bridge' });
+const port = browser.runtime.connect({ name: COMMANDS_BRIDGE_PORT });
 
 window.addEventListener('keydown', ({ key, altKey, shiftKey }) => {
   const keyLower = key.toLowerCase();

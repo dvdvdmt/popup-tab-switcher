@@ -1,5 +1,6 @@
 import styles from './content.scss';
 import sprite from './utils/sprite';
+import { CONTENT_SCRIPT_PORT, UPDATE_SETTINGS_MESSAGE } from './utils/constants';
 import tabCornerSymbol from './images/tab-corner.svg';
 import noFaviconSymbol from './images/no-favicon-icon.svg';
 import settingsSymbol from './images/settings-icon.svg';
@@ -17,7 +18,7 @@ const favIcons = {
   bookmarks: bookmarksSymbol,
 };
 
-const { settings, settings: { sizes } } = window;
+let { settings } = window;
 
 function createSVGIcon(symbol, className) {
   const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -86,7 +87,7 @@ function rangedIncrement(number, increment, maxInteger) {
   return (number + (increment % maxInteger) + maxInteger) % maxInteger;
 }
 
-const port = chrome.runtime.connect({ name: 'content script' });
+const contentScriptPort = chrome.runtime.connect({ name: CONTENT_SCRIPT_PORT });
 
 
 export default class PopupTabSwitcher extends HTMLElement {
@@ -98,10 +99,6 @@ export default class PopupTabSwitcher extends HTMLElement {
     const style = document.createElement('style');
     style.textContent = styles;
     this.card = document.createElement('div');
-    this.card.className = 'card';
-    if (settings.isDarkTheme) {
-      this.card.classList.add('card--dark');
-    }
     shadow.appendChild(style);
     shadow.appendChild(this.card);
 
@@ -111,7 +108,13 @@ export default class PopupTabSwitcher extends HTMLElement {
         this.switchToSelectedTab();
       }
     });
-    chrome.runtime.onMessage.addListener(({ type, tabsData }) => {
+
+    chrome.runtime.onMessage.addListener(({ type, tabsData, newSettings }) => {
+      if (type === UPDATE_SETTINGS_MESSAGE) {
+        settings = newSettings;
+        this.renderTabs(tabsArray, selectedTabIndex);
+        return;
+      }
       tabsArray = tabsData;
       if (type === 'next') {
         selectedTabIndex = rangedIncrement(selectedTabIndex, +1, tabsArray.length);
@@ -119,7 +122,6 @@ export default class PopupTabSwitcher extends HTMLElement {
         selectedTabIndex = rangedIncrement(selectedTabIndex, -1, tabsArray.length);
       }
       this.renderTabs(tabsArray, selectedTabIndex);
-      this.scrollLongTextOfSelectedTab();
       // When the focus is on the address bar or the 'search in the page' field
       // then the extension should switch a tab at the end of a timer.
       // Because there is no way to handle key pressings when a page has no focus.
@@ -132,6 +134,7 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   showOverlay() {
+    const { sizes } = settings;
     this.style.setProperty('--popup-width-factor', sizes.popupWidth / window.outerWidth);
     this.style.setProperty('--popup-height-factor', sizes.popupHeight / window.outerWidth);
     this.style.setProperty('--popup-border-radius-factor', sizes.popupBorderRadius / window.outerWidth);
@@ -149,7 +152,7 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   switchToSelectedTab() {
     this.hideOverlay();
-    port.postMessage({
+    contentScriptPort.postMessage({
       command: 'switch tab',
       selectedTab: tabsArray[selectedTabIndex],
     });
@@ -184,10 +187,12 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   renderTabs(tabs, selectedId) {
     this.card.innerHTML = '';
+    this.card.className = ['card', settings.isDarkTheme ? 'card--dark' : ''].join(' ');
     const tabElements = getTabElements(tabs, selectedId);
     for (const tabElement of tabElements) {
       this.card.append(tabElement);
     }
     this.showOverlay();
+    this.scrollLongTextOfSelectedTab();
   }
 }

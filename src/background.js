@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 import * as tabRegistry from './tabRegistry';
 import * as settings from './utils/settings';
+import { COMMANDS_BRIDGE_PORT, CONTENT_SCRIPT_PORT } from './utils/constants';
 
 settings.initialize();
 
@@ -78,7 +79,7 @@ function isAllowedUrl(url) {
 }
 
 browser.runtime.onConnect.addListener((port) => {
-  if (port.name === 'content script') {
+  if (port.name === CONTENT_SCRIPT_PORT) {
     port.onMessage.addListener(async ({ selectedTab }) => {
       await browser.tabs.update(selectedTab.id, { active: true });
     });
@@ -88,7 +89,7 @@ browser.runtime.onConnect.addListener((port) => {
 // code that runs only in end-to-end tests
 if (E2E) {
   browser.runtime.onConnect.addListener((port) => {
-    if (port.name === 'commands bridge') {
+    if (port.name === COMMANDS_BRIDGE_PORT) {
       port.onMessage.addListener(async ({ command }) => {
         await handleCommand(command);
       });
