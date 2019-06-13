@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import styles from './content.scss';
 import sprite from './utils/sprite';
 import tabCornerSymbol from './images/tab-corner.svg';
@@ -18,22 +17,7 @@ const favIcons = {
   bookmarks: bookmarksSymbol,
 };
 
-const settings = {
-  textScrollDelay: 1000,
-  textScrollCoefficient: 2500,
-  autoSwitchingTimeout: 1000,
-  isDarkTheme: false,
-  sizes: {
-    popupWidth: 420,
-    popupHeight: 448,
-    popupBorderRadius: 8,
-    tabHeight: 40,
-    font: 16,
-    icon: 24,
-  },
-};
-
-const { sizes } = settings;
+const { settings, settings: { sizes } } = window;
 
 function createSVGIcon(symbol, className) {
   const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

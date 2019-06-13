@@ -1,7 +1,7 @@
 {
   "extends": "airbnb-base",
   "globals": {
-    "E2E": true,
+    "E2E": "readonly",
     "window": true
   },
   "rules": {
@@ -23,6 +23,17 @@
       "files": "*e2e.test.js",
       "env": {
         "browser": true
+      }
+    },
+    {
+      "files": [
+        "*background.js",
+        "*content.js",
+        "*PopupTabSwitcher.js"
+      ],
+      "env": {
+        "browser": true,
+        "webextensions": true
       }
     }
   ]

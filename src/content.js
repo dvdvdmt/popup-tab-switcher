@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import '@webcomponents/custom-elements';
 import PopupTabSwitcher from './PopupTabSwitcher';
 
