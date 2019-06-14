@@ -4,10 +4,14 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
 
-const buildProdDir = path.resolve(__dirname, './build-prod');
-const buildDevDir = path.resolve(__dirname, './build-dev');
-const buildE2eDir = path.resolve(__dirname, './build-e2e');
-const popupDir = path.resolve(__dirname, './src/popup');
+const buildProdDir = path.join(__dirname, 'build-prod');
+const buildDevDir = path.join(__dirname, 'build-dev');
+const buildE2eDir = path.join(__dirname, 'build-e2e');
+const popupDir = path.join(__dirname, 'src/popup');
+const srcDir = path.join(__dirname, 'src');
+const nodeModulesDir = path.join(__dirname, 'node_modules');
+
+const sassGlobals = '@import "variables";';
 
 const conf = {
   mode: 'development',
@@ -32,38 +36,46 @@ const conf = {
       },
       {
         test: /\.svg$/,
-        loader: 'svg-sprite-loader',
-        options: {
-          spriteModule: './src/utils/sprite',
-        },
-      },
-      {
-        test: /\.svg$/,
-        loader: 'svgo-loader',
-        options: {
-          plugins: [
-            { removeTitle: true },
-            { convertColors: { shorthex: false } },
-            { convertPathData: false },
-          ],
-        },
+        use: [
+          {
+            loader: 'svg-sprite-loader',
+            options: {
+              spriteModule: './src/utils/sprite',
+            },
+          },
+          {
+            loader: 'svgo-loader',
+            options: {
+              plugins: [
+                { removeTitle: true },
+                { convertColors: { shorthex: false } },
+                { convertPathData: false },
+              ],
+            },
+          },
+        ],
       },
       {
         test: /\.scss$/,
         include: popupDir,
         use: ['style-loader', 'css-loader', {
           loader: 'sass-loader',
-          options: { includePaths: ['./node_modules'] },
+          options: {
+            data: sassGlobals,
+            includePaths: [nodeModulesDir, srcDir],
+          },
         }],
       },
       {
-        test: /\.css$/,
-        include: popupDir,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        test: path.resolve(__dirname, './src/content.scss'),
-        use: ['raw-loader', 'sass-loader'],
+        test: /\.scss$/,
+        exclude: popupDir,
+        use: ['raw-loader', {
+          loader: 'sass-loader',
+          options: {
+            data: sassGlobals,
+            includePaths: [srcDir],
+          },
+        }],
       },
     ],
   },
@@ -114,7 +126,7 @@ module.exports = (env) => {
       }),
       env.watch ? new ChromeExtensionReloader({
         entries: {
-          contentScript: 'content.scss',
+          contentScript: 'PopupTabSwitcher.scss.scss',
           background: 'background',
         },
       }) : () => {

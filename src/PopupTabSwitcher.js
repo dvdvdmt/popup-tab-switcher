@@ -1,4 +1,4 @@
-import styles from './content.scss';
+import styles from './PopupTabSwitcher.scss';
 import sprite from './utils/sprite';
 import { CONTENT_SCRIPT_PORT, UPDATE_SETTINGS_MESSAGE } from './utils/constants';
 import tabCornerSymbol from './images/tab-corner.svg';

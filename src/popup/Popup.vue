@@ -33,7 +33,7 @@
   };
 </script>
 
-<style>
+<style lang="scss">
   .settings {
     width: 200px;
   }
