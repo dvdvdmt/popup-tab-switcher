@@ -32,45 +32,37 @@
   --color-gray-shark-light: #2E3133;
   --color-blue-dodger: #448AFF;
   --color-blue-royal: #2376E5;
-
-  /* light theme */
-  --card-color: black;
-  --card-background: var(--color-gray-athens);
-  --card-border-left-color: white;
-  --tabCornerIcon-fill: var(--color-gray-athens);
-  --tab_selected-background: white;
-  --tab_selected-tabCornerIcon-fill: white;
-  --tab_hover-background: var(--color-gray-athens-light);
-  --tab_hover-tabCornerIcon-fill: var(--color-gray-athens-light);
-  --tabTimeoutIndicator-background: var(--color-blue-dodger);
-  --tabIcon-fill: var(--color-blue-royal);
-  --tabIcon_noFavIcon-fill: var(--color-gray-abbey);
 }
 
 .card {
-  background: var(--card-background);
+  /* light theme */
+  --card-text-color: black;
+  --card-background-color: var(--color-gray-athens);
+  --tab_selected-background: white;
+  --tab_hover-background: var(--color-gray-athens-light);
+  --tabTimeoutIndicator-background: var(--color-blue-dodger);
+  --tabIcon-fill: var(--color-blue-royal);
+  --tabIcon_noFavIcon-fill: var(--color-gray-abbey);
+
+  background: var(--card-background-color);
   border-radius: calc(var(--popup-border-radius-factor) * 100vw);
   border-left: calc(var(--popup-border-radius-factor) * 100vw) solid;
-  border-left-color: var(--card-border-left-color);
+  border-left-color: var(--tab_selected-background);
   border-right: calc(var(--popup-border-radius-factor) * 100vw) solid transparent;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2),
   0 3px 4px rgba(0, 0, 0, 0.12),
   0 2px 4px rgba(0, 0, 0, 0.14);
-  color: var(--card-color);
+  color: var(--card-text-color);
   font-size: calc(var(--font-size-factor) * 100vw);
   height: calc(var(--popup-height-factor) * 100vw);
   width: calc(var(--popup-width-factor) * 100vw);
   overflow: hidden;
 
   &--dark {
-    --card-color: var(--color-gray-porcelain);
-    --card-background: var(--color-gray-shark);
-    --card-border-left-color: var(--color-gray-outer-space);
-    --tabCornerIcon-fill: var(--color-gray-shark);
+    --card-text-color: var(--color-gray-porcelain);
+    --card-background-color: var(--color-gray-shark);
     --tab_selected-background: var(--color-gray-outer-space);
-    --tab_selected-tabCornerIcon-fill: var(--color-gray-outer-space);
     --tab_hover-background: var(--color-gray-shark-light);
-    --tab_hover-tabCornerIcon-fill: var(--color-gray-shark-light);
     --tabTimeoutIndicator-background: var(--color-blue-dodger);
     --tabIcon-fill: white;
     --tabIcon_noFavIcon-fill: white;
@@ -93,7 +85,7 @@
 }
 
 .tab:hover .tabCornerIcon {
-  fill: var(--tab_hover-tabCornerIcon-fill);
+  fill: var(--tab_hover-background);
 }
 
 .tab:hover .tabText::before,
@@ -107,7 +99,7 @@
 }
 
 .tab.tab_selected .tabCornerIcon {
-  fill: var(--tab_selected-tabCornerIcon-fill);
+  fill: var(--tab_selected-background);
 }
 
 .tab.tab_selected .tabText::after {
@@ -121,7 +113,7 @@
   position: absolute;
   width: calc(var(--popup-border-radius-factor) * 100vw);
   height: calc(var(--popup-border-radius-factor) * 100vw);
-  fill: var(--tabCornerIcon-fill);
+  fill: var(--card-background-color);
   left: 0;
 }
 
@@ -155,7 +147,7 @@
 }
 
 .tabText::after {
-  --start-color: var(--card-background);
+  --start-color: var(--card-background-color);
   content: '';
   position: absolute;
   top: 0;
