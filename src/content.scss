@@ -1,3 +1,5 @@
+// NOTE: naming blockName__elementName_modName_modVal
+// this BEM naming scheme can be used in JS without quotes
 :host {
   all: initial;
   display: none;
@@ -58,7 +60,7 @@
   width: calc(var(--popup-width-factor) * 100vw);
   overflow: hidden;
 
-  &--dark {
+  &_dark {
     --card-text-color: var(--color-gray-porcelain);
     --card-background-color: var(--color-gray-shark);
     --tab_selected-background: var(--color-gray-outer-space);
@@ -84,12 +86,12 @@
   z-index: 10;
 }
 
-.tab:hover .tabCornerIcon {
+.tab:hover .tab__cornerIcon {
   fill: var(--tab_hover-background);
 }
 
-.tab:hover .tabText::before,
-.tab:hover .tabText::after {
+.tab:hover .tab__text::before,
+.tab:hover .tab__text::after {
   --start-color: var(--tab_hover-background);
 }
 
@@ -98,18 +100,18 @@
   z-index: 20;
 }
 
-.tab.tab_selected .tabCornerIcon {
+.tab.tab_selected .tab__cornerIcon {
   fill: var(--tab_selected-background);
 }
 
-.tab.tab_selected .tabText::after {
+.tab.tab_selected .tab__text::after {
   --start-color: var(--tab_selected-background);
   right: initial;
   left: 0;
   transform: rotate(180deg);
 }
 
-.tabCornerIcon {
+.tab__cornerIcon {
   position: absolute;
   width: calc(var(--popup-border-radius-factor) * 100vw);
   height: calc(var(--popup-border-radius-factor) * 100vw);
@@ -117,27 +119,27 @@
   left: 0;
 }
 
-.tabCornerIcon_bottom {
+.tab__cornerIcon_bottom {
   bottom: calc(-1 * var(--popup-border-radius-factor) * 100vw);
   transform: rotate(90deg);
 }
 
-.tabCornerIcon_top {
+.tab__cornerIcon_top {
   top: calc(-1 * var(--popup-border-radius-factor) * 100vw);
 }
 
-.tabIcon {
+.tab__icon {
   height: auto;
   width: calc(var(--icon-size-factor) * 100vw);
   min-width: calc(var(--icon-size-factor) * 100vw);
   fill: var(--tabIcon-fill);
 }
 
-.tabIcon_noFavIcon {
+.tab__icon_noFavIcon {
   fill: var(--tabIcon_noFavIcon-fill)
 }
 
-.tabText {
+.tab__text {
   position: relative;
   width: 100%;
   max-height: calc(var(--tab-height-factor) * 100vw);
@@ -146,7 +148,7 @@
   padding-left: calc(14 / var(--size-window-width) * 100vw);
 }
 
-.tabText::after {
+.tab__text::after {
   --start-color: var(--card-background-color);
   content: '';
   position: absolute;
@@ -157,7 +159,7 @@
   background: linear-gradient(to left, var(--start-color), transparent);
 }
 
-.tabTimeoutIndicator {
+.tab__timeoutIndicator {
   position: absolute;
   width: 95%;
   height: calc(2 / var(--size-window-width) * 100vw);

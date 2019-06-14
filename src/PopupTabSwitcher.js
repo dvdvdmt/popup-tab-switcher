@@ -36,17 +36,17 @@ function getIconEl(favIconUrl, url) {
     const matches = /chrome:\/\/(\w*?)\//.exec(url);
     if (matches && matches[1] === 'newtab') {
       iconEl = document.createElement('div');
-      iconEl.className = 'tabIcon';
+      iconEl.className = 'tab__icon';
       return iconEl;
     }
     if (matches && matches[1] && favIcons[matches[1]]) {
-      return createSVGIcon(favIcons[matches[1]], 'tabIcon');
+      return createSVGIcon(favIcons[matches[1]], 'tab__icon');
     }
-    return createSVGIcon(favIcons.default, 'tabIcon tabIcon_noFavIcon');
+    return createSVGIcon(favIcons.default, 'tab__icon tab__icon_noFavIcon');
   }
   iconEl = document.createElement('img');
   iconEl.src = favIconUrl;
-  iconEl.className = 'tabIcon';
+  iconEl.className = 'tab__icon';
   return iconEl;
 }
 
@@ -58,7 +58,7 @@ function getTabElements(tabs, selectedId) {
       tabEl.classList.add('tab_selected');
       if (!document.hasFocus()) {
         const indicator = document.createElement('div');
-        indicator.className = 'tabTimeoutIndicator';
+        indicator.className = 'tab__timeoutIndicator';
         tabEl.append(indicator);
         tabEl.classList.add('tab_timeout');
       }
@@ -67,9 +67,9 @@ function getTabElements(tabs, selectedId) {
     tabEl.append(iconEl);
     const textEl = document.createElement('span');
     textEl.textContent = title;
-    textEl.className = 'tabText';
-    tabEl.append(createSVGIcon(tabCornerSymbol, 'tabCornerIcon tabCornerIcon_top'));
-    tabEl.append(createSVGIcon(tabCornerSymbol, 'tabCornerIcon tabCornerIcon_bottom'));
+    textEl.className = 'tab__text';
+    tabEl.append(createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_top'));
+    tabEl.append(createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_bottom'));
     tabEl.append(textEl);
     return tabEl;
   });
@@ -160,7 +160,7 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   scrollLongTextOfSelectedTab() {
-    const textEl = this.shadowRoot.querySelector('.tab_selected .tabText');
+    const textEl = this.shadowRoot.querySelector('.tab_selected .tab__text');
     const textIndent = textEl.scrollWidth - textEl.offsetWidth;
     if (textIndent) {
       const scrollTime = textIndent / textEl.offsetWidth * settings.textScrollCoefficient;
@@ -187,7 +187,7 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   renderTabs(tabs, selectedId) {
     this.card.innerHTML = '';
-    this.card.className = ['card', settings.isDarkTheme ? 'card--dark' : ''].join(' ');
+    this.card.className = ['card', settings.isDarkTheme ? 'card_dark' : ''].join(' ');
     const tabElements = getTabElements(tabs, selectedId);
     for (const tabElement of tabElements) {
       this.card.append(tabElement);

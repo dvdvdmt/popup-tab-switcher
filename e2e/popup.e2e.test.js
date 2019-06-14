@@ -257,7 +257,7 @@ describe('Pop-up', function () {
       await pageWikipedia.evaluate(() => {
         const textEl = document.querySelector('popup-tab-switcher')
           .shadowRoot
-          .querySelector('.tab_selected .tabText');
+          .querySelector('.tab_selected .tab__text');
         Promise.all(textEl.getAnimations().map(a => a.finished)).then(window.onAnimationFinish);
       });
       try {
