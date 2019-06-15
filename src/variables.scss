@@ -36,26 +36,32 @@ $color-blue-mariner-light: #2274E1;
 // mdc light theme
 $mdc-theme-primary: $color-blue-mariner;
 $mdc-theme-secondary: $color-blue-mariner-light;
+$mdc-theme-background: white;
 @if(false) { // generate dark theme?
   // mdc dark theme
   $mdc-theme-primary: $color-gray-shark;
   $mdc-theme-secondary: $color-blue-mariner-light;
+  $mdc-theme-background: $color-gray-outer-space;
 }
 
 @mixin settings-theme-light() {
-  --settings-background-color: white;
+  --settings-background-color: #{$mdc-theme-background};
   --mdc-theme-primary: #{$color-blue-mariner};
   --mdc-theme-secondary: #{$color-blue-mariner-light};
+  --settings__row_hover-background-color: #{$color-gray-athens-light};
 
   // generated
   --mdc-theme-on-primary: #fff;
+  --mdc-theme-text-primary-on-background: rgba(0, 0, 0, 0.87);
 }
 
 @mixin settings-theme-dark() {
   --settings-background-color: #{$color-gray-outer-space};
   --mdc-theme-primary: #{$color-gray-shark};
   --mdc-theme-secondary: #{$color-blue-mariner-light};
+  --settings__row_hover-background-color: #{$color-gray-shark-light};
 
   // generated
   --mdc-theme-on-primary: #fff;
+  --mdc-theme-text-primary-on-background: white;
 }

@@ -5,7 +5,7 @@
       <div class="mdc-switch__thumb">
         <input v-model="model"
                type="checkbox"
-               id="basic-switch"
+               :id="id"
                class="mdc-switch__native-control"
                role="switch">
       </div>
@@ -19,6 +19,10 @@
   export default {
     name: 'MSwitch',
     props: {
+      id: {
+        type: String,
+        required: true
+      },
       value: {
         type: Boolean,
         default: false
