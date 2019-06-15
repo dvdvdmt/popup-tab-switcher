@@ -8,6 +8,8 @@ $color-gray-shark: #252629;
 $color-gray-shark-light: #2E3133;
 $color-blue-dodger: #448AFF;
 $color-blue-royal: #2376E5;
+$color-blue-mariner: #366AD3;
+$color-blue-mariner-light: #2274E1;
 
 // light theme
 @mixin popup-theme-light() {
@@ -31,7 +33,29 @@ $color-blue-royal: #2376E5;
   --tab__icon_noFavIcon-fill: white;
 }
 
-// material design theme
-$mdc-theme-primary: #9C27B0;
-$mdc-theme-secondary: #76FF03;
-$mdc-theme-background: #FFFFFF;
+// mdc light theme
+$mdc-theme-primary: $color-blue-mariner;
+$mdc-theme-secondary: $color-blue-mariner-light;
+@if(false) { // generate dark theme?
+  // mdc dark theme
+  $mdc-theme-primary: $color-gray-shark;
+  $mdc-theme-secondary: $color-blue-mariner-light;
+}
+
+@mixin settings-theme-light() {
+  --settings-background-color: white;
+  --mdc-theme-primary: #{$color-blue-mariner};
+  --mdc-theme-secondary: #{$color-blue-mariner-light};
+
+  // generated
+  --mdc-theme-on-primary: #fff;
+}
+
+@mixin settings-theme-dark() {
+  --settings-background-color: #{$color-gray-outer-space};
+  --mdc-theme-primary: #{$color-gray-shark};
+  --mdc-theme-secondary: #{$color-blue-mariner-light};
+
+  // generated
+  --mdc-theme-on-primary: #fff;
+}
