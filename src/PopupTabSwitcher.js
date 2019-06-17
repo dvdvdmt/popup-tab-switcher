@@ -1,6 +1,6 @@
 import styles from './PopupTabSwitcher.scss';
 import sprite from './utils/sprite';
-import { CONTENT_SCRIPT_PORT, UPDATE_SETTINGS_MESSAGE } from './utils/constants';
+import { messages, ports } from './utils/constants';
 import tabCornerSymbol from './images/tab-corner.svg';
 import noFaviconSymbol from './images/no-favicon-icon.svg';
 import settingsSymbol from './images/settings-icon.svg';
@@ -8,6 +8,7 @@ import downloadsSymbol from './images/downloads-icon.svg';
 import extensionsSymbol from './images/extensions-icon.svg';
 import historySymbol from './images/history-icon.svg';
 import bookmarksSymbol from './images/bookmarks-icon.svg';
+import handleMessage from './utils/handleMessage';
 
 const favIcons = {
   default: noFaviconSymbol,
@@ -87,7 +88,7 @@ function rangedIncrement(number, increment, maxInteger) {
   return (number + (increment % maxInteger) + maxInteger) % maxInteger;
 }
 
-const contentScriptPort = chrome.runtime.connect({ name: CONTENT_SCRIPT_PORT });
+const contentScriptPort = chrome.runtime.connect({ name: ports.CONTENT_SCRIPT });
 
 
 export default class PopupTabSwitcher extends HTMLElement {
@@ -109,28 +110,29 @@ export default class PopupTabSwitcher extends HTMLElement {
       }
     });
 
-    chrome.runtime.onMessage.addListener(({ type, tabsData, newSettings }) => {
-      if (type === UPDATE_SETTINGS_MESSAGE) {
+    chrome.runtime.onMessage.addListener(handleMessage({
+      [messages.UPDATE_SETTINGS]: ({ tabsData, newSettings }) => {
+        tabsArray = tabsData;
         settings = newSettings;
         this.renderTabs(tabsArray, selectedTabIndex);
-        return;
-      }
-      tabsArray = tabsData;
-      if (type === 'next') {
-        selectedTabIndex = rangedIncrement(selectedTabIndex, +1, tabsArray.length);
-      } else if (type === 'previous') {
-        selectedTabIndex = rangedIncrement(selectedTabIndex, -1, tabsArray.length);
-      }
-      this.renderTabs(tabsArray, selectedTabIndex);
-      // When the focus is on the address bar or the 'search in the page' field
-      // then the extension should switch a tab at the end of a timer.
-      // Because there is no way to handle key pressings when a page has no focus.
-      // https://stackoverflow.com/a/20940788/3167855
-      if (!document.hasFocus()) {
-        clearTimeout(timeout);
-        timeout = setTimeout(this.switchToSelectedTab.bind(this), settings.autoSwitchingTimeout);
-      }
-    });
+      },
+      [messages.CLOSE_SETTINGS]: () => {
+        this.hideOverlay();
+      },
+      [messages.SELECT_TAB]: ({ tabsData, increment }) => {
+        tabsArray = tabsData;
+        selectedTabIndex = rangedIncrement(selectedTabIndex, increment, tabsArray.length);
+        this.renderTabs(tabsArray, selectedTabIndex);
+        // When the focus is on the address bar or the 'search in the page' field
+        // then the extension should switch a tab at the end of a timer.
+        // Because there is no way to handle key pressings when a page has no focus.
+        // https://stackoverflow.com/a/20940788/3167855
+        if (!document.hasFocus()) {
+          clearTimeout(timeout);
+          timeout = setTimeout(this.switchToSelectedTab.bind(this), settings.autoSwitchingTimeout);
+        }
+      },
+    }));
   }
 
   showOverlay() {
@@ -153,7 +155,7 @@ export default class PopupTabSwitcher extends HTMLElement {
   switchToSelectedTab() {
     this.hideOverlay();
     contentScriptPort.postMessage({
-      command: 'switch tab',
+      type: messages.SWITCH_TAB,
       selectedTab: tabsArray[selectedTabIndex],
     });
     selectedTabIndex = 0;

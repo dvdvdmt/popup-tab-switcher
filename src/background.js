@@ -1,7 +1,8 @@
 import browser from 'webextension-polyfill';
 import * as tabRegistry from './tabRegistry';
 import * as settings from './utils/settings';
-import { COMMANDS_BRIDGE_PORT, CONTENT_SCRIPT_PORT } from './utils/constants';
+import { messages, ports } from './utils/constants';
+import handleMessage from './utils/handleMessage';
 
 settings.initialize();
 
@@ -23,6 +24,15 @@ function isSpecialTab(currentTab) {
   return /^chrome:|^view-source:/.test(currentTab.url);
 }
 
+async function initializeContentScript(tab) {
+  if (!tabRegistry.isInitialized(tab)) {
+    const settingsString = settings.getString();
+    await browser.tabs.executeScript(tab.id, { code: `window.settings = ${settingsString};` });
+    await browser.tabs.executeScript(tab.id, { file: 'content.js' });
+    tabRegistry.addToInitialized(tab);
+  }
+}
+
 async function handleCommand(command) {
   const [currentTab] = await browser.tabs.query({
     active: true,
@@ -40,18 +50,13 @@ async function handleCommand(command) {
     return;
   }
 
-  // initialize content script
-  if (!tabRegistry.isInitialized(currentTab)) {
-    const settingsString = settings.getString();
-    await browser.tabs.executeScript(currentTab.id, { code: `window.settings = ${settingsString};` });
-    await browser.tabs.executeScript(currentTab.id, { file: 'content.js' });
-    tabRegistry.addToInitialized(currentTab);
-  }
+  await initializeContentScript(currentTab);
 
   // send the command to the content script
   await browser.tabs.sendMessage(currentTab.id, {
-    type: command,
+    type: messages.SELECT_TAB,
     tabsData: tabRegistry.getTabs(),
+    increment: command === 'next' ? 1 : -1,
   });
 }
 
@@ -79,9 +84,55 @@ function isAllowedUrl(url) {
 }
 
 browser.runtime.onConnect.addListener((port) => {
-  if (port.name === CONTENT_SCRIPT_PORT) {
-    port.onMessage.addListener(async ({ selectedTab }) => {
-      await browser.tabs.update(selectedTab.id, { active: true });
+  if (ports.CONTENT_SCRIPT === port.name) {
+    port.onMessage.addListener(handleMessage({
+      [messages.SWITCH_TAB]: async ({ selectedTab }) => {
+        await browser.tabs.update(selectedTab.id, { active: true });
+      },
+    }));
+  } else if (ports.POPUP_SCRIPT === port.name) {
+    port.onMessage.addListener(handleMessage({
+      [messages.UPDATE_SETTINGS]: async ({ newSettings }) => {
+        settings.update(newSettings);
+
+        const [currentTab] = await browser.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+
+        if (!currentTab) return;
+
+        // handle special chrome tabs separately because they do not allow script executions
+        if (isSpecialTab(currentTab)) {
+          const previousNormalTab = tabRegistry.getTabs()
+            .find(tab => !isSpecialTab(tab));
+          if (previousNormalTab) {
+            await browser.tabs.update(previousNormalTab.id, { active: true });
+          }
+          return;
+        }
+
+        await initializeContentScript(currentTab);
+
+        // send the command to the content script
+        await browser.tabs.sendMessage(currentTab.id, {
+          type: messages.UPDATE_SETTINGS,
+          newSettings,
+          tabsData: tabRegistry.getTabs(),
+        });
+      },
+    }));
+
+    // notify the tab when the settings popup closes
+    port.onDisconnect.addListener(async () => {
+      const [currentTab] = await browser.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
+      await browser.tabs.sendMessage(currentTab.id, {
+        type: messages.CLOSE_SETTINGS,
+      });
     });
   }
 });
@@ -89,7 +140,7 @@ browser.runtime.onConnect.addListener((port) => {
 // code that runs only in end-to-end tests
 if (E2E) {
   browser.runtime.onConnect.addListener((port) => {
-    if (port.name === COMMANDS_BRIDGE_PORT) {
+    if (port.name === ports.COMMANDS_BRIDGE) {
       port.onMessage.addListener(async ({ command }) => {
         await handleCommand(command);
       });

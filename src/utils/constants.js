@@ -1,3 +1,12 @@
-export const CONTENT_SCRIPT_PORT = 'content script';
-export const COMMANDS_BRIDGE_PORT = 'commands bridge';
-export const UPDATE_SETTINGS_MESSAGE = 'update settings';
+export const ports = Object.freeze({
+  POPUP_SCRIPT: 'POPUP_SCRIPT',
+  COMMANDS_BRIDGE: 'COMMANDS_BRIDGE',
+  CONTENT_SCRIPT: 'CONTENT_SCRIPT',
+});
+
+export const messages = Object.freeze({
+  UPDATE_SETTINGS: 'UPDATE_SETTINGS',
+  CLOSE_SETTINGS: 'CLOSE_SETTINGS',
+  SELECT_TAB: 'SELECT_TAB',
+  SWITCH_TAB: 'SWITCH_TAB',
+});

@@ -15,9 +15,13 @@
 </template>
 
 <script>
+  import browser from 'webextension-polyfill';
   import * as settings from '../utils/settings';
   import MSwitch from './components/MSwitch.vue';
   import MTopAppBar from './components/MTopAppBar.vue';
+  import { ports, messages } from '../utils/constants';
+
+  const port = browser.runtime.connect({ name: ports.POPUP_SCRIPT });
 
   export default {
     name: 'Popup',
@@ -26,12 +30,19 @@
         settings: settings.get(),
       };
     },
+    methods: {
+      updateSettings() {
+        port.postMessage({
+          type: messages.UPDATE_SETTINGS,
+          newSettings: this.settings,
+        });
+      },
+    },
     created() {
-      function saveSettings() {
-        settings.update(this.settings);
-      }
-
-      this.$watch('settings', saveSettings, { deep: true });
+      this.$watch('settings', this.updateSettings, { deep: true });
+    },
+    mounted() {
+      this.updateSettings();
     },
     components: {
       MSwitch,

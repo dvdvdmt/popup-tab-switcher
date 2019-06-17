@@ -1,6 +1,3 @@
-import browser from 'webextension-polyfill';
-import { UPDATE_SETTINGS_MESSAGE } from './constants';
-
 const defaultSettings = {
   textScrollDelay: 1000,
   textScrollCoefficient: 2500,
@@ -34,16 +31,6 @@ export function get() {
   return JSON.parse(getString());
 }
 
-export async function update(newSettings) {
+export function update(newSettings) {
   localStorage.settings = JSON.stringify(newSettings);
-
-  const [currentTab] = await browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-
-  browser.tabs.sendMessage(currentTab.id, {
-    type: UPDATE_SETTINGS_MESSAGE,
-    newSettings,
-  });
 }
