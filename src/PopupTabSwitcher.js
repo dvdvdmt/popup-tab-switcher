@@ -136,9 +136,10 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   showOverlay() {
-    const { sizes } = settings;
+    const { sizes, maxNumberOfTabs } = settings;
+    const popupHeight = maxNumberOfTabs * sizes.tabHeight;
     this.style.setProperty('--popup-width-factor', sizes.popupWidth / window.outerWidth);
-    this.style.setProperty('--popup-height-factor', sizes.popupHeight / window.outerWidth);
+    this.style.setProperty('--popup-height-factor', popupHeight / window.outerWidth);
     this.style.setProperty('--popup-border-radius-factor', sizes.popupBorderRadius / window.outerWidth);
     this.style.setProperty('--tab-height-factor', sizes.tabHeight / window.outerWidth);
     this.style.setProperty('--font-size-factor', sizes.font / window.outerWidth);
