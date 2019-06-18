@@ -35,3 +35,7 @@ export function get() {
 export function update(newSettings) {
   localStorage.settings = JSON.stringify(newSettings);
 }
+
+export function setDefaults() {
+  update(defaultSettings);
+}

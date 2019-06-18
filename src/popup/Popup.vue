@@ -103,8 +103,13 @@
                       v-model="settings.textScrollCoefficient"
         />
       </div>
+      <div class="settings__row settings__row_buttons">
+        <m-button @click="setDefaults">
+          <i slot="icon" class="settings__icon material-icons">restore</i>
+          Set defaults
+        </m-button>
+      </div>
     </div>
-    <pre>{{$data}}</pre>
   </div>
 </template>
 
@@ -115,6 +120,7 @@
   import MSwitch from './components/MSwitch.vue';
   import MTopAppBar from './components/MTopAppBar.vue';
   import MTextField from './components/MTextField.vue';
+  import MButton from './components/MButton.vue';
 
   const port = browser.runtime.connect({ name: ports.POPUP_SCRIPT });
 
@@ -132,6 +138,11 @@
           newSettings: this.settings,
         });
       },
+      setDefaults() {
+        settings.setDefaults();
+        this.settings = settings.get();
+        this.updateSettings();
+      }
     },
     created() {
       this.$watch('settings', this.updateSettings, { deep: true });
@@ -143,6 +154,7 @@
       MSwitch,
       MTopAppBar,
       MTextField,
+      MButton,
     },
   };
 </script>
@@ -177,6 +189,14 @@
 
     &:hover {
       background-color: var(--settings__row_hover-background-color);
+    }
+
+    &_buttons {
+      flex-direction: row-reverse;
+
+      &:hover {
+        background-color: unset;
+      }
     }
   }
 
