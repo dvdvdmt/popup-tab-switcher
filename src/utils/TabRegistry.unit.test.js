@@ -1,5 +1,5 @@
 import assert from 'assert';
-import * as tabRegistry from './tabRegistry';
+import TabRegistry from './TabRegistry';
 
 describe('Tab registry', function () {
   it('pushes tabs correctly', function () {
@@ -63,8 +63,9 @@ describe('Tab registry', function () {
       },
     ];
 
-    tabActivations.forEach(activeTab => tabRegistry.push(activeTab));
-    assert.deepStrictEqual(tabRegistry.getTabs(), resultRegistry);
+    const registry = new TabRegistry();
+    tabActivations.forEach(activeTab => registry.push(activeTab));
+    assert.deepStrictEqual(registry.getTabs(), resultRegistry);
   });
 
   it('removes tabs correctly', function () {
@@ -113,16 +114,16 @@ describe('Tab registry', function () {
         favIconUrl: '1 tab favicon',
       },
     ];
-    tabRegistry.init(tabActivations);
-    tabRegistry.remove(4);
-    tabRegistry.remove(3);
-    tabRegistry.push({
+    const registry = new TabRegistry({ tabs: tabActivations });
+    registry.remove(4);
+    registry.remove(3);
+    registry.push({
       id: 7,
       title: '7 tab',
       url: '7 tab url',
       favIconUrl: '7 tab favicon',
     });
-    assert.deepStrictEqual(tabRegistry.getTabs(), resultRegistry);
+    assert.deepStrictEqual(registry.getTabs(), resultRegistry);
   });
 
   it('updates tab with new info', function () {
@@ -176,13 +177,13 @@ describe('Tab registry', function () {
         favIconUrl: '1 tab favicon',
       },
     ];
-    tabRegistry.init(tabActivations);
-    tabRegistry.update({
+    const registry = new TabRegistry({ tabs: tabActivations });
+    registry.update({
       id: 2,
       title: '2 tab updated',
       url: '2 tab url updated',
       favIconUrl: '2 tab favicon updated',
     });
-    assert.deepStrictEqual(tabRegistry.getTabs(), resultRegistry);
+    assert.deepStrictEqual(registry.getTabs(), resultRegistry);
   });
 });

@@ -2,6 +2,7 @@ const defaultSettings = {
   textScrollDelay: 1000,
   textScrollCoefficient: 2500,
   autoSwitchingTimeout: 1000,
+  maxNumberOfTabs: 7,
   isDarkTheme: false,
   sizes: {
     popupWidth: 420,

@@ -1,10 +1,11 @@
 import browser from 'webextension-polyfill';
-import * as tabRegistry from './tabRegistry';
+import TabRegistry from './utils/TabRegistry';
 import * as settings from './utils/settings';
 import { messages, ports } from './utils/constants';
 import handleMessage from './utils/handleMessage';
 
 settings.initialize();
+const registry = new TabRegistry({ maxNumberOfTabs: settings.get().maxNumberOfTabs });
 
 async function addCurrentTabToRegistry() {
   const [currentTab] = await browser.tabs.query({
@@ -13,7 +14,7 @@ async function addCurrentTabToRegistry() {
   });
   // the tab can be instantly closed and therefore currentTab can be null
   if (currentTab) {
-    tabRegistry.push(currentTab);
+    registry.push(currentTab);
   }
 }
 
@@ -25,11 +26,11 @@ function isSpecialTab(currentTab) {
 }
 
 async function initializeContentScript(tab) {
-  if (!tabRegistry.isInitialized(tab)) {
+  if (!registry.isInitialized(tab)) {
     const settingsString = settings.getString();
     await browser.tabs.executeScript(tab.id, { code: `window.settings = ${settingsString};` });
     await browser.tabs.executeScript(tab.id, { file: 'content.js' });
-    tabRegistry.addToInitialized(tab);
+    registry.addToInitialized(tab);
   }
 }
 
@@ -43,7 +44,7 @@ async function handleCommand(command) {
 
   // handle special chrome tabs separately because they do not allow script executions
   if (isSpecialTab(currentTab)) {
-    const previousTab = tabRegistry.getTabs()[1];
+    const previousTab = registry.getTabs()[1];
     if (previousTab) {
       await browser.tabs.update(previousTab.id, { active: true });
     }
@@ -55,7 +56,7 @@ async function handleCommand(command) {
   // send the command to the content script
   await browser.tabs.sendMessage(currentTab.id, {
     type: messages.SELECT_TAB,
-    tabsData: tabRegistry.getTabs(),
+    tabsData: registry.getTabs(),
     increment: command === 'next' ? 1 : -1,
   });
 }
@@ -66,14 +67,14 @@ browser.tabs.onActivated.addListener(addCurrentTabToRegistry);
 
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete') {
-    tabRegistry.removeFromInitialized(tabId);
-    tabRegistry.update(tab);
+    registry.removeFromInitialized(tabId);
+    registry.update(tab);
   }
 });
 
 browser.tabs.onRemoved.addListener(async (tabId) => {
-  tabRegistry.remove(tabId);
-  const currentTab = tabRegistry.getTabs()[0];
+  registry.remove(tabId);
+  const currentTab = registry.getTabs()[0];
   if (currentTab) {
     await browser.tabs.update(currentTab.id, { active: true });
   }
@@ -94,6 +95,7 @@ browser.runtime.onConnect.addListener((port) => {
     port.onMessage.addListener(handleMessage({
       [messages.UPDATE_SETTINGS]: async ({ newSettings }) => {
         settings.update(newSettings);
+        registry.maxNumberOfTabs = newSettings.maxNumberOfTabs;
 
         const [currentTab] = await browser.tabs.query({
           active: true,
@@ -104,7 +106,7 @@ browser.runtime.onConnect.addListener((port) => {
 
         // handle special chrome tabs separately because they do not allow script executions
         if (isSpecialTab(currentTab)) {
-          const previousNormalTab = tabRegistry.getTabs()
+          const previousNormalTab = registry.getTabs()
             .find(tab => !isSpecialTab(tab));
           if (previousNormalTab) {
             await browser.tabs.update(previousNormalTab.id, { active: true });
@@ -118,7 +120,7 @@ browser.runtime.onConnect.addListener((port) => {
         await browser.tabs.sendMessage(currentTab.id, {
           type: messages.UPDATE_SETTINGS,
           newSettings,
-          tabsData: tabRegistry.getTabs(),
+          tabsData: registry.getTabs(),
         });
       },
     }));
