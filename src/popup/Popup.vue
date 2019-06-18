@@ -34,6 +34,17 @@
         />
       </div>
       <div class="settings__row mdc-form-field">
+        <label for="max-number-of-tabs" class="settings__label">
+          <i class="settings__icon material-icons">format_list_numbered</i>
+          Max number of tabs
+        </label>
+        <m-text-field id="max-number-of-tabs"
+                      type="number"
+                      class="settings__field"
+                      v-model="settings.maxNumberOfTabs"
+        />
+      </div>
+      <div class="settings__row mdc-form-field">
         <label for="font-size" class="settings__label">
           <i class="settings__icon material-icons">format_size</i>
           Font size
