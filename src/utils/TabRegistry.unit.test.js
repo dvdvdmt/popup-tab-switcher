@@ -55,15 +55,9 @@ describe('Tab registry', function () {
         url: '4 tab url',
         favIconUrl: '4 tab favicon',
       },
-      {
-        id: 1,
-        title: '1 tab',
-        url: '1 tab url',
-        favIconUrl: '1 tab favicon',
-      },
     ];
 
-    const registry = new TabRegistry();
+    const registry = new TabRegistry({ maxNumberOfTabs: 3 });
     tabActivations.forEach(activeTab => registry.push(activeTab));
     assert.deepStrictEqual(registry.getTabs(), resultRegistry);
   });

@@ -20,7 +20,7 @@ export default class TabRegistry {
   push(current) {
     const tempTabs = this.tabs.filter(({ id }) => id !== current.id);
     tempTabs.unshift(current);
-    this.tabs = tempTabs.slice(0, this.maxNumberOfTabs - 1);
+    this.tabs = tempTabs.slice(0, this.maxNumberOfTabs);
   }
 
   remove(tabId) {
