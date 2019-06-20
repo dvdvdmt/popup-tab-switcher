@@ -125,7 +125,7 @@
   const port = browser.runtime.connect({ name: ports.POPUP_SCRIPT });
 
   export default {
-    name: 'Popup',
+    name: 'Settings',
     data() {
       return {
         settings: settings.get(),

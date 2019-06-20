@@ -15,8 +15,8 @@
     "default_icon": {
       "32": "images/icon-32.png"
     },
-    "default_title": "Popup tab switcher",
-    "default_popup": "popup.html"
+    "default_title": "Popup tab switcher: Settings",
+    "default_popup": "settings/index.html"
   },
   "commands": {
     "next": {
