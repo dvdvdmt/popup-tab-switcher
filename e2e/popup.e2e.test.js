@@ -23,7 +23,7 @@ after(function () {
 });
 
 function getPagePath(pageName) {
-  return `file:${path.join(__dirname, 'web-pages', pageName, 'index.html')}`;
+  return `file:${path.join(__dirname, 'web-pages', pageName)}.html`;
 }
 
 async function getActiveTab() {
@@ -95,13 +95,13 @@ describe('Pop-up', function () {
     it('Works after page reload', popupOpens);
 
     it('Opens on file pages', async () => {
-      const imagePath = path.resolve('./e2e/web-pages/wikipedia/Wikipedia-logo-v2@2x.png');
+      const imagePath = path.resolve('./e2e/web-pages/file.png');
       await page.goto(`file://${imagePath}`);
       await popupOpens();
-      const pdfPath = path.resolve('./e2e/web-pages/pdf-sample.pdf');
+      const pdfPath = path.resolve('./e2e/web-pages/file.pdf');
       await page.goto(`file://${pdfPath}`);
       await popupOpens();
-      const textPath = path.resolve('./e2e/web-pages/wikipedia/index-66c9b3efbd.js');
+      const textPath = path.resolve('./e2e/web-pages/file.js');
       await page.goto(`file://${textPath}`);
       await popupOpens();
     });
@@ -120,7 +120,7 @@ describe('Pop-up', function () {
 
     it('Adds visited pages to the registry in correct order', async () => {
       const expectedTexts = [
-        'About - Stack Overflow',
+        'Tour - Stack Overflow',
         'Example Domain',
         'Wikipedia',
       ];
@@ -137,7 +137,7 @@ describe('Pop-up', function () {
 
     it('Updates tab list on closing open tabs', async () => {
       const expectedTexts = [
-        'About - Stack Overflow',
+        'Tour - Stack Overflow',
         'Wikipedia',
       ];
       const pageWikipedia = await browser.newPage();
@@ -167,7 +167,7 @@ describe('Pop-up', function () {
       assert.strictEqual(elText, 'Wikipedia');
       await pageStOverflow.keyboard.press('KeyY');
       elText = await queryPopup(pageStOverflow, '.tab_selected', ([el]) => el.textContent);
-      assert.strictEqual(elText, 'About - Stack Overflow');
+      assert.strictEqual(elText, 'Tour - Stack Overflow');
       await switchToSelectedTab();
       await selectTabBackward();
       elText = await queryPopup(pageStOverflow, '.tab_selected', ([el]) => el.textContent);
@@ -175,7 +175,7 @@ describe('Pop-up', function () {
       await selectTabBackward();
       elText = await queryPopup(pageStOverflow, '.tab_selected', ([el]) => el.textContent);
       assert.strictEqual(elText, 'Example Domain');
-      await selectTabBackward(); // selected About - Stack Overflow
+      await selectTabBackward(); // selected Tour - Stack Overflow
       await pageExample.close();
       await selectTabForward();
       elText = await queryPopup(pageStOverflow, '.tab_selected', ([el]) => el.textContent);
@@ -194,7 +194,7 @@ describe('Pop-up', function () {
       assert.strictEqual(elText, 'Example Domain');
       curTab = await switchTab();
       elText = await curTab.$eval('title', el => el.textContent);
-      assert.strictEqual(elText, 'About - Stack Overflow');
+      assert.strictEqual(elText, 'Tour - Stack Overflow');
       curTab = await switchTab(2);
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
@@ -217,7 +217,7 @@ describe('Pop-up', function () {
       await pageWikipedia.close();
       let curTab = await getActiveTab();
       let elText = await curTab.$eval('title', el => el.textContent);
-      assert.strictEqual(elText, 'About - Stack Overflow');
+      assert.strictEqual(elText, 'Tour - Stack Overflow');
       pageWikipedia = await browser.newPage();
       await pageWikipedia.goto(getPagePath('wikipedia'));
       await pageExample.bringToFront();
