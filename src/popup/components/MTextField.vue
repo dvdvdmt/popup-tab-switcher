@@ -72,7 +72,7 @@
     height: 100%;
     padding-right: 16px;
     transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--mdc-theme-text-secondary-on-background);
   }
 
 </style>

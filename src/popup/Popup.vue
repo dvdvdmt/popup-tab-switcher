@@ -4,14 +4,14 @@
     <div class="settings__form">
       <div class="settings__row mdc-form-field">
         <label for="is-dark-theme" class="settings__label">
-          <i class="settings__icon material-icons">brightness_3</i>
+          <i class="settings__icon settings__icon_label material-icons">brightness_3</i>
           Dark theme
         </label>
         <m-switch id="is-dark-theme" v-model="settings.isDarkTheme"></m-switch>
       </div>
       <div class="settings__row mdc-form-field">
         <label for="popup-width" class="settings__label">
-          <i class="settings__icon material-icons">border_horizontal</i>
+          <i class="settings__icon settings__icon_label material-icons">border_horizontal</i>
           Popup width
         </label>
         <m-text-field id="popup-width"
@@ -23,7 +23,7 @@
       </div>
       <div class="settings__row mdc-form-field">
         <label for="tab-height" class="settings__label">
-          <i class="settings__icon material-icons">format_line_spacing</i>
+          <i class="settings__icon settings__icon_label material-icons">format_line_spacing</i>
           Tab height
         </label>
         <m-text-field id="tab-height"
@@ -35,7 +35,7 @@
       </div>
       <div class="settings__row mdc-form-field">
         <label for="max-number-of-tabs" class="settings__label">
-          <i class="settings__icon material-icons">format_list_numbered</i>
+          <i class="settings__icon settings__icon_label material-icons">format_list_numbered</i>
           Max number of tabs
         </label>
         <m-text-field id="max-number-of-tabs"
@@ -46,7 +46,7 @@
       </div>
       <div class="settings__row mdc-form-field">
         <label for="font-size" class="settings__label">
-          <i class="settings__icon material-icons">format_size</i>
+          <i class="settings__icon settings__icon_label material-icons">format_size</i>
           Font size
         </label>
         <m-text-field id="font-size"
@@ -58,7 +58,7 @@
       </div>
       <div class="settings__row mdc-form-field">
         <label for="icon-size" class="settings__label">
-          <i class="settings__icon material-icons">crop_original</i>
+          <i class="settings__icon settings__icon_label material-icons">crop_original</i>
           Icon size
         </label>
         <m-text-field id="icon-size"
@@ -70,7 +70,7 @@
       </div>
       <div class="settings__row mdc-form-field">
         <label for="auto-switching-timeout" class="settings__label">
-          <i class="settings__icon material-icons">timelapse</i>
+          <i class="settings__icon settings__icon_label material-icons">timelapse</i>
           Auto switching timeout
         </label>
         <m-text-field id="auto-switching-timeout"
@@ -82,7 +82,7 @@
       </div>
       <div class="settings__row mdc-form-field">
         <label for="text-scroll-delay" class="settings__label">
-          <i class="settings__icon material-icons">timer</i>
+          <i class="settings__icon settings__icon_label material-icons">timer</i>
           Text scroll delay
         </label>
         <m-text-field id="text-scroll-delay"
@@ -94,7 +94,7 @@
       </div>
       <div class="settings__row mdc-form-field">
         <label for="text-scroll-speed" class="settings__label">
-          <i class="settings__icon material-icons">text_rotation_none</i>
+          <i class="settings__icon settings__icon_label material-icons">text_rotation_none</i>
           Text scroll speed
         </label>
         <m-text-field id="text-scroll-speed"
@@ -142,7 +142,7 @@
         settings.setDefaults();
         this.settings = settings.get();
         this.updateSettings();
-      }
+      },
     },
     created() {
       this.$watch('settings', this.updateSettings, { deep: true });
@@ -162,6 +162,9 @@
 <style lang="scss">
   @import '~@material/typography/mdc-typography';
   @import '~@material/form-field/mdc-form-field';
+  @import '~@material/textfield/mixins';
+  @import '../styles/mixins';
+  /*@import './styles/dark-theme';*/
 
   body {
     margin: 0;
@@ -169,14 +172,46 @@
   }
 
   .settings {
-    @include settings-theme-light();
+    --settings-background-color: white;
+    --settings__row_hover-background-color: #{$color-gray-athens-light};
+
+    $theme-light: (
+      'primary': $color-blue-mariner,
+      'secondary': $color-blue-mariner-light,
+      'background': white,
+      'surface': white,
+    );
+
+    @include mdc-theme-colors($theme-light);
 
     width: 340px;
     background-color: var(--settings-background-color);
     color: var(--mdc-theme-text-primary-on-background);
 
     &_dark {
-      @include settings-theme-dark();
+      --settings-background-color: #{$color-gray-outer-space};
+      --settings__row_hover-background-color: #{$color-gray-shark-light};
+
+      $theme-dark: (
+        "primary": $color-gray-shark,
+        "secondary": $color-blue-mariner-light,
+        "background": $color-gray-outer-space,
+        "surface": $color-gray-outer-space,
+      );
+
+      @include mdc-theme-colors($theme-dark);
+
+      .mdc-button {
+        --mdc-theme-primary: var(--mdc-theme-text-primary-on-dark);
+      }
+
+      .mdc-text-field {
+        @include mdc-text-field-ink-color(var(--mdc-theme-text-primary-on-dark));
+        @include mdc-text-field-caret-color(var(--mdc-theme-text-primary-on-dark));
+        @include mdc-text-field-outline-color(lighten($color-gray-outer-space, 10%));
+        @include mdc-text-field-hover-outline-color(lighten($color-gray-outer-space, 20%));
+        @include mdc-text-field-focused-outline-color(lighten($color-gray-outer-space, 20%));
+      }
     }
   }
 
@@ -202,6 +237,10 @@
 
   .settings__icon {
     margin-right: 6px;
+
+    &_label {
+      color: var(--mdc-theme-text-icon-on-background)
+    }
   }
 
   .settings__field {

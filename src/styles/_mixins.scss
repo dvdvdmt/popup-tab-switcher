@@ -1,0 +1,87 @@
+@import '../../node_modules/@material/theme/functions';
+
+@function mdc-theme-ink-color-for-fill_($text-style, $fill-color) {
+  $mdc-theme-text-colors: (
+    dark: (
+      primary: rgba(black, .87),
+      secondary: rgba(black, .54),
+      hint: rgba(black, .38),
+      disabled: rgba(black, .38),
+      icon: rgba(black, .38)
+    ),
+    light: (
+      primary: white,
+      secondary: rgba(white, .7),
+      hint: rgba(white, .5),
+      disabled: rgba(white, .5),
+      icon: rgba(white, .5)
+    )
+  );
+
+  $mdc-theme-text-emphasis: (
+    high: .87,
+    medium: .6,
+    disabled: .38,
+  );
+
+  $contrast-tone: mdc-theme-contrast-tone($fill-color);
+
+  @return map-get(map-get($mdc-theme-text-colors, $contrast-tone), $text-style);
+}
+
+@mixin mdc-theme-colors($base-colors) {
+
+  $mdc-theme-primary: map_get($base-colors, 'primary');
+  $mdc-theme-secondary: map_get($base-colors, 'secondary');
+  $mdc-theme-background: map_get($base-colors, 'background');
+  $mdc-theme-surface: map_get($base-colors, 'surface');
+
+  $mdc-theme-on-primary: if(mdc-theme-contrast-tone($mdc-theme-primary) == "dark", #000, #fff);
+  $mdc-theme-on-secondary: if(mdc-theme-contrast-tone($mdc-theme-secondary) == "dark", #000, #fff);
+  $mdc-theme-on-surface: if(mdc-theme-contrast-tone($mdc-theme-surface) == "dark", #000, #fff);
+  $mdc-theme-error: #b00020;
+  $mdc-theme-on-error: if(mdc-theme-contrast-tone($mdc-theme-error) == "dark", #000, #fff);
+
+  //
+  // Primary text colors for each of the theme colors.
+  //
+
+  $mdc-theme-property-values: (
+    // Primary
+    primary: $mdc-theme-primary,
+    // Secondary
+    secondary: $mdc-theme-secondary,
+    // Background
+    background: $mdc-theme-background,
+    // Surface
+    surface: $mdc-theme-surface,
+    // Error
+    error: $mdc-theme-error,
+    on-primary: $mdc-theme-on-primary,
+    on-secondary: $mdc-theme-on-secondary,
+    on-surface: $mdc-theme-on-surface,
+    on-error: $mdc-theme-on-error,
+    // Text-primary on "background" background
+    text-primary-on-background: mdc-theme-ink-color-for-fill_(primary, $mdc-theme-background),
+    text-secondary-on-background: mdc-theme-ink-color-for-fill_(secondary, $mdc-theme-background),
+    text-hint-on-background: mdc-theme-ink-color-for-fill_(hint, $mdc-theme-background),
+    text-disabled-on-background: mdc-theme-ink-color-for-fill_(disabled, $mdc-theme-background),
+    text-icon-on-background: mdc-theme-ink-color-for-fill_(icon, $mdc-theme-background),
+    // Text-primary on "light" background
+    text-primary-on-light: mdc-theme-ink-color-for-fill_(primary, light),
+    text-secondary-on-light: mdc-theme-ink-color-for-fill_(secondary, light),
+    text-hint-on-light: mdc-theme-ink-color-for-fill_(hint, light),
+    text-disabled-on-light: mdc-theme-ink-color-for-fill_(disabled, light),
+    text-icon-on-light: mdc-theme-ink-color-for-fill_(icon, light),
+    // Text-primary on "dark" background
+    text-primary-on-dark: mdc-theme-ink-color-for-fill_(primary, dark),
+    text-secondary-on-dark: mdc-theme-ink-color-for-fill_(secondary, dark),
+    text-hint-on-dark: mdc-theme-ink-color-for-fill_(hint, dark),
+    text-disabled-on-dark: mdc-theme-ink-color-for-fill_(disabled, dark),
+    text-icon-on-dark: mdc-theme-ink-color-for-fill_(icon, dark)
+  );
+
+  @each $style in map-keys($mdc-theme-property-values) {
+    --mdc-theme-#{$style}: #{map-get($mdc-theme-property-values, $style)};
+  }
+}

@@ -7,8 +7,9 @@ const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
 const buildProdDir = path.join(__dirname, 'build-prod');
 const buildDevDir = path.join(__dirname, 'build-dev');
 const buildE2eDir = path.join(__dirname, 'build-e2e');
-const popupDir = path.join(__dirname, 'src/popup');
 const srcDir = path.join(__dirname, 'src');
+const popupDir = path.join(srcDir, 'popup');
+const stylesDir = path.join(srcDir, 'styles');
 const nodeModulesDir = path.join(__dirname, 'node_modules');
 
 const sassGlobals = '@import "variables";';
@@ -62,7 +63,7 @@ const conf = {
           loader: 'sass-loader',
           options: {
             data: sassGlobals,
-            includePaths: [nodeModulesDir, srcDir],
+            includePaths: [nodeModulesDir, stylesDir],
           },
         }],
       },
@@ -73,7 +74,7 @@ const conf = {
           loader: 'sass-loader',
           options: {
             data: sassGlobals,
-            includePaths: [srcDir],
+            includePaths: [stylesDir],
           },
         }],
       },
