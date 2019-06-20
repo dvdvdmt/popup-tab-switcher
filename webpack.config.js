@@ -90,11 +90,15 @@ module.exports = (env) => {
       from: 'src/manifest.json',
       transform(content) {
         // generates the manifest file using the package.json information
+        const developmentProps = {
+          content_security_policy: 'script-src \'self\' \'unsafe-eval\'; object-src \'self\'',
+          key: 'popuptabswitcher', // id: meonejnmljcnoodabklmloagmnmcmlam
+        };
         return JSON.stringify({
           description: process.env.npm_package_description,
           version: process.env.npm_package_version,
           ...JSON.parse(content.toString()),
-          ...(env.development ? { content_security_policy: 'script-src \'self\' \'unsafe-eval\'; object-src \'self\'' } : {}),
+          ...(env.development ? developmentProps : {}),
         }, null, 2);
       },
     },
