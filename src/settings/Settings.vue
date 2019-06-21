@@ -1,79 +1,79 @@
 <template>
   <div class="settings mdc-typography" v-bind:class="{settings_dark: settings.isDarkTheme}">
     <m-top-app-bar>Settings</m-top-app-bar>
-    <div class="settings__form">
+    <form class="settings__form">
       <div class="settings__row mdc-form-field">
-        <label for="is-dark-theme" class="settings__label">
+        <label for="isDarkTheme" class="settings__label">
           <i class="settings__icon settings__icon_label material-icons">brightness_3</i>
           Dark theme
         </label>
-        <m-switch id="is-dark-theme" v-model="settings.isDarkTheme"></m-switch>
+        <m-switch id="isDarkTheme" v-model="settings.isDarkTheme"></m-switch>
       </div>
       <div class="settings__row mdc-form-field">
-        <label for="popup-width" class="settings__label">
+        <label for="popupWidth" class="settings__label">
           <i class="settings__icon settings__icon_label material-icons">border_horizontal</i>
           Popup width
         </label>
-        <m-text-field id="popup-width"
+        <m-text-field id="popupWidth"
                       type="number"
                       class="settings__field"
                       suffix="px"
-                      v-model="settings.sizes.popupWidth"
+                      v-model="settings.popupWidth"
         />
       </div>
       <div class="settings__row mdc-form-field">
-        <label for="tab-height" class="settings__label">
+        <label for="tabHeight" class="settings__label">
           <i class="settings__icon settings__icon_label material-icons">format_line_spacing</i>
           Tab height
         </label>
-        <m-text-field id="tab-height"
+        <m-text-field id="tabHeight"
                       type="number"
                       class="settings__field"
                       suffix="px"
-                      v-model="settings.sizes.tabHeight"
+                      v-model="settings.tabHeight"
         />
       </div>
       <div class="settings__row mdc-form-field">
-        <label for="max-number-of-tabs" class="settings__label">
+        <label for="maxNumberOfTabs" class="settings__label">
           <i class="settings__icon settings__icon_label material-icons">format_list_numbered</i>
           Max number of tabs
         </label>
-        <m-text-field id="max-number-of-tabs"
+        <m-text-field id="maxNumberOfTabs"
                       type="number"
                       class="settings__field"
                       v-model="settings.maxNumberOfTabs"
         />
       </div>
       <div class="settings__row mdc-form-field">
-        <label for="font-size" class="settings__label">
+        <label for="fontSize" class="settings__label">
           <i class="settings__icon settings__icon_label material-icons">format_size</i>
           Font size
         </label>
-        <m-text-field id="font-size"
+        <m-text-field id="fontSize"
                       type="number"
                       class="settings__field"
                       suffix="px"
-                      v-model="settings.sizes.font"
+                      v-model="settings.fontSize"
         />
       </div>
       <div class="settings__row mdc-form-field">
-        <label for="icon-size" class="settings__label">
+        <label for="iconSize" class="settings__label">
           <i class="settings__icon settings__icon_label material-icons">crop_original</i>
           Icon size
         </label>
-        <m-text-field id="icon-size"
+        <m-text-field id="iconSize"
                       type="number"
                       class="settings__field"
                       suffix="px"
-                      v-model="settings.sizes.icon"
+                      v-model="settings.iconSize"
         />
       </div>
       <div class="settings__row mdc-form-field">
-        <label for="auto-switching-timeout" class="settings__label">
+        <label for="autoSwitchingTimeout" class="settings__label">
           <i class="settings__icon settings__icon_label material-icons">timelapse</i>
           Auto switching timeout
         </label>
-        <m-text-field id="auto-switching-timeout"
+        <m-text-field id="autoSwitchingTimeout"
                       type="number"
                       class="settings__field"
                       suffix="ms"
@@ -81,11 +81,11 @@
         />
       </div>
       <div class="settings__row mdc-form-field">
-        <label for="text-scroll-delay" class="settings__label">
+        <label for="textScrollDelay" class="settings__label">
           <i class="settings__icon settings__icon_label material-icons">timer</i>
           Text scroll delay
         </label>
-        <m-text-field id="text-scroll-delay"
+        <m-text-field id="textScrollDelay"
                       type="number"
                       class="settings__field"
                       suffix="ms"
@@ -93,11 +93,11 @@
         />
       </div>
       <div class="settings__row mdc-form-field">
-        <label for="text-scroll-speed" class="settings__label">
+        <label for="textScrollCoefficient" class="settings__label">
           <i class="settings__icon settings__icon_label material-icons">text_rotation_none</i>
           Text scroll speed
         </label>
-        <m-text-field id="text-scroll-speed"
+        <m-text-field id="textScrollCoefficient"
                       type="number"
                       class="settings__field"
                       v-model="settings.textScrollCoefficient"
@@ -109,7 +109,7 @@
           Set defaults
         </m-button>
       </div>
-    </div>
+    </form>
   </div>
 </template>
 

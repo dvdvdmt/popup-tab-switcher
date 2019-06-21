@@ -94,11 +94,15 @@ module.exports = (env) => {
           content_security_policy: 'script-src \'self\' \'unsafe-eval\'; object-src \'self\'',
           key: 'popuptabswitcher', // id: meonejnmljcnoodabklmloagmnmcmlam
         };
+        const e2eProps = {
+          key: developmentProps.key,
+        };
         return JSON.stringify({
           description: process.env.npm_package_description,
           version: process.env.npm_package_version,
           ...JSON.parse(content.toString()),
           ...(env.development ? developmentProps : {}),
+          ...(env.e2e ? e2eProps : {}),
         }, null, 2);
       },
     },

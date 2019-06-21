@@ -6,6 +6,7 @@
         <input v-model="model"
                type="checkbox"
                :id="id"
+               :name="id"
                class="mdc-switch__native-control"
                role="switch">
       </div>
@@ -26,7 +27,7 @@
       value: {
         type: Boolean,
         default: false
-      }
+      },
     },
     computed: {
       model: {

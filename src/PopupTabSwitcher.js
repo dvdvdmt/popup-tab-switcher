@@ -136,14 +136,21 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   showOverlay() {
-    const { sizes, maxNumberOfTabs } = settings;
-    const popupHeight = maxNumberOfTabs * sizes.tabHeight;
-    this.style.setProperty('--popup-width-factor', sizes.popupWidth / window.outerWidth);
+    const {
+      tabHeight,
+      popupWidth,
+      fontSize,
+      iconSize,
+      maxNumberOfTabs,
+    } = settings;
+    const popupHeight = maxNumberOfTabs * tabHeight;
+    const popupBorderRadius = 8;
+    this.style.setProperty('--popup-width-factor', popupWidth / window.outerWidth);
     this.style.setProperty('--popup-height-factor', popupHeight / window.outerWidth);
-    this.style.setProperty('--popup-border-radius-factor', sizes.popupBorderRadius / window.outerWidth);
-    this.style.setProperty('--tab-height-factor', sizes.tabHeight / window.outerWidth);
-    this.style.setProperty('--font-size-factor', sizes.font / window.outerWidth);
-    this.style.setProperty('--icon-size-factor', sizes.icon / window.outerWidth);
+    this.style.setProperty('--popup-border-radius-factor', popupBorderRadius / window.outerWidth);
+    this.style.setProperty('--tab-height-factor', tabHeight / window.outerWidth);
+    this.style.setProperty('--font-size-factor', fontSize / window.outerWidth);
+    this.style.setProperty('--icon-size-factor', iconSize / window.outerWidth);
     this.style.setProperty('--size-window-width', window.outerWidth);
     this.style.setProperty('--time-auto-switch-timeout', `${settings.autoSwitchingTimeout}ms`);
     this.style.display = 'flex';

@@ -1,9 +1,10 @@
 <template>
   <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--no-label">
     <input class="mdc-text-field__input"
-           v-bind:id="id"
-           v-bind:type="type"
-           v-bind:class="{'mdc-text-field__input--suffix': suffix}"
+           :id="id"
+           :type="type"
+           :class="{'mdc-text-field__input--suffix': suffix}"
+           :name="id"
            v-model="model">
     <div v-if="suffix" class="mdc-text-field__suffix">{{suffix}}</div>
     <div class="mdc-notched-outline">

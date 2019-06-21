@@ -1,17 +1,13 @@
-const defaultSettings = {
+export const defaultSettings = {
   textScrollDelay: 1000,
   textScrollCoefficient: 2500,
   autoSwitchingTimeout: 1000,
   maxNumberOfTabs: 7,
   isDarkTheme: false,
-  sizes: {
-    popupWidth: 420,
-    popupHeight: 448,
-    popupBorderRadius: 8,
-    tabHeight: 40,
-    font: 16,
-    icon: 24,
-  },
+  popupWidth: 420,
+  tabHeight: 40,
+  fontSize: 16,
+  iconSize: 24,
 };
 
 export function initialize() {
