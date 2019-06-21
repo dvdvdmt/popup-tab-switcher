@@ -1,122 +1,65 @@
-const path = require('path');
-const assert = require('assert');
-const puppeteer = require('puppeteer');
-
-const pathToExtension = path.join(__dirname, '../build-e2e');
-const launchOptions = {
-  headless: false,
-  slowMo: 20,
-  args: [
-    `--disable-extensions-except=${pathToExtension}`,
-    `--load-extension=${pathToExtension}`,
-  ],
-};
+import assert from 'assert';
+import puppeteer from 'puppeteer';
+import PuppeteerPopupHelper from './utils/PuppeteerPopupHelper';
+import { launchOptions } from './utils/config';
 
 let browser;
+let helper;
 
 before(async () => {
   browser = await puppeteer.launch(launchOptions);
+  helper = new PuppeteerPopupHelper(browser);
 });
 
 after(function () {
   browser.close();
 });
 
-function getPagePath(pageName) {
-  return `file:${path.join(__dirname, 'web-pages', pageName)}.html`;
-}
-
-async function getActiveTab() {
-  const pages = await browser.pages();
-  const promises = pages.map((p, i) => p.evaluate(index => document.visibilityState === 'visible' && index, `${i}`));
-  return pages[(await Promise.all(promises)).find(i => i)];
-}
-
-async function selectTabForward() {
-  const page = await getActiveTab();
-  await page.keyboard.down('Alt');
-  await page.keyboard.press('KeyY');
-}
-
-async function selectTabBackward() {
-  const page = await getActiveTab();
-  await page.keyboard.down('Alt');
-  await page.keyboard.down('Shift');
-  await page.keyboard.press('KeyY');
-}
-
-async function switchToSelectedTab() {
-  const page = await getActiveTab();
-  await page.keyboard.up('Alt');
-  await page.keyboard.up('Shift');
-}
-
-async function switchTab(times = 1) {
-  for (let i = 0; i < times; i += 1) {
-    // eslint-disable-next-line no-await-in-loop
-    await selectTabForward();
-  }
-  await switchToSelectedTab();
-  return getActiveTab();
-}
-
-async function closeTabs() {
-  await Promise.all((await browser.pages()).map(p => p.close()));
-}
-
-async function queryPopup(page, queryString, resultFn) {
-  // NOTE: This awful string was created because other ways for selecting
-  // elements in shadow root did not work. It would be great to rewrite this part
-  return page.evaluate(`(${resultFn})(Array.from(document.querySelector('popup-tab-switcher').shadowRoot.querySelectorAll('${queryString}')))`);
-}
-
 describe('Pop-up', function () {
   this.timeout(1000000);
+
   describe('One page', function () {
-    let page;
-
-    after(closeTabs);
-
-    beforeEach(async () => {
-      [page] = await browser.pages();
-      await page.goto(getPagePath('wikipedia'));
+    after(async () => {
+      await helper.closeTabs();
     });
 
-    async function popupOpens() {
-      await selectTabForward();
+    async function popupOpens(page) {
+      await helper.selectTabForward();
 
       const display = await page.$eval('popup-tab-switcher', popup => getComputedStyle(popup)
         .getPropertyValue('display'));
       assert.notStrictEqual(display, 'none', 'popup visible');
     }
 
-    it('Opens on "Alt+Y"', popupOpens);
+    it('Opens on "Alt+Y"', async () => {
+      const [page] = await browser.pages();
+      await helper.openPage('wikipedia.html', page);
+      await popupOpens(page);
 
-    it('Works after page reload', popupOpens);
+      // Works after page reload
+      await popupOpens(await helper.openPage('wikipedia.html', page));
+    });
 
     it('Opens on file pages', async () => {
-      const imagePath = path.resolve('./e2e/web-pages/file.png');
-      await page.goto(`file://${imagePath}`);
-      await popupOpens();
-      const pdfPath = path.resolve('./e2e/web-pages/file.pdf');
-      await page.goto(`file://${pdfPath}`);
-      await popupOpens();
-      const textPath = path.resolve('./e2e/web-pages/file.js');
-      await page.goto(`file://${textPath}`);
-      await popupOpens();
+      await popupOpens(await helper.openPage('file.png'));
+      await popupOpens(await helper.openPage('file.pdf'));
+      await popupOpens(await helper.openPage('file.js'));
     });
 
     it('Hides on "Alt" release', async () => {
-      await popupOpens();
-
+      const page = await helper.openPage('wikipedia.html');
+      await popupOpens(page);
       await page.keyboard.up('Alt');
       const display = await page.$eval('popup-tab-switcher', popup => getComputedStyle(popup)
         .getPropertyValue('display'));
       assert.strictEqual(display, 'none', 'popup hidden');
     });
   });
+
   describe('Many pages', function () {
-    beforeEach(closeTabs);
+    beforeEach(async () => {
+      await helper.closeTabs();
+    });
 
     it('Adds visited pages to the registry in correct order', async () => {
       const expectedTexts = [
@@ -124,14 +67,11 @@ describe('Pop-up', function () {
         'Example Domain',
         'Wikipedia',
       ];
-      const pageWikipedia = await browser.newPage();
-      await pageWikipedia.goto(getPagePath('wikipedia'));
-      const pageExample = await browser.newPage();
-      await pageExample.goto(getPagePath('example'));
-      const pageStOverflow = await browser.newPage();
-      await pageStOverflow.goto(getPagePath('stackoverflow'));
-      await selectTabForward();
-      const elTexts = await queryPopup(pageStOverflow, '.tab', els => els.map(el => el.textContent));
+      await helper.openPage('wikipedia.html');
+      await helper.openPage('example.html');
+      const pageStOverflow = await helper.openPage('stackoverflow.html');
+      await helper.selectTabForward();
+      const elTexts = await pageStOverflow.queryPopup('.tab', els => els.map(el => el.textContent));
       assert.deepStrictEqual(elTexts, expectedTexts, '3 tabs were added');
     });
 
@@ -140,89 +80,76 @@ describe('Pop-up', function () {
         'Tour - Stack Overflow',
         'Wikipedia',
       ];
-      const pageWikipedia = await browser.newPage();
-      await pageWikipedia.goto(getPagePath('wikipedia'));
-      const pageExample = await browser.newPage();
-      await pageExample.goto(getPagePath('example'));
-      const pageStOverflow = await browser.newPage();
-      await pageStOverflow.goto(getPagePath('stackoverflow'));
+      await helper.openPage('wikipedia.html');
+      const pageExample = await helper.openPage('example.html');
+      const pageStOverflow = await helper.openPage('stackoverflow.html');
       await pageExample.close();
-      await selectTabForward();
-      const elTexts = await queryPopup(pageStOverflow, '.tab', els => els.map(el => el.textContent));
+      await helper.selectTabForward();
+      const elTexts = await pageStOverflow.queryPopup('.tab', els => els.map(el => el.textContent));
       assert.deepStrictEqual(elTexts, expectedTexts, '2 tabs were left');
     });
 
     it('Selects proper tab names in the popup', async () => {
-      const pageWikipedia = await browser.newPage();
-      await pageWikipedia.goto(getPagePath('wikipedia'));
-      const pageExample = await browser.newPage();
-      await pageExample.goto(getPagePath('example'));
-      const pageStOverflow = await browser.newPage();
-      await pageStOverflow.goto(getPagePath('stackoverflow'));
-      await selectTabForward();
-      let elText = await queryPopup(pageStOverflow, '.tab_selected', ([el]) => el.textContent);
+      await helper.openPage('wikipedia.html');
+      const pageExample = await helper.openPage('example.html');
+      const pageStOverflow = await helper.openPage('stackoverflow.html');
+      await helper.selectTabForward();
+      let elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
       assert.strictEqual(elText, 'Example Domain');
       await pageStOverflow.keyboard.press('KeyY');
-      elText = await queryPopup(pageStOverflow, '.tab_selected', ([el]) => el.textContent);
+      elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
       await pageStOverflow.keyboard.press('KeyY');
-      elText = await queryPopup(pageStOverflow, '.tab_selected', ([el]) => el.textContent);
+      elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
       assert.strictEqual(elText, 'Tour - Stack Overflow');
-      await switchToSelectedTab();
-      await selectTabBackward();
-      elText = await queryPopup(pageStOverflow, '.tab_selected', ([el]) => el.textContent);
+      await helper.switchToSelectedTab();
+      await helper.selectTabBackward();
+      elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
-      await selectTabBackward();
-      elText = await queryPopup(pageStOverflow, '.tab_selected', ([el]) => el.textContent);
+      await helper.selectTabBackward();
+      elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
       assert.strictEqual(elText, 'Example Domain');
-      await selectTabBackward(); // selected Tour - Stack Overflow
+      await helper.selectTabBackward(); // selected Tour - Stack Overflow
       await pageExample.close();
-      await selectTabForward();
-      elText = await queryPopup(pageStOverflow, '.tab_selected', ([el]) => el.textContent);
+      await helper.selectTabForward();
+      elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
     });
 
     it('Switches between tabs on Alt release', async () => {
-      const pageWikipedia = await browser.newPage();
-      await pageWikipedia.goto(getPagePath('wikipedia'));
-      const pageExample = await browser.newPage();
-      await pageExample.goto(getPagePath('example'));
-      const pageStOverflow = await browser.newPage();
-      await pageStOverflow.goto(getPagePath('stackoverflow'));
-      let curTab = await switchTab();
+      await helper.openPage('wikipedia.html');
+      await helper.openPage('example.html');
+      await helper.openPage('stackoverflow.html');
+      let curTab = await helper.switchTab();
       let elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Example Domain');
-      curTab = await switchTab();
+      curTab = await helper.switchTab();
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Tour - Stack Overflow');
-      curTab = await switchTab(2);
+      curTab = await helper.switchTab(2);
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
-      curTab = await switchTab(3);
+      curTab = await helper.switchTab(3);
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
-      curTab = await switchTab(2);
+      curTab = await helper.switchTab(2);
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Example Domain');
     });
 
     it('Switches to previously opened tab when current one closes', async () => {
-      let pageWikipedia = await browser.newPage();
-      await pageWikipedia.goto(getPagePath('wikipedia'));
-      const pageExample = await browser.newPage();
-      await pageExample.goto(getPagePath('example'));
-      const pageStOverflow = await browser.newPage();
-      await pageStOverflow.goto(getPagePath('stackoverflow'));
+      const pageWikipedia = await helper.openPage('wikipedia.html');
+      const pageExample = await helper.openPage('example.html');
+      await helper.openPage('stackoverflow.html');
       await pageWikipedia.bringToFront();
       await pageWikipedia.close();
-      let curTab = await getActiveTab();
+      let curTab = await helper.getActiveTab();
       let elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Tour - Stack Overflow');
-      pageWikipedia = await browser.newPage();
-      await pageWikipedia.goto(getPagePath('wikipedia'));
+      await helper.openPage('wikipedia.html');
       await pageExample.bringToFront();
       await pageExample.close();
-      curTab = await getActiveTab();
+      curTab = await helper.getActiveTab();
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
     });
@@ -249,7 +176,7 @@ describe('Pop-up', function () {
       await pageWikipedia.exposeFunction('onAnimationFinish', () => {
         resolvePromise();
       });
-      await pageWikipedia.goto(getPagePath('wikipedia'));
+      await pageWikipedia.goto(getPagePath('wikipedia.html'));
       const polyfillPath = './node_modules/web-animations-js/web-animations-next.min.js';
       const animationsPolyfill = fs.readFileSync(polyfillPath, 'utf8');
       await pageWikipedia.evaluate(animationsPolyfill);
@@ -272,7 +199,7 @@ describe('Pop-up', function () {
 
     it('Switches from a special tab back to previous without showing a popup', async () => {
       const pageWikipedia = await browser.newPage();
-      await pageWikipedia.goto(getPagePath('wikipedia'));
+      await pageWikipedia.goto(getPagePath('wikipedia.html'));
       await browser.newPage();
       let curTab = await switchTab();
       let elText = await curTab.$eval('title', el => el.textContent);
@@ -286,7 +213,7 @@ describe('Pop-up', function () {
 
     // it('Switches from PDF and other file types pages', async () => {
     //   const pageWikipedia = await browser.newPage();
-    //   await pageWikipedia.goto(getPagePath('wikipedia'));
+    //   await pageWikipedia.goto(getPagePath('wikipedia.html'));
     //
     //
     // });
