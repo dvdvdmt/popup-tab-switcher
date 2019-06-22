@@ -97,6 +97,12 @@ browser.runtime.onConnect.addListener((port) => {
         settings.update(newSettings);
         registry.maxNumberOfTabs = newSettings.maxNumberOfTabs;
 
+        await Promise.all(Object.values(registry.initializedTabs)
+          .map(({ id }) => browser.tabs.sendMessage(id, {
+            type: messages.UPDATE_SETTINGS_SILENTLY,
+            newSettings,
+          })));
+
         const [currentTab] = await browser.tabs.query({
           active: true,
           currentWindow: true,

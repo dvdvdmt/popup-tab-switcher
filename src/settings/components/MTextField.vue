@@ -43,6 +43,9 @@
           return this.value;
         },
         set(state) {
+          if(this.type === 'number') {
+            state = +state;
+          }
           this.$emit('input', state);
         },
       },

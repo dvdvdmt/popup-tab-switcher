@@ -104,7 +104,7 @@
         />
       </div>
       <div class="settings__row settings__row_buttons">
-        <m-button @click="setDefaults">
+        <m-button id="setDefaults" @click="setDefaults" type="button">
           <i slot="icon" class="settings__icon material-icons">restore</i>
           Set defaults
         </m-button>

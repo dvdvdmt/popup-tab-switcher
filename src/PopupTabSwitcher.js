@@ -116,6 +116,9 @@ export default class PopupTabSwitcher extends HTMLElement {
         settings = newSettings;
         this.renderTabs(tabsArray, selectedTabIndex);
       },
+      [messages.UPDATE_SETTINGS_SILENTLY]: ({ newSettings }) => {
+        settings = newSettings;
+      },
       [messages.CLOSE_SETTINGS]: () => {
         this.hideOverlay();
       },
