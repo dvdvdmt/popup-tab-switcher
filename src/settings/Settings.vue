@@ -215,6 +215,10 @@
     }
   }
 
+  .settings__form {
+    margin: 0;
+  }
+
   .settings__row {
     display: flex;
     justify-content: space-between;

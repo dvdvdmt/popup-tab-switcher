@@ -1,5 +1,5 @@
 <template>
-  <div class="mdc-switch">
+  <div class="mdc-switch" :class="classes">
     <div class="mdc-switch__track"></div>
     <div class="mdc-switch__thumb-underlay">
       <div class="mdc-switch__thumb">
@@ -15,14 +15,12 @@
 </template>
 
 <script>
-  import { MDCSwitch } from '@material/switch/index';
-
   export default {
     name: 'MSwitch',
     props: {
       id: {
         type: String,
-        required: true
+        required: true,
       },
       value: {
         type: Boolean,
@@ -36,12 +34,12 @@
         },
         set(state) {
           this.$emit('input', state);
-        }
+        },
+      },
+      classes() {
+        return {'mdc-switch--checked': this.value}
       }
     },
-    mounted() {
-      MDCSwitch.attachTo(this.$el);
-    }
   };
 </script>
 
