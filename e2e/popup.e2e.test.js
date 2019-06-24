@@ -57,7 +57,7 @@ describe('Pop-up', function () {
   });
 
   describe('Many pages', function () {
-    beforeEach(async () => {
+    afterEach(async () => {
       await helper.closeTabs();
     });
 
@@ -152,6 +152,17 @@ describe('Pop-up', function () {
       curTab = await helper.getActiveTab();
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
+    });
+
+    it('Switches to the tab that was clicked', async () => {
+      await helper.openPage('wikipedia.html');
+      await helper.openPage('example.html');
+      const pageStOverflow = await helper.openPage('stackoverflow.html');
+      await helper.selectTabForward();
+      await pageStOverflow.queryPopup('.tab:nth-child(3)', ([el]) => { el.click(); });
+      const curTab = await helper.getActiveTab();
+      const elText = await curTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia', 'switches to the clicked tab');
     });
 
     /*

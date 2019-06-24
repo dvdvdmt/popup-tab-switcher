@@ -51,32 +51,6 @@ function getIconEl(favIconUrl, url) {
   return iconEl;
 }
 
-function getTabElements(tabs, selectedId) {
-  return tabs.map(({ title, url, favIconUrl }, i) => {
-    const tabEl = document.createElement('div');
-    tabEl.className = 'tab';
-    if (i === selectedId) {
-      tabEl.classList.add('tab_selected');
-      if (!document.hasFocus()) {
-        const indicator = document.createElement('div');
-        indicator.className = 'tab__timeoutIndicator';
-        tabEl.append(indicator);
-        tabEl.classList.add('tab_timeout');
-      }
-    }
-    const iconEl = getIconEl(favIconUrl, url);
-    tabEl.append(iconEl);
-    const textEl = document.createElement('span');
-    textEl.textContent = title;
-    textEl.className = 'tab__text';
-    tabEl.append(createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_top'));
-    tabEl.append(createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_bottom'));
-    tabEl.append(textEl);
-    return tabEl;
-  });
-}
-
-
 let selectedTabIndex = 0;
 let tabsArray;
 let timeout;
@@ -164,12 +138,44 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   switchToSelectedTab() {
+    this.switchTo(tabsArray[selectedTabIndex]);
+  }
+
+  switchTo(selectedTab) {
     this.hideOverlay();
     contentScriptPort.postMessage({
       type: messages.SWITCH_TAB,
-      selectedTab: tabsArray[selectedTabIndex],
+      selectedTab,
     });
     selectedTabIndex = 0;
+  }
+
+  getTabElements(tabs, selectedId) {
+    return tabs.map((tab, i) => {
+      const tabEl = document.createElement('div');
+      tabEl.addEventListener('click', () => {
+        this.switchTo(tab);
+      });
+      tabEl.className = 'tab';
+      if (i === selectedId) {
+        tabEl.classList.add('tab_selected');
+        if (!document.hasFocus()) {
+          const indicator = document.createElement('div');
+          indicator.className = 'tab__timeoutIndicator';
+          tabEl.append(indicator);
+          tabEl.classList.add('tab_timeout');
+        }
+      }
+      const iconEl = getIconEl(tab.favIconUrl, tab.url);
+      tabEl.append(iconEl);
+      const textEl = document.createElement('span');
+      textEl.textContent = tab.title;
+      textEl.className = 'tab__text';
+      tabEl.append(createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_top'));
+      tabEl.append(createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_bottom'));
+      tabEl.append(textEl);
+      return tabEl;
+    });
   }
 
   scrollLongTextOfSelectedTab() {
@@ -201,7 +207,7 @@ export default class PopupTabSwitcher extends HTMLElement {
   renderTabs(tabs, selectedId) {
     this.card.innerHTML = '';
     this.card.className = ['card', settings.isDarkTheme ? 'card_dark' : ''].join(' ');
-    const tabElements = getTabElements(tabs, selectedId);
+    const tabElements = this.getTabElements(tabs, selectedId);
     for (const tabElement of tabElements) {
       this.card.append(tabElement);
     }
