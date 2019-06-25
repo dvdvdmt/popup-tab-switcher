@@ -127,4 +127,17 @@ describe('Settings', function () {
       isDarkTheme: defaultSettings.isDarkTheme,
     }, 'new settings apply to the rendered popup');
   });
+
+  it('Inserted values should be validated', async function () {
+    const settingsPage = await browser.newPage();
+    await settingsPage.goto(settingsPageUrl);
+    await input(settingsPage, '#textScrollDelay', '-1500');
+    await input(settingsPage, '#popupWidth', 'asdf');
+    const isValuesCorrect = await settingsPage.evaluate(() => {
+      const { app: { settings: { textScrollDelay, popupWidth } } } = window;
+      return Number.isInteger(textScrollDelay) && textScrollDelay >= 0
+        && Number.isInteger(popupWidth) && popupWidth >= 0;
+    });
+    assert(isValuesCorrect, 'values are valid');
+  });
 });

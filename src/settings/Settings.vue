@@ -19,6 +19,7 @@
                       class="settings__field"
                       suffix="px"
                       v-model="settings.popupWidth"
+                      :min="0"
         />
       </div>
       <div class="settings__row mdc-form-field">
@@ -31,6 +32,7 @@
                       class="settings__field"
                       suffix="px"
                       v-model="settings.tabHeight"
+                      :min="0"
         />
       </div>
       <div class="settings__row mdc-form-field">
@@ -42,6 +44,7 @@
                       type="number"
                       class="settings__field"
                       v-model="settings.maxNumberOfTabs"
+                      :min="0"
         />
       </div>
       <div class="settings__row mdc-form-field">
@@ -54,6 +57,7 @@
                       class="settings__field"
                       suffix="px"
                       v-model="settings.fontSize"
+                      :min="0"
         />
       </div>
       <div class="settings__row mdc-form-field">
@@ -66,6 +70,7 @@
                       class="settings__field"
                       suffix="px"
                       v-model="settings.iconSize"
+                      :min="0"
         />
       </div>
       <div class="settings__row mdc-form-field">
@@ -78,6 +83,7 @@
                       class="settings__field"
                       suffix="ms"
                       v-model="settings.autoSwitchingTimeout"
+                      :min="0"
         />
       </div>
       <div class="settings__row mdc-form-field">
@@ -90,6 +96,7 @@
                       class="settings__field"
                       suffix="ms"
                       v-model="settings.textScrollDelay"
+                      :min="0"
         />
       </div>
       <div class="settings__row mdc-form-field">
@@ -101,6 +108,7 @@
                       type="number"
                       class="settings__field"
                       v-model="settings.textScrollCoefficient"
+                      :min="0"
         />
       </div>
       <div class="settings__row settings__row_buttons">
@@ -164,7 +172,6 @@
   @import '~@material/form-field/mdc-form-field';
   @import '~@material/textfield/mixins';
   @import '../styles/mixins';
-  /*@import './styles/dark-theme';*/
 
   body {
     margin: 0;
