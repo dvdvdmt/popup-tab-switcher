@@ -166,6 +166,20 @@ describe('Pop-up', function () {
       assert.strictEqual(elText, 'Wikipedia', 'switches to the clicked tab');
     });
 
+    it('Pressing ESC stops switching', async () => {
+      await helper.openPage('wikipedia.html');
+      await helper.openPage('example.html');
+      const pageStOverflow = await helper.openPage('stackoverflow.html');
+      await helper.selectTabForward();
+      await pageStOverflow.keyboard.press('Escape');
+      const isPopupClosed = await pageStOverflow.$eval('popup-tab-switcher', el => getComputedStyle(el).display === 'none');
+      assert(isPopupClosed, 'hides on pressing Esc button');
+      await pageStOverflow.keyboard.up('Alt');
+      const curTab = await helper.getActiveTab();
+      const elText = await curTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'Tour - Stack Overflow', 'stays on the same tab');
+    });
+
     /*
     NOTE: Chrome does not support el.getAnimations()
       and web-animations-js polyfill does not help also because getAnimations() returns
