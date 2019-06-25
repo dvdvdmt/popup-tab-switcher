@@ -69,6 +69,7 @@ export default class PopupTabSwitcher extends HTMLElement {
   constructor() {
     super();
 
+    this.isOverlayVisible = false;
     const shadow = this.attachShadow({ mode: 'open' });
     sprite.mount(shadow);
     const style = document.createElement('style');
@@ -77,14 +78,25 @@ export default class PopupTabSwitcher extends HTMLElement {
     shadow.appendChild(style);
     shadow.appendChild(this.card);
 
-    this.addEventListener('click', this.hideOverlay);
-    document.addEventListener('keyup', ({ key }) => {
-      if (key === 'Alt') {
-        this.switchToSelectedTab();
-      }
-    });
+    this.setupListeners();
+  }
 
-    chrome.runtime.onMessage.addListener(handleMessage({
+  setupListeners() {
+    this.eventListener = handleMessage({
+      click: () => {
+        this.hideOverlay();
+        selectedTabIndex = 0;
+      },
+      keyup: ({ key }) => {
+        if (this.isOverlayVisible && key === 'Alt') {
+          this.switchToSelectedTab();
+        }
+      },
+    });
+    this.addEventListener('click', this.eventListener);
+    document.addEventListener('keyup', this.eventListener);
+
+    this.messageListener = handleMessage({
       [messages.UPDATE_SETTINGS]: ({ tabsData, newSettings }) => {
         tabsArray = tabsData;
         settings = newSettings;
@@ -109,7 +121,18 @@ export default class PopupTabSwitcher extends HTMLElement {
           timeout = setTimeout(this.switchToSelectedTab.bind(this), settings.autoSwitchingTimeout);
         }
       },
-    }));
+    });
+    chrome.runtime.onMessage.addListener(this.messageListener);
+  }
+
+  removeListeners() {
+    this.removeEventListener('click', this.eventListener);
+    this.removeEventListener('keyup', this.eventListener);
+    chrome.runtime.onMessage.removeListener(this.messageListener);
+  }
+
+  disconnectedCallback() {
+    this.removeListeners();
   }
 
   showOverlay() {
@@ -131,10 +154,12 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.style.setProperty('--size-window-width', window.outerWidth);
     this.style.setProperty('--time-auto-switch-timeout', `${settings.autoSwitchingTimeout}ms`);
     this.style.display = 'flex';
+    this.isOverlayVisible = true;
   }
 
   hideOverlay() {
     this.style.display = 'none';
+    this.isOverlayVisible = false;
   }
 
   switchToSelectedTab() {

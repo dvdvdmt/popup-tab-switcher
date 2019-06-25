@@ -160,6 +160,7 @@ describe('Pop-up', function () {
       const pageStOverflow = await helper.openPage('stackoverflow.html');
       await helper.selectTabForward();
       await pageStOverflow.queryPopup('.tab:nth-child(3)', ([el]) => { el.click(); });
+      await pageStOverflow.keyboard.up('Alt');
       const curTab = await helper.getActiveTab();
       const elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia', 'switches to the clicked tab');
