@@ -1,134 +1,16 @@
 <template>
   <div class="settings mdc-typography" v-bind:class="{settings_dark: settings.isDarkTheme}">
     <m-top-app-bar>Settings</m-top-app-bar>
-    <form class="settings__form">
-      <div class="settings__row mdc-form-field">
-        <label for="isDarkTheme" class="settings__label">
-          <i class="settings__icon settings__icon_label material-icons">brightness_3</i>
-          Dark theme
-        </label>
-        <m-switch id="isDarkTheme" v-model="settings.isDarkTheme"></m-switch>
-      </div>
-      <div class="settings__row mdc-form-field">
-        <label for="popupWidth" class="settings__label">
-          <i class="settings__icon settings__icon_label material-icons">border_horizontal</i>
-          Popup width
-        </label>
-        <m-text-field id="popupWidth"
-                      type="number"
-                      class="settings__field"
-                      suffix="px"
-                      v-model="settings.popupWidth"
-                      :min="0"
-        />
-      </div>
-      <div class="settings__row mdc-form-field">
-        <label for="tabHeight" class="settings__label">
-          <i class="settings__icon settings__icon_label material-icons">format_line_spacing</i>
-          Tab height
-        </label>
-        <m-text-field id="tabHeight"
-                      type="number"
-                      class="settings__field"
-                      suffix="px"
-                      v-model="settings.tabHeight"
-                      :min="0"
-        />
-      </div>
-      <div class="settings__row mdc-form-field">
-        <label for="maxNumberOfTabs" class="settings__label">
-          <i class="settings__icon settings__icon_label material-icons">format_list_numbered</i>
-          Max number of tabs
-        </label>
-        <m-text-field id="maxNumberOfTabs"
-                      type="number"
-                      class="settings__field"
-                      v-model="settings.maxNumberOfTabs"
-                      :min="0"
-        />
-      </div>
-      <div class="settings__row mdc-form-field">
-        <label for="fontSize" class="settings__label">
-          <i class="settings__icon settings__icon_label material-icons">format_size</i>
-          Font size
-        </label>
-        <m-text-field id="fontSize"
-                      type="number"
-                      class="settings__field"
-                      suffix="px"
-                      v-model="settings.fontSize"
-                      :min="0"
-        />
-      </div>
-      <div class="settings__row mdc-form-field">
-        <label for="iconSize" class="settings__label">
-          <i class="settings__icon settings__icon_label material-icons">crop_original</i>
-          Icon size
-        </label>
-        <m-text-field id="iconSize"
-                      type="number"
-                      class="settings__field"
-                      suffix="px"
-                      v-model="settings.iconSize"
-                      :min="0"
-        />
-      </div>
-      <div class="settings__row mdc-form-field">
-        <label for="autoSwitchingTimeout" class="settings__label">
-          <i class="settings__icon settings__icon_label material-icons">timelapse</i>
-          Auto switching timeout
-        </label>
-        <m-text-field id="autoSwitchingTimeout"
-                      type="number"
-                      class="settings__field"
-                      suffix="ms"
-                      v-model="settings.autoSwitchingTimeout"
-                      :min="0"
-        />
-      </div>
-      <div class="settings__row mdc-form-field">
-        <label for="textScrollDelay" class="settings__label">
-          <i class="settings__icon settings__icon_label material-icons">timer</i>
-          Text scroll delay
-        </label>
-        <m-text-field id="textScrollDelay"
-                      type="number"
-                      class="settings__field"
-                      suffix="ms"
-                      v-model="settings.textScrollDelay"
-                      :min="0"
-        />
-      </div>
-      <div class="settings__row mdc-form-field">
-        <label for="textScrollCoefficient" class="settings__label">
-          <i class="settings__icon settings__icon_label material-icons">text_rotation_none</i>
-          Text scroll speed
-        </label>
-        <m-text-field id="textScrollCoefficient"
-                      type="number"
-                      class="settings__field"
-                      v-model="settings.textScrollCoefficient"
-                      :min="0"
-        />
-      </div>
-      <div class="settings__row settings__row_buttons">
-        <m-button id="setDefaults" @click="setDefaults" type="button">
-          <i slot="icon" class="settings__icon material-icons">restore</i>
-          Set defaults
-        </m-button>
-      </div>
-    </form>
+    <settings-form :settings="settings" @setDefaults="setDefaults"/>
   </div>
 </template>
 
 <script>
   import browser from 'webextension-polyfill';
   import * as settings from '../utils/settings';
-  import { ports, messages } from '../utils/constants';
-  import MSwitch from './components/MSwitch.vue';
+  import { messages, ports } from '../utils/constants';
   import MTopAppBar from './components/MTopAppBar.vue';
-  import MTextField from './components/MTextField.vue';
-  import MButton from './components/MButton.vue';
+  import SettingsForm from './components/SettingsForm.vue';
 
   const port = browser.runtime.connect({ name: ports.POPUP_SCRIPT });
 
@@ -159,17 +41,14 @@
       this.updateSettings();
     },
     components: {
-      MSwitch,
+      SettingsForm,
       MTopAppBar,
-      MTextField,
-      MButton,
     },
   };
 </script>
 
 <style lang="scss">
   @import '~@material/typography/mdc-typography';
-  @import '~@material/form-field/mdc-form-field';
   @import '~@material/textfield/mixins';
   @import '../styles/mixins';
 
