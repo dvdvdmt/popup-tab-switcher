@@ -1,7 +1,8 @@
 <template>
   <div class="settings mdc-typography" v-bind:class="{settings_dark: settings.isDarkTheme}">
-    <m-top-app-bar>Settings</m-top-app-bar>
-    <settings-form :settings="settings" @setDefaults="setDefaults"/>
+    <m-tab-bar :tabs="tabs" :active-tab-id="activeTabId" @activated="onTabActivated"/>
+    <settings-form v-if="activeTabId === 0" :settings="settings" @setDefaults="setDefaults"/>
+    <div v-if="activeTabId === 1">You can contribute to the project one of the following way</div>
   </div>
 </template>
 
@@ -11,6 +12,7 @@
   import { messages, ports } from '../utils/constants';
   import MTopAppBar from './components/MTopAppBar.vue';
   import SettingsForm from './components/SettingsForm.vue';
+  import MTabBar from './components/MTabBar.vue';
 
   const port = browser.runtime.connect({ name: ports.POPUP_SCRIPT });
 
@@ -18,6 +20,14 @@
     name: 'Settings',
     data() {
       return {
+        tabs: [{
+          id: 'settings',
+          icon: 'settings',
+        }, {
+          id: 'contribute',
+          icon: 'favorite',
+        }],
+        activeTabId: 0,
         settings: settings.get(),
       };
     },
@@ -33,6 +43,9 @@
         this.settings = settings.get();
         this.updateSettings();
       },
+      onTabActivated(activeTabId) {
+        this.activeTabId = activeTabId;
+      },
     },
     created() {
       this.$watch('settings', this.updateSettings, { deep: true });
@@ -41,6 +54,7 @@
       this.updateSettings();
     },
     components: {
+      MTabBar,
       SettingsForm,
       MTopAppBar,
     },
@@ -71,6 +85,7 @@
     @include mdc-theme-colors($theme-light);
 
     width: 340px;
+    height: 548px;
     background-color: var(--settings-background-color);
     color: var(--mdc-theme-text-primary-on-background);
 
