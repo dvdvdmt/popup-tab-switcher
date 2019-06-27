@@ -140,4 +140,12 @@ describe('Settings', function () {
     });
     assert(isValuesCorrect, 'values are valid');
   });
+
+  it('The contribute section opens', async function () {
+    const settingsPage = await browser.newPage();
+    await settingsPage.goto(settingsPageUrl);
+    await settingsPage.click('#mdc-tab-2');
+    const isContributeSectionOpen = await settingsPage.$eval('.contribute', el => getComputedStyle(el).display !== 'none');
+    assert(isContributeSectionOpen, 'the contribute section is visible');
+  });
 });

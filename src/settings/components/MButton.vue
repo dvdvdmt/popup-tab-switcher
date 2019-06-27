@@ -8,8 +8,8 @@
     class="mdc-button"
     v-on="$listeners"
   >
-    <slot name="icon" />
-    <slot />
+    <slot name="icon"/>
+    <slot/>
   </a>
   <button
     v-else
@@ -18,44 +18,48 @@
     class="mdc-button"
     v-on="$listeners"
   >
-    <slot name="icon" />
-    <slot />
+    <slot name="icon"/>
+    <slot/>
   </button>
 </template>
 
 <script>
+  import { MDCRipple } from '@material/ripple/index';
+
   export default {
     name: 'MButton',
     props: {
       raised: {
         type: Boolean,
-        default: false
+        default: false,
       },
       unelevated: {
         type: Boolean,
-        default: false
+        default: false,
       },
       outlined: {
         type: Boolean,
-        default: false
-      },
-      dense: {
-        type: Boolean,
-        default: false
+        default: false,
       },
       href: {
         type: String,
-        default: ''
-      }
+        default: '',
+      },
     },
     computed: {
-      classes () {
+      classes() {
         return {
           'mdc-button--raised': this.raised,
           'mdc-button--unelevated': this.unelevated,
           'mdc-button--outlined': this.outlined,
-        }
-      }
+        };
+      },
+    },
+    mounted() {
+      this.mdcRipple = MDCRipple.attachTo(this.$el);
+    },
+    beforeDestroy() {
+      this.mdcRipple.destroy();
     },
   };
 </script>

@@ -3,7 +3,7 @@
     <m-tab-bar class="settings__nav-bar" :tabs="tabs" :active-tab-id="activeTabId"
                @activated="onTabActivated"/>
     <settings-form v-if="activeTabId === 0" :settings="settings" @setDefaults="setDefaults"/>
-    <div v-if="activeTabId === 1">You can contribute to the project one of the following way</div>
+    <contribute v-if="activeTabId === 1"/>
   </div>
 </template>
 
@@ -11,9 +11,9 @@
   import browser from 'webextension-polyfill';
   import * as settings from '../utils/settings';
   import { messages, ports } from '../utils/constants';
-  import MTopAppBar from './components/MTopAppBar.vue';
   import SettingsForm from './components/SettingsForm.vue';
   import MTabBar from './components/MTabBar.vue';
+  import Contribute from './Contribute.vue';
 
   const port = browser.runtime.connect({ name: ports.POPUP_SCRIPT });
 
@@ -55,9 +55,9 @@
       this.updateSettings();
     },
     components: {
+      Contribute,
       MTabBar,
       SettingsForm,
-      MTopAppBar,
     },
   };
 </script>
@@ -72,6 +72,8 @@
   body {
     margin: 0;
     user-select: none;
+    width: 340px;
+    height: 548px;
   }
 
   .settings {
@@ -88,8 +90,7 @@
     $colors: get-theme-colors($theme-light);
     @include theme-colors-as-custom-properties($colors);
 
-    width: 340px;
-    height: 548px;
+    height: 100%;
     background-color: var(--settings-background-color);
     color: var(--mdc-theme-text-primary-on-background);
 
