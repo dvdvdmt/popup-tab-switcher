@@ -1,6 +1,7 @@
 <template>
   <div class="settings mdc-typography" v-bind:class="{settings_dark: settings.isDarkTheme}">
-    <m-tab-bar :tabs="tabs" :active-tab-id="activeTabId" @activated="onTabActivated"/>
+    <m-tab-bar class="settings__nav-bar" :tabs="tabs" :active-tab-id="activeTabId"
+               @activated="onTabActivated"/>
     <settings-form v-if="activeTabId === 0" :settings="settings" @setDefaults="setDefaults"/>
     <div v-if="activeTabId === 1">You can contribute to the project one of the following way</div>
   </div>
@@ -64,6 +65,8 @@
 <style lang="scss">
   @import '~@material/typography/mdc-typography';
   @import '~@material/textfield/mixins';
+  @import '~@material/tab/mixins';
+  @import '~@material/tab-indicator/mixins';
   @import '../styles/mixins';
 
   body {
@@ -82,7 +85,8 @@
       'surface': white,
     );
 
-    @include mdc-theme-colors($theme-light);
+    $colors: get-theme-colors($theme-light);
+    @include theme-colors-as-custom-properties($colors);
 
     width: 340px;
     height: 548px;
@@ -100,18 +104,29 @@
         "surface": $color-gray-outer-space,
       );
 
-      @include mdc-theme-colors($theme-dark);
+      $colors: get-theme-colors($theme-dark);
+      @include theme-colors-as-custom-properties($colors);
 
       .mdc-button {
-        --mdc-theme-primary: var(--mdc-theme-text-primary-on-dark);
+        --mdc-theme-primary: map_get($colors, text-primary-on-dark);
       }
 
       .mdc-text-field {
-        @include mdc-text-field-ink-color(var(--mdc-theme-text-primary-on-dark));
-        @include mdc-text-field-caret-color(var(--mdc-theme-text-primary-on-dark));
+        @include mdc-text-field-ink-color(map_get($colors, text-primary-on-dark));
+        @include mdc-text-field-caret-color(map_get($colors, text-primary-on-dark));
         @include mdc-text-field-outline-color(lighten($color-gray-outer-space, 10%));
         @include mdc-text-field-hover-outline-color(lighten($color-gray-outer-space, 20%));
         @include mdc-text-field-focused-outline-color(lighten($color-gray-outer-space, 20%));
+      }
+
+      .mdc-tab {
+        @include mdc-tab-ink-color(map_get($colors, text-secondary-on-background));
+        @include mdc-tab-active-icon-color(map_get($colors, text-primary-on-dark));
+        @include mdc-tab-active-text-label-color(map_get($colors, text-primary-on-dark));
+      }
+
+      .mdc-tab-indicator {
+        @include mdc-tab-indicator-underline-color(map_get($colors, text-secondary-on-background));
       }
     }
   }

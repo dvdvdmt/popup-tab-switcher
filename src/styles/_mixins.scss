@@ -29,8 +29,7 @@
   @return map-get(map-get($mdc-theme-text-colors, $contrast-tone), $text-style);
 }
 
-@mixin mdc-theme-colors($base-colors) {
-
+@function get-theme-colors($base-colors) {
   $mdc-theme-primary: map_get($base-colors, 'primary');
   $mdc-theme-secondary: map_get($base-colors, 'secondary');
   $mdc-theme-background: map_get($base-colors, 'background');
@@ -81,7 +80,13 @@
     text-icon-on-dark: mdc-theme-ink-color-for-fill_(icon, dark)
   );
 
-  @each $style in map-keys($mdc-theme-property-values) {
-    --mdc-theme-#{$style}: #{map-get($mdc-theme-property-values, $style)};
+  @return $mdc-theme-property-values;
+}
+
+@mixin theme-colors-as-custom-properties($mdc-theme-colors) {
+
+
+  @each $style in map-keys($mdc-theme-colors) {
+    --mdc-theme-#{$style}: #{map-get($mdc-theme-colors, $style)};
   }
 }

@@ -13,6 +13,6 @@
 
 <script>
   export default {
-    name: 'Tab',
+    name: 'MTab',
   };
 </script>

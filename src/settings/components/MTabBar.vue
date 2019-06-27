@@ -3,11 +3,11 @@
     <div class="mdc-tab-scroller">
       <div class="mdc-tab-scroller__scroll-area">
         <div class="mdc-tab-scroller__scroll-content">
-          <tab v-for="(tab, index) in tabs"
+          <m-tab v-for="(tab, index) in tabs"
                :key="index">
             <template slot="icon">{{tab.icon}}</template>
             {{tab.id}}
-          </tab>
+          </m-tab>
         </div>
       </div>
     </div>
@@ -16,7 +16,7 @@
 
 <script>
   import { MDCTabBar } from '@material/tab-bar/index';
-  import Tab from './MTab.vue';
+  import MTab from './MTab.vue';
 
   export default {
     name: 'MTabBar',
@@ -30,7 +30,7 @@
         default: []
       }
     },
-    components: { Tab },
+    components: { MTab },
     mounted() {
       this.mdcTabBar = MDCTabBar.attachTo(this.$el);
       this.mdcTabBar.activateTab(this.activeTabId);
