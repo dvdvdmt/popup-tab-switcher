@@ -4,7 +4,7 @@
       You can say thanks or help me one of the following ways:
     </p>
     <div class="contribute__actions">
-      <m-button class="contribute__action" href="https://chrome.google.com/webstore"
+      <m-button class="contribute__action" href="https://chrome.google.com/webstore/my-extension-id"
                 target="_blank">
         <i slot="icon" class="material-icons">star</i>
         Give me 5
@@ -34,9 +34,7 @@
     <div class="contribute__share">
       <p class="contribute__call-to-action">or share with others</p>
       <div class="contribute__share-links">
-        <button class="mdc-icon-button" @click="copyLink">
-          <svg-icon :icon="icons.link"/>
-        </button>
+        <copy-link-button link="https://chrome.google.com/webstore/my-extension-id"/>
         <a class="mdc-icon-button" href="https://facebook.com" target="_blank">
           <svg-icon :icon="icons.facebook"/>
         </a>
@@ -53,32 +51,27 @@
 
 <script>
   import MButton from './MButton.vue';
-  import linkSymbol from '../../images/link-icon.svg';
   import facebookSymbol from '../../images/facebook-icon.svg';
   import twitterSymbol from '../../images/twitter-icon.svg';
   import vkontakteSymbol from '../../images/vkontakte-icon.svg';
   import SvgIcon from './SvgIcon.vue';
+  import CopyLinkButton from './CopyLinkButton.vue';
 
   export default {
     name: 'Contribute',
     components: {
+      CopyLinkButton,
       SvgIcon,
       MButton,
     },
     data() {
       return {
         icons: {
-          link: linkSymbol,
           facebook: facebookSymbol,
           twitter: twitterSymbol,
           vkontakte: vkontakteSymbol,
         },
       };
-    },
-    methods: {
-      copyLink() {
-        console.log('link is copied');
-      },
     },
   };
 </script>
