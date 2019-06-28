@@ -84,8 +84,6 @@
 }
 
 @mixin theme-colors-as-custom-properties($mdc-theme-colors) {
-
-
   @each $style in map-keys($mdc-theme-colors) {
     --mdc-theme-#{$style}: #{map-get($mdc-theme-colors, $style)};
   }

@@ -67,6 +67,7 @@
   @import '~@material/textfield/mixins';
   @import '~@material/tab/mixins';
   @import '~@material/tab-indicator/mixins';
+  @import '~@material/button/mixins';
   @import '../styles/mixins';
 
   body {
@@ -78,7 +79,6 @@
 
   .settings {
     --settings-background-color: white;
-    --settings__row_hover-background-color: #{$color-gray-athens-light};
 
     $theme-light: (
       'primary': $color-blue-mariner,
@@ -95,39 +95,45 @@
     color: var(--mdc-theme-text-primary-on-background);
 
     &_dark {
-      --settings-background-color: #{$color-gray-outer-space};
-      --settings__row_hover-background-color: #{$color-gray-shark-light};
+      --settings-background-color: #{$color-gray-shark};
 
       $theme-dark: (
-        "primary": $color-gray-shark,
+        "primary": darken(white, 20%),
         "secondary": $color-blue-mariner-light,
-        "background": $color-gray-outer-space,
-        "surface": $color-gray-outer-space,
+        "background": $color-gray-shark,
+        "surface": $color-gray-shark,
       );
 
       $colors: get-theme-colors($theme-dark);
       @include theme-colors-as-custom-properties($colors);
 
       .mdc-button {
-        --mdc-theme-primary: map_get($colors, text-primary-on-dark);
+        //--mdc-theme-primary: map_get($colors, text-primary-on-dark);
+        @include mdc-button-ink-color(map_get($colors, primary));
+
+        &--raised {
+          @include mdc-button-ink-color(map_get($colors, surface));
+          @include mdc-button-container-fill-color(map_get($colors, primary));
+        }
       }
 
       .mdc-text-field {
-        @include mdc-text-field-ink-color(map_get($colors, text-primary-on-dark));
-        @include mdc-text-field-caret-color(map_get($colors, text-primary-on-dark));
-        @include mdc-text-field-outline-color(lighten($color-gray-outer-space, 10%));
-        @include mdc-text-field-hover-outline-color(lighten($color-gray-outer-space, 20%));
-        @include mdc-text-field-focused-outline-color(lighten($color-gray-outer-space, 20%));
+        @include mdc-text-field-ink-color(rgba(map_get($colors, on-surface), .87));
+        @include mdc-text-field-caret-color(map_get($colors, primary));
+        @include mdc-text-field-outline-color(rgba(map_get($colors, on-surface), .24));
+        @include mdc-text-field-hover-outline-color(rgba(map_get($colors, on-surface), .87));
+        @include mdc-text-field-focused-outline-color(map_get($colors, primary));
       }
 
       .mdc-tab {
-        @include mdc-tab-ink-color(map_get($colors, text-secondary-on-background));
-        @include mdc-tab-active-icon-color(map_get($colors, text-primary-on-dark));
-        @include mdc-tab-active-text-label-color(map_get($colors, text-primary-on-dark));
+        @include mdc-tab-text-label-color(rgba(map_get($colors, on-surface), .6));
+        @include mdc-tab-active-text-label-color(map_get($colors, primary));
+        @include mdc-tab-icon-color(rgba(map_get($colors, on-surface), .54));
+        @include mdc-tab-active-icon-color(map_get($colors, primary));
       }
 
       .mdc-tab-indicator {
-        @include mdc-tab-indicator-underline-color(map_get($colors, text-secondary-on-background));
+        @include mdc-tab-indicator-underline-color(map_get($colors, primary));
       }
     }
   }
@@ -142,10 +148,6 @@
     align-items: center;
     padding: 5px 16px 5px 10px;
     height: 40px;
-
-    &:hover {
-      background-color: var(--settings__row_hover-background-color);
-    }
 
     &_buttons {
       flex-direction: row-reverse;

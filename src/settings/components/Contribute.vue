@@ -4,14 +4,18 @@
       You can say thanks or help me one of the following ways:
     </p>
     <div class="contribute__actions">
-      <m-button class="contribute__action" href="https://chrome.google.com/webstore/my-extension-id"
-                target="_blank">
+      <m-button class="contribute__action"
+                href="https://chrome.google.com/webstore/my-extension-id"
+                target="_blank"
+                outlined
+      >
         <i slot="icon" class="material-icons">star</i>
-        Give me 5
+        Give me 5 stars
       </m-button>
       <m-button class="contribute__action"
                 href="https://github.com/dvdvdmt/popup-tab-switcher/issues"
                 target="_blank"
+                outlined
       >
         <i slot="icon" class="material-icons">announcement</i>
         Report an issue
@@ -19,6 +23,7 @@
       <m-button class="contribute__action"
                 href="mailto:dvdvdmt.work@gmail.com?subject=Popup Tab Switcher. <Your question>"
                 target="_blank"
+                outlined
       >
         <i slot="icon" class="material-icons">email</i>
         Contact me
@@ -26,7 +31,8 @@
       <m-button class="contribute__action"
                 href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QLYKYQ6VZK6FS&source=url"
                 target="_blank"
-                raised>
+                raised
+      >
         <i slot="icon" class="material-icons">local_cafe</i>
         Buy me a coffee
       </m-button>
@@ -93,10 +99,14 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
+    width: 200px;
+    margin: auto;
   }
 
   .contribute__action {
+    justify-content: flex-start;
+
     & + & {
       margin-top: 15px;
     }
