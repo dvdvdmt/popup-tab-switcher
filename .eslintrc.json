@@ -30,7 +30,7 @@
         "*background.js",
         "*content.js",
         "*PopupTabSwitcher.js",
-        "*settings.js"
+        "**/settings/index.js"
       ],
       "env": {
         "browser": true,

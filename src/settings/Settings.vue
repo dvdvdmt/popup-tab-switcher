@@ -13,7 +13,7 @@
   import { messages, ports } from '../utils/constants';
   import SettingsForm from './components/SettingsForm.vue';
   import MTabBar from './components/MTabBar.vue';
-  import Contribute from './Contribute.vue';
+  import Contribute from './components/Contribute.vue';
 
   const port = browser.runtime.connect({ name: ports.POPUP_SCRIPT });
 

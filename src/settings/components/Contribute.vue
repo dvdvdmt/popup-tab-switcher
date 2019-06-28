@@ -34,19 +34,17 @@
     <div class="contribute__share">
       <p class="contribute__call-to-action">or share with others</p>
       <div class="contribute__share-links">
-        <button class="mdc-icon-button material-icons" @click="copyLink">
-          link
+        <button class="mdc-icon-button" @click="copyLink">
+          <svg-icon :icon="icons.link"/>
         </button>
-        <a class="mdc-icon-button material-icons" href="https://facebook.com" target="_blank">
-          face
+        <a class="mdc-icon-button" href="https://facebook.com" target="_blank">
+          <svg-icon :icon="icons.facebook"/>
         </a>
-        <a class="mdc-icon-button material-icons" href="https://twitter.com" target="_blank">
-          reply
+        <a class="mdc-icon-button" href="https://twitter.com" target="_blank">
+          <svg-icon :icon="icons.twitter"/>
         </a>
-        <a class="mdc-icon-button mdc-icon-button--on material-icons"
-           href="https://vk.com"
-           target="_blank">
-          reply_all
+        <a class="mdc-icon-button" href="https://vk.com" target="_blank">
+          <svg-icon :icon="icons.vkontakte"/>
         </a>
       </div>
     </div>
@@ -54,11 +52,29 @@
 </template>
 
 <script>
-  import MButton from './components/MButton.vue';
+  import MButton from './MButton.vue';
+  import linkSymbol from '../../images/link-icon.svg';
+  import facebookSymbol from '../../images/facebook-icon.svg';
+  import twitterSymbol from '../../images/twitter-icon.svg';
+  import vkontakteSymbol from '../../images/vkontakte-icon.svg';
+  import SvgIcon from './SvgIcon.vue';
 
   export default {
     name: 'Contribute',
-    components: { MButton },
+    components: {
+      SvgIcon,
+      MButton,
+    },
+    data() {
+      return {
+        icons: {
+          link: linkSymbol,
+          facebook: facebookSymbol,
+          twitter: twitterSymbol,
+          vkontakte: vkontakteSymbol,
+        },
+      };
+    },
     methods: {
       copyLink() {
         console.log('link is copied');
@@ -68,7 +84,7 @@
 </script>
 
 <style lang="scss">
-  @import "~@material/icon-button/mdc-icon-button";
+  @import "../../../node_modules/@material/icon-button/mdc-icon-button";
 
   .contribute {
     margin-top: 40px;
