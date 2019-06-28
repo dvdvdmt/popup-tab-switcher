@@ -71,7 +71,7 @@
   @import "~@material/icon-button/mdc-icon-button";
 
   .contribute {
-    margin-top: 30px;
+    margin-top: 40px;
   }
 
   .contribute__call-to-action {
@@ -88,14 +88,12 @@
   }
 
   .contribute__action {
-    flex-direction: row-reverse;
-
     & + & {
       margin-top: 15px;
     }
 
     i {
-      margin-left: 6px;
+      margin-right: 6px;
     }
   }
 
