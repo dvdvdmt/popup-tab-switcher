@@ -29,7 +29,7 @@
         Contact me
       </m-button>
       <m-button class="contribute__action"
-                href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QLYKYQ6VZK6FS&source=url"
+                href="https://www.paypal.me/dvdvdmt/3usd"
                 target="_blank"
                 raised
       >
