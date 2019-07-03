@@ -40,14 +40,14 @@
     <div class="contribute__share">
       <p class="contribute__call-to-action">or share with others</p>
       <div class="contribute__share-links">
-        <copy-link-button link="https://chrome.google.com/webstore/my-extension-id"/>
-        <a class="mdc-icon-button" href="https://facebook.com" target="_blank">
+        <copy-link-button :link="extensionUrl"/>
+        <a class="mdc-icon-button" :href="shareOnFacebookUrl" target="_blank">
           <svg-icon :icon="icons.facebook"/>
         </a>
-        <a class="mdc-icon-button" href="https://twitter.com" target="_blank">
+        <a class="mdc-icon-button" :href="shareOnTwitterUrl" target="_blank">
           <svg-icon :icon="icons.twitter"/>
         </a>
-        <a class="mdc-icon-button" href="https://vk.com" target="_blank">
+        <a class="mdc-icon-button" :href="shareOnVkontakteUrl" target="_blank">
           <svg-icon :icon="icons.vkontakte"/>
         </a>
       </div>
@@ -63,6 +63,12 @@
   import SvgIcon from './SvgIcon.vue';
   import CopyLinkButton from './CopyLinkButton.vue';
 
+  function getQueryString(query){
+    return Object.entries(query)
+      .map(([key, val]) => encodeURIComponent(key) + '=' + encodeURIComponent(val))
+      .join('&');
+  }
+
   export default {
     name: 'Contribute',
     components: {
@@ -72,12 +78,41 @@
     },
     data() {
       return {
+        extensionId: 'my-extension-id',
+        extensionName: 'Popup tab switcher',
+        extensionDescription: 'The extension that makes switching between tabs much simpler',
         icons: {
           facebook: facebookSymbol,
           twitter: twitterSymbol,
           vkontakte: vkontakteSymbol,
         },
       };
+    },
+    computed: {
+      extensionUrl() {
+        return `https://chrome.google.com/webstore/detail/${this.extensionId}`;
+      },
+      shareOnFacebookUrl() {
+        const query = {
+          u: this.extensionUrl
+        };
+        return `https://www.facebook.com/sharer/sharer.php?${getQueryString(query)}`;
+      },
+      shareOnTwitterUrl() {
+        const query = {
+          url: this.extensionUrl,
+          text: this.extensionDescription
+        };
+        return `https://twitter.com/share?${getQueryString(query)}`;
+      },
+      shareOnVkontakteUrl() {
+        const query = {
+          url: this.extensionUrl,
+          title: this.extensionName,
+          description: this.extensionDescription
+        };
+        return `https://vk.com/share.php?${getQueryString(query)}}`
+      },
     },
   };
 </script>
