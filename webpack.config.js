@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ChromeExtensionReloader = require('webpack-chrome-extension-reloader');
+const deepmerge = require('deepmerge');
 
 const buildProdDir = path.join(__dirname, 'build-prod');
 const buildDevDir = path.join(__dirname, 'build-dev');
@@ -93,21 +94,25 @@ module.exports = (env) => {
         const developmentProps = {
           content_security_policy: 'script-src \'self\' \'unsafe-eval\'; object-src \'self\'',
           key: 'popuptabswitcher', // id: meonejnmljcnoodabklmloagmnmcmlam
+          browser_action: {
+            default_icon: 'images/icon-48-gray.png',
+          },
         };
         const e2eProps = {
           key: developmentProps.key,
         };
-        return JSON.stringify({
-          version: process.env.npm_package_version,
-          ...JSON.parse(content.toString()),
-          ...(env.development ? developmentProps : {}),
-          ...(env.e2e ? e2eProps : {}),
-        }, null, 2);
+        return JSON.stringify(deepmerge.all([
+          { version: process.env.npm_package_version },
+          JSON.parse(content.toString()),
+          (env.development ? developmentProps : {}),
+          (env.e2e ? e2eProps : {}),
+        ]), null, 2);
       },
     },
     {
-      from: 'src/images/',
-      to: 'images',
+      from: 'icon*.png',
+      to: 'images/',
+      context: 'src/images',
     },
     {
       from: 'src/settings/index.html',

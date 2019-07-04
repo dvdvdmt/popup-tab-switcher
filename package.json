@@ -30,6 +30,7 @@
     "@babel/register": "^7.4.0",
     "copy-webpack-plugin": "^4.6.0",
     "css-loader": "^2.1.1",
+    "deepmerge": "^3.3.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.17.2",
