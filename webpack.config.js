@@ -98,7 +98,6 @@ module.exports = (env) => {
           key: developmentProps.key,
         };
         return JSON.stringify({
-          description: process.env.npm_package_description,
           version: process.env.npm_package_version,
           ...JSON.parse(content.toString()),
           ...(env.development ? developmentProps : {}),

@@ -2,6 +2,7 @@
   "manifest_version": 2,
   "version": "1.0.0",
   "name": "Popup tab switcher",
+  "description": "Makes switching between tabs more convenient.",
   "permissions": [
     "tabs",
     "<all_urls>"
