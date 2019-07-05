@@ -1,0 +1,25 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Page that has popup-tab-switcher in the DOM</title>
+</head>
+<body>
+<script>
+  customElements.define('popup-tab-switcher',
+    class extends HTMLElement {
+      constructor() {
+        super();
+
+        const shadow = this.attachShadow({mode: 'open'});
+      }
+    });
+  const tabSwitcherEl = document.createElement('popup-tab-switcher');
+  tabSwitcherEl.id = 'popup-tab-switcher';
+  document.body.append(tabSwitcherEl);
+</script>
+</body>
+</html>

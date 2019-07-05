@@ -7,7 +7,7 @@ function getPagePath(pageFileName) {
 async function queryPopup(queryString, resultFn) {
   // NOTE: This awful string was created because other ways for selecting
   // elements in shadow root did not work. It would be great to rewrite this part
-  return this.evaluate(`(${resultFn})(Array.from(document.querySelector('popup-tab-switcher').shadowRoot.querySelectorAll('${queryString}')))`);
+  return this.evaluate(`(${resultFn})(Array.from(document.querySelector('#popup-tab-switcher').shadowRoot.querySelectorAll('${queryString}')))`);
 }
 
 export default class PuppeteerPopupHelper {

@@ -26,9 +26,9 @@ describe('Pop-up', function () {
     async function popupOpens(page) {
       await helper.selectTabForward();
 
-      const display = await page.$eval('popup-tab-switcher', popup => getComputedStyle(popup)
+      const display = await page.$eval('#popup-tab-switcher', popup => getComputedStyle(popup)
         .getPropertyValue('display'));
-      assert.notStrictEqual(display, 'none', 'popup visible');
+      assert(display === 'flex', 'popup visible');
     }
 
     it('Opens on "Alt+Y"', async () => {
@@ -38,6 +38,12 @@ describe('Pop-up', function () {
 
       // Works after page reload
       await popupOpens(await helper.openPage('wikipedia.html', page));
+    });
+
+    it('Opens on "Alt+Y" even if the page has popup-tab-switcher element', async () => {
+      const [page] = await browser.pages();
+      await helper.openPage('page-with-popup-tab-switcher.html', page);
+      await popupOpens(page);
     });
 
     it('Opens on file pages', async () => {
@@ -50,7 +56,7 @@ describe('Pop-up', function () {
       const page = await helper.openPage('wikipedia.html');
       await popupOpens(page);
       await page.keyboard.up('Alt');
-      const display = await page.$eval('popup-tab-switcher', popup => getComputedStyle(popup)
+      const display = await page.$eval('#popup-tab-switcher', popup => getComputedStyle(popup)
         .getPropertyValue('display'));
       assert.strictEqual(display, 'none', 'popup hidden');
     });
@@ -159,7 +165,9 @@ describe('Pop-up', function () {
       await helper.openPage('example.html');
       const pageStOverflow = await helper.openPage('stackoverflow.html');
       await helper.selectTabForward();
-      await pageStOverflow.queryPopup('.tab:nth-child(3)', ([el]) => { el.click(); });
+      await pageStOverflow.queryPopup('.tab:nth-child(3)', ([el]) => {
+        el.click();
+      });
       await pageStOverflow.keyboard.up('Alt');
       const curTab = await helper.getActiveTab();
       const elText = await curTab.$eval('title', el => el.textContent);
@@ -172,7 +180,7 @@ describe('Pop-up', function () {
       const pageStOverflow = await helper.openPage('stackoverflow.html');
       await helper.selectTabForward();
       await pageStOverflow.keyboard.press('Escape');
-      const isPopupClosed = await pageStOverflow.$eval('popup-tab-switcher', el => getComputedStyle(el).display === 'none');
+      const isPopupClosed = await pageStOverflow.$eval('#popup-tab-switcher', el => getComputedStyle(el).display === 'none');
       assert(isPopupClosed, 'hides on pressing Esc button');
       await pageStOverflow.keyboard.up('Alt');
       const curTab = await helper.getActiveTab();
@@ -208,7 +216,7 @@ describe('Pop-up', function () {
       await pageWikipedia.evaluate(animationsPolyfill);
       await selectTabForward();
       await pageWikipedia.evaluate(() => {
-        const textEl = document.querySelector('popup-tab-switcher')
+        const textEl = document.querySelector('#popup-tab-switcher')
           .shadowRoot
           .querySelector('.tab_selected .tab__text');
         Promise.all(textEl.getAnimations().map(a => a.finished)).then(window.onAnimationFinish);
