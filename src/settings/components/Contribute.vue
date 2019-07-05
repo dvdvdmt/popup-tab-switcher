@@ -5,7 +5,7 @@
     </p>
     <div class="contribute__actions">
       <m-button class="contribute__action"
-                href="https://chrome.google.com/webstore/my-extension-id"
+                :href="'https://chrome.google.com/webstore/' + extensionId"
                 target="_blank"
                 outlined
       >
@@ -56,6 +56,7 @@
 </template>
 
 <script>
+  import browser from 'webextension-polyfill';
   import MButton from './MButton.vue';
   import facebookSymbol from '../../images/facebook-icon.svg';
   import twitterSymbol from '../../images/twitter-icon.svg';
@@ -78,7 +79,7 @@
     },
     data() {
       return {
-        extensionId: 'my-extension-id',
+        extensionId: browser.runtime.id,
         extensionName: 'Popup tab switcher',
         extensionDescription: 'The extension that makes switching between tabs much simpler',
         icons: {
