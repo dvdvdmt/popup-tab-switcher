@@ -1,6 +1,6 @@
 import path from 'path';
 
-function getPagePath(pageFileName) {
+export function getPagePath(pageFileName) {
   return `file:${path.join(__dirname, '../web-pages', pageFileName)}`;
 }
 

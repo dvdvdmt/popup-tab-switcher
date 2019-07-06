@@ -1,6 +1,6 @@
 import assert from 'assert';
 import puppeteer from 'puppeteer';
-import PuppeteerPopupHelper from './utils/PuppeteerPopupHelper';
+import PuppeteerPopupHelper, { getPagePath } from './utils/PuppeteerPopupHelper';
 import { launchOptions } from './utils/config';
 
 let browser;
@@ -188,68 +188,28 @@ describe('Pop-up', function () {
       assert.strictEqual(elText, 'Tour - Stack Overflow', 'stays on the same tab');
     });
 
-    /*
-    NOTE: Chrome does not support el.getAnimations()
-      and web-animations-js polyfill does not help also because getAnimations() returns
-      empty array. Apparently it is because the polyfill does not support custom elements.
+    it('Switches between windows', async () => {
+      const pageWikipedia = await helper.openPage('wikipedia.html');
+      const pageExample = await helper.openPage('example.html');
+      const newPagePromise = new Promise(resolve => browser.once('targetcreated', target => resolve(target.page())));
+      await pageExample.evaluate((url) => {
+        window.open(url, '_blank', 'width=500,height=500');
+      }, getPagePath('stackoverflow.html'));
+      const pageStOverflow = await newPagePromise;
+      await pageStOverflow.keyboard.down('Alt');
+      await pageStOverflow.keyboard.press('KeyY');
+      await pageStOverflow.keyboard.press('KeyY');
+      await pageStOverflow.keyboard.up('Alt');
+      // document.hasFocus() does not work here as expected
+      const activePage = await helper.getActiveTab();
+      let isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus());
+      assert(pageWikipedia === activePage && !isStOverflowFocused, 'Switched back to a previous window');
 
-    it('Scrolls long text of selected tab', async () => {
-    function getDelayedPromise(timeBeforeReject = 1000) {
-      let resolvePromise;
-      const promise = new Promise((resolve, reject) => {
-        resolvePromise = resolve;
-        setTimeout(reject, timeBeforeReject);
-      });
-      return { promise, resolvePromise };
-    }
-
-      const pageWithLongTitle = await browser.newPage();
-      await pageWithLongTitle.goto(getPagePath('page-with-long-title'));
-      const pageWikipedia = await browser.newPage();
-      const { promise, resolvePromise } = getDelayedPromise();
-      await pageWikipedia.exposeFunction('onAnimationFinish', () => {
-        resolvePromise();
-      });
-      await pageWikipedia.goto(getPagePath('wikipedia.html'));
-      const polyfillPath = './node_modules/web-animations-js/web-animations-next.min.js';
-      const animationsPolyfill = fs.readFileSync(polyfillPath, 'utf8');
-      await pageWikipedia.evaluate(animationsPolyfill);
-      await selectTabForward();
-      await pageWikipedia.evaluate(() => {
-        const textEl = document.querySelector('#popup-tab-switcher')
-          .shadowRoot
-          .querySelector('.tab_selected .tab__text');
-        Promise.all(textEl.getAnimations().map(a => a.finished)).then(window.onAnimationFinish);
-      });
-      try {
-        await promise;
-      } catch (e) {
-        assert.fail('text scroll animation did not start');
-      }
-    }) */
-
-    /*
-    NOTE: It can't be tested because you cant inject content scripts into special Chrome tabs
-
-    it('Switches from a special tab back to previous without showing a popup', async () => {
-      const pageWikipedia = await browser.newPage();
-      await pageWikipedia.goto(getPagePath('wikipedia.html'));
-      await browser.newPage();
-      let curTab = await switchTab();
-      let elText = await curTab.$eval('title', el => el.textContent);
-      assert.strictEqual(elText, 'Wikipedia');
-      const pageSettings = await browser.newPage();
-      await pageSettings.goto('chrome://settings');
-      curTab = await switchTab();
-      elText = await curTab.$eval('title', el => el.textContent);
-      assert.strictEqual(elText, 'Wikipedia');
-    }); */
-
-    // it('Switches from PDF and other file types pages', async () => {
-    //   const pageWikipedia = await browser.newPage();
-    //   await pageWikipedia.goto(getPagePath('wikipedia.html'));
-    //
-    //
-    // });
+      await pageStOverflow.keyboard.down('Alt');
+      await pageStOverflow.keyboard.press('KeyY');
+      await pageStOverflow.keyboard.up('Alt');
+      isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus());
+      assert(isStOverflowFocused, 'Switched between two windows');
+    });
   });
 });

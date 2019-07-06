@@ -64,6 +64,7 @@ async function handleCommand(command) {
 browser.commands.onCommand.addListener(handleCommand);
 
 browser.tabs.onActivated.addListener(addCurrentTabToRegistry);
+browser.windows.onFocusChanged.addListener(addCurrentTabToRegistry);
 
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete') {
@@ -88,6 +89,7 @@ browser.runtime.onConnect.addListener((port) => {
   if (ports.CONTENT_SCRIPT === port.name) {
     port.onMessage.addListener(handleMessage({
       [messages.SWITCH_TAB]: async ({ selectedTab }) => {
+        await browser.windows.update(selectedTab.windowId, { focused: true });
         await browser.tabs.update(selectedTab.id, { active: true });
       },
     }));
