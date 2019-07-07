@@ -148,9 +148,9 @@ export default class PopupTabSwitcher extends HTMLElement {
       popupWidth,
       fontSize,
       iconSize,
-      maxNumberOfTabs,
+      numberOfTabsToShow,
     } = settings;
-    const popupHeight = maxNumberOfTabs * tabHeight;
+    const popupHeight = numberOfTabsToShow * tabHeight;
     const popupBorderRadius = 8;
     this.style.setProperty('--popup-width-factor', popupWidth / window.outerWidth);
     this.style.setProperty('--popup-height-factor', popupHeight / window.outerWidth);

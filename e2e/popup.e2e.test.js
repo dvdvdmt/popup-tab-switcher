@@ -2,8 +2,10 @@ import assert from 'assert';
 import puppeteer from 'puppeteer';
 import PuppeteerPopupHelper, { getPagePath } from './utils/PuppeteerPopupHelper';
 import { launchOptions } from './utils/config';
+import { defaultSettings } from '../src/utils/settings';
 
 let browser;
+/** @type {PuppeteerPopupHelper} */
 let helper;
 
 before(async () => {
@@ -63,7 +65,7 @@ describe('Pop-up', function () {
   });
 
   describe('Many pages', function () {
-    afterEach(async () => {
+    beforeEach(async () => {
       await helper.closeTabs();
     });
 
@@ -210,6 +212,31 @@ describe('Pop-up', function () {
       await pageStOverflow.keyboard.up('Alt');
       isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus());
       assert(isStOverflowFocused, 'Switched between two windows');
+    });
+
+    it('Stores unlimited number of opened tabs in history', async () => {
+      const pages = [await helper.openPage('wikipedia.html')];
+      const numberOfTabsToOpen = defaultSettings.numberOfTabsToShow + 3;
+      for (let i = 0; i < numberOfTabsToOpen; i += 1) {
+        // We need to open tabs with focusing on them to populate tab registry
+        // eslint-disable-next-line no-await-in-loop
+        pages.push(await helper.openPage('example.html'));
+      }
+      await helper.selectTabForward();
+      let activeTab = await helper.getActiveTab();
+      let numberOfShownTabs = await activeTab.queryPopup('.tab', els => els.length);
+      assert.strictEqual(numberOfShownTabs, defaultSettings.numberOfTabsToShow, 'The number of shown tabs is correct');
+      const closingPagesPromises = [];
+      for (let i = pages.length - 1; i > 2; i -= 1) {
+        closingPagesPromises.push(pages[i].close());
+      }
+      await Promise.all(closingPagesPromises);
+      await helper.selectTabForward();
+      activeTab = await helper.getActiveTab();
+      numberOfShownTabs = await activeTab.queryPopup('.tab', els => els.length);
+      assert.strictEqual(numberOfShownTabs, 3, 'The number of shown tabs is correct after closing multiple tabs');
+      const tabTitle = await activeTab.queryPopup('.tab:nth-child(3)', ([el]) => el.textContent);
+      assert.strictEqual(tabTitle, 'Wikipedia');
     });
   });
 });

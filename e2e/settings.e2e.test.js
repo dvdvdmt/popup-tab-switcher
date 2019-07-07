@@ -30,7 +30,7 @@ async function getSettingsFromPage(page) {
   res.textScrollDelay = await page.$eval('#textScrollDelay', el => +el.value);
   res.textScrollCoefficient = await page.$eval('#textScrollCoefficient', el => +el.value);
   res.autoSwitchingTimeout = await page.$eval('#autoSwitchingTimeout', el => +el.value);
-  res.maxNumberOfTabs = await page.$eval('#maxNumberOfTabs', el => +el.value);
+  res.numberOfTabsToShow = await page.$eval('#numberOfTabsToShow', el => +el.value);
   res.isDarkTheme = await page.$eval('#isDarkTheme', el => el.checked);
   res.popupWidth = await page.$eval('#popupWidth', el => +el.value);
   res.tabHeight = await page.$eval('#tabHeight', el => +el.value);
@@ -43,7 +43,7 @@ const newSettings = {
   textScrollDelay: 1500,
   textScrollCoefficient: 777,
   autoSwitchingTimeout: 699,
-  maxNumberOfTabs: 5,
+  numberOfTabsToShow: 5,
   isDarkTheme: true,
   popupWidth: 444,
   tabHeight: 30,
@@ -55,7 +55,7 @@ async function setSettings(page) {
   await input(page, '#textScrollDelay', '1500');
   await input(page, '#textScrollCoefficient', '777');
   await input(page, '#autoSwitchingTimeout', '699');
-  await input(page, '#maxNumberOfTabs', '5');
+  await input(page, '#numberOfTabsToShow', '5');
   await page.click('#isDarkTheme');
   await input(page, '#popupWidth', '444');
   await input(page, '#tabHeight', '30');

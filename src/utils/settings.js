@@ -1,8 +1,9 @@
+/* eslint-env browser */
 export const defaultSettings = {
   textScrollDelay: 1000,
   textScrollCoefficient: 2500,
   autoSwitchingTimeout: 1000,
-  maxNumberOfTabs: 7,
+  numberOfTabsToShow: 7,
   isDarkTheme: false,
   popupWidth: 420,
   tabHeight: 40,

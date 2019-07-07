@@ -1,8 +1,12 @@
 export default class TabRegistry {
-  constructor({ tabs = [], maxNumberOfTabs = 7 } = {}) {
+  constructor({ tabs = [], numberOfTabsToShow = 7 } = {}) {
     this.tabs = tabs;
-    this.maxNumberOfTabs = maxNumberOfTabs;
+    this.numberOfTabsToShow = numberOfTabsToShow;
     this.initializedTabs = {};
+  }
+
+  removeTab(tabId) {
+    this.tabs = this.tabs.filter(({ id }) => id !== tabId);
   }
 
   addToInitialized(tab) {
@@ -18,13 +22,12 @@ export default class TabRegistry {
   }
 
   push(current) {
-    const tempTabs = this.tabs.filter(({ id }) => id !== current.id);
-    tempTabs.unshift(current);
-    this.tabs = tempTabs.slice(0, this.maxNumberOfTabs);
+    this.removeTab(current.id);
+    this.tabs.push(current);
   }
 
   remove(tabId) {
-    this.tabs = this.tabs.filter(({ id }) => id !== tabId);
+    this.removeTab(tabId);
     this.removeFromInitialized(tabId);
   }
 
@@ -39,5 +42,27 @@ export default class TabRegistry {
 
   getTabs() {
     return this.tabs.slice();
+  }
+
+  getTabsToShow() {
+    return this.tabs.slice(-this.numberOfTabsToShow)
+      .reverse();
+  }
+
+  getActive() {
+    return this.tabs[this.tabs.length - 1];
+  }
+
+  getPreviouslyActive() {
+    return this.tabs[this.tabs.length - 2];
+  }
+
+  findBackward(findFn) {
+    for (let i = this.tabs.length - 1; i >= 0; i -= 1) {
+      if (findFn(this.tabs[i])) {
+        return this.tabs[i];
+      }
+    }
+    return undefined;
   }
 }

@@ -4,11 +4,13 @@ export function getPagePath(pageFileName) {
   return `file:${path.join(__dirname, '../web-pages', pageFileName)}`;
 }
 
-async function queryPopup(queryString, resultFn) {
-  // NOTE: This awful string was created because other ways for selecting
-  // elements in shadow root did not work. It would be great to rewrite this part
-  return this.evaluate(`(${resultFn})(Array.from(document.querySelector('#popup-tab-switcher').shadowRoot.querySelectorAll('${queryString}')))`);
-}
+const pageMixin = {
+  async queryPopup(queryString, resultFn) {
+    // NOTE: This awful string was created because other ways for selecting
+    // elements in shadow root did not work. It would be great to rewrite this part
+    return this.evaluate(`(${resultFn})(Array.from(document.querySelector('#popup-tab-switcher').shadowRoot.querySelectorAll('${queryString}')))`);
+  },
+};
 
 export default class PuppeteerPopupHelper {
   constructor(browser) {
@@ -19,7 +21,8 @@ export default class PuppeteerPopupHelper {
     const pages = await this.browser.pages();
     // eslint-disable-next-line no-undef
     const promises = pages.map((p, i) => p.evaluate(index => document.visibilityState === 'visible' && index, `${i}`));
-    return pages[(await Promise.all(promises)).find(i => i)];
+    const firstActivePage = pages[(await Promise.all(promises)).find(i => i)];
+    return Object.assign(firstActivePage, pageMixin);
   }
 
   async selectTabForward() {
@@ -60,7 +63,6 @@ export default class PuppeteerPopupHelper {
       page = await this.browser.newPage();
     }
     await page.goto(getPagePath(pageFileName));
-    page.queryPopup = queryPopup;
-    return page;
+    return Object.assign(page, pageMixin);
   }
 }

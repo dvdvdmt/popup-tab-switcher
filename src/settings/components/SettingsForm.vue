@@ -34,14 +34,14 @@
       />
     </div>
     <div class="settings__row mdc-form-field">
-      <label for="maxNumberOfTabs" class="settings__label">
+      <label for="numberOfTabsToShow" class="settings__label">
         <i class="settings__icon settings__icon_label material-icons">format_list_numbered</i>
         Max number of tabs
       </label>
-      <m-text-field id="maxNumberOfTabs"
+      <m-text-field id="numberOfTabsToShow"
                     type="number"
                     class="settings__field"
-                    v-model="settings.maxNumberOfTabs"
+                    v-model="settings.numberOfTabsToShow"
                     :min="0"
       />
     </div>

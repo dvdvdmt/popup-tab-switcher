@@ -3,9 +3,10 @@ import TabRegistry from './utils/TabRegistry';
 import * as settings from './utils/settings';
 import { messages, ports } from './utils/constants';
 import handleMessage from './utils/handleMessage';
+import isSpecialTab from './utils/isSpecialTab';
 
 settings.initialize();
-const registry = new TabRegistry({ maxNumberOfTabs: settings.get().maxNumberOfTabs });
+const registry = new TabRegistry({ numberOfTabsToShow: settings.get().maxNumberOfTabs });
 
 async function addCurrentTabToRegistry() {
   const [currentTab] = await browser.tabs.query({
@@ -20,10 +21,6 @@ async function addCurrentTabToRegistry() {
 
 // initialize registry with currently active tab
 addCurrentTabToRegistry();
-
-function isSpecialTab(currentTab) {
-  return /^chrome:|^view-source:/.test(currentTab.url);
-}
 
 async function initializeContentScript(tab) {
   if (!registry.isInitialized(tab)) {
@@ -44,7 +41,7 @@ async function handleCommand(command) {
 
   // handle special chrome tabs separately because they do not allow script executions
   if (isSpecialTab(currentTab)) {
-    const previousTab = registry.getTabs()[1];
+    const previousTab = registry.getPreviouslyActive();
     if (previousTab) {
       await browser.tabs.update(previousTab.id, { active: true });
     }
@@ -56,7 +53,7 @@ async function handleCommand(command) {
   // send the command to the content script
   await browser.tabs.sendMessage(currentTab.id, {
     type: messages.SELECT_TAB,
-    tabsData: registry.getTabs(),
+    tabsData: registry.getTabsToShow(),
     increment: command === 'next' ? 1 : -1,
   });
 }
@@ -75,7 +72,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
 browser.tabs.onRemoved.addListener(async (tabId) => {
   registry.remove(tabId);
-  const currentTab = registry.getTabs()[0];
+  const currentTab = registry.getActive();
   if (currentTab) {
     await browser.tabs.update(currentTab.id, { active: true });
   }
@@ -97,7 +94,7 @@ browser.runtime.onConnect.addListener((port) => {
     port.onMessage.addListener(handleMessage({
       [messages.UPDATE_SETTINGS]: async ({ newSettings }) => {
         settings.update(newSettings);
-        registry.maxNumberOfTabs = newSettings.maxNumberOfTabs;
+        registry.numberOfTabsToShow = newSettings.numberOfTabsToShow;
 
         await Promise.all(Object.values(registry.initializedTabs)
           .map(({ id }) => browser.tabs.sendMessage(id, {
@@ -114,8 +111,7 @@ browser.runtime.onConnect.addListener((port) => {
 
         // handle special chrome tabs separately because they do not allow script executions
         if (isSpecialTab(currentTab)) {
-          const previousNormalTab = registry.getTabs()
-            .find(tab => !isSpecialTab(tab));
+          const previousNormalTab = registry.findBackward(tab => !isSpecialTab(tab));
           if (previousNormalTab) {
             await browser.tabs.update(previousNormalTab.id, { active: true });
           }
@@ -128,7 +124,7 @@ browser.runtime.onConnect.addListener((port) => {
         await browser.tabs.sendMessage(currentTab.id, {
           type: messages.UPDATE_SETTINGS,
           newSettings,
-          tabsData: registry.getTabs(),
+          tabsData: registry.getTabsToShow(),
         });
       },
     }));
