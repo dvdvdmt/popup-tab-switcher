@@ -22,7 +22,6 @@ const conf = {
     background: './src/background.js',
     content: './src/content.js',
     'settings/index': './src/settings/index.js',
-    e2eTestCommandsBridge: './src/e2eTestCommandsBridge.js',
   },
 
   output: {
@@ -152,6 +151,7 @@ module.exports = (env) => {
   } else if (env.e2e) {
     conf.mode = 'production';
     conf.devtool = 'source-map';
+    conf.entry.e2eTestCommandsBridge = './src/e2eTestCommandsBridge.js';
     conf.output.path = buildE2eDir;
     conf.plugins = [
       new CopyWebpackPlugin(copyWebpackPluginOptions),
