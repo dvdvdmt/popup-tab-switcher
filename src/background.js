@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill';
 import TabRegistry from './utils/TabRegistry';
 import * as settings from './utils/settings';
-import { messages, ports } from './utils/constants';
+import { messages, ports, uninstallURL } from './utils/constants';
 import handleMessage from './utils/handleMessage';
 import isSpecialTab from './utils/isSpecialTab';
 
@@ -57,6 +57,8 @@ async function handleCommand(command) {
     increment: command === 'next' ? 1 : -1,
   });
 }
+
+browser.runtime.setUninstallURL(uninstallURL);
 
 browser.commands.onCommand.addListener(handleCommand);
 
