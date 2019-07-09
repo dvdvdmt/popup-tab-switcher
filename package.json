@@ -8,7 +8,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "build-prod": "rm -rf build-prod && webpack --env.production",
+    "build-prod": "rm -rf build-prod && webpack --env.production && cd build-prod/ && zip -r archive.zip .",
     "build-e2e": "rm -rf build-e2e && webpack --env.e2e",
     "build-dev": "rm -rf build-dev && webpack --env.development",
     "start": "rm -rf build-dev && webpack --env.development --env.watch --watch",
