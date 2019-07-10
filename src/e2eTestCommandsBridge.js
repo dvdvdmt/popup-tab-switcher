@@ -1,3 +1,4 @@
+/* eslint-env browser */
 import browser from 'webextension-polyfill';
 import { ports } from './utils/constants';
 

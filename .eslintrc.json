@@ -2,7 +2,7 @@
   "extends": "airbnb-base",
   "globals": {
     "E2E": "readonly",
-    "window": true
+    "PRODUCTION": "readonly"
   },
   "rules": {
     "no-restricted-syntax": "off",

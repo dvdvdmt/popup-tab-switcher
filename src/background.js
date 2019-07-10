@@ -58,8 +58,6 @@ async function handleCommand(command) {
   });
 }
 
-browser.runtime.setUninstallURL(uninstallURL);
-
 browser.commands.onCommand.addListener(handleCommand);
 
 browser.tabs.onActivated.addListener(addCurrentTabToRegistry);
@@ -79,10 +77,6 @@ browser.tabs.onRemoved.addListener(async (tabId) => {
     await browser.tabs.update(currentTab.id, { active: true });
   }
 });
-
-function isAllowedUrl(url) {
-  return url !== 'about:blank' && !url.startsWith('chrome:');
-}
 
 browser.runtime.onConnect.addListener((port) => {
   if (ports.CONTENT_SCRIPT === port.name) {
@@ -145,7 +139,15 @@ browser.runtime.onConnect.addListener((port) => {
   }
 });
 
+if (PRODUCTION) {
+  browser.runtime.setUninstallURL(uninstallURL);
+}
+
 // code that runs only in end-to-end tests
+function isAllowedUrl(url) {
+  return url !== 'about:blank' && !url.startsWith('chrome:');
+}
+
 if (E2E) {
   browser.runtime.onConnect.addListener((port) => {
     if (port.name === ports.COMMANDS_BRIDGE) {

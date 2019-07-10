@@ -5,7 +5,7 @@
   "description": "Makes switching between tabs more convenient.",
   "permissions": [
     "tabs",
-    "<all_urls>"
+    "activeTab"
   ],
   "background": {
     "scripts": [

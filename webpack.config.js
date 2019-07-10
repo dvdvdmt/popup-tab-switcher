@@ -99,6 +99,7 @@ module.exports = (env) => {
         };
         const e2eProps = {
           key: developmentProps.key,
+          permissions: ['tabs', '<all_urls>'],
         };
         return JSON.stringify(deepmerge.all([
           { version: process.env.npm_package_version },
@@ -130,6 +131,7 @@ module.exports = (env) => {
       new CopyWebpackPlugin(copyWebpackPluginOptions),
       new webpack.DefinePlugin({
         E2E: 'false',
+        PRODUCTION: 'true',
       }),
       new VueLoaderPlugin(),
     ];
@@ -138,6 +140,7 @@ module.exports = (env) => {
       new CopyWebpackPlugin(copyWebpackPluginOptions),
       new webpack.DefinePlugin({
         E2E: 'false',
+        PRODUCTION: 'false',
       }),
       env.watch ? new ChromeExtensionReloader({
         entries: {
@@ -157,6 +160,7 @@ module.exports = (env) => {
       new CopyWebpackPlugin(copyWebpackPluginOptions),
       new webpack.DefinePlugin({
         E2E: 'true',
+        PRODUCTION: 'false',
       }),
       new VueLoaderPlugin(),
     ];
