@@ -99,7 +99,6 @@ module.exports = (env) => {
         };
         const e2eProps = {
           key: developmentProps.key,
-          permissions: ['tabs', '<all_urls>'],
         };
         return JSON.stringify(deepmerge.all([
           { version: process.env.npm_package_version },
