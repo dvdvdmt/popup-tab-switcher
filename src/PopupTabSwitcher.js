@@ -77,16 +77,16 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.card = document.createElement('div');
     shadow.appendChild(style);
     shadow.appendChild(this.card);
+    this.hideOverlay = this.hideOverlay.bind(this);
 
     this.setupListeners();
   }
 
   setupListeners() {
-    this.eventListener = handleMessage({
-      click: () => {
-        this.hideOverlay();
-        selectedTabIndex = 0;
-      },
+    this.popupEventListener = handleMessage({
+      click: this.hideOverlay,
+    });
+    this.documentEventListener = handleMessage({
       keyup: ({ key }) => {
         if (!this.isOverlayVisible) {
           return;
@@ -96,12 +96,15 @@ export default class PopupTabSwitcher extends HTMLElement {
         }
         if (key === 'Escape') {
           this.hideOverlay();
-          selectedTabIndex = 0;
         }
       },
     });
-    this.addEventListener('click', this.eventListener);
-    document.addEventListener('keyup', this.eventListener);
+    this.windowEventListener = handleMessage({
+      blur: this.hideOverlay,
+    });
+    this.addEventListener('click', this.popupEventListener);
+    document.addEventListener('keyup', this.documentEventListener);
+    window.addEventListener('blur', this.windowEventListener);
 
     this.messageListener = handleMessage({
       [messages.UPDATE_SETTINGS]: ({ tabsData, newSettings }) => {
@@ -112,9 +115,7 @@ export default class PopupTabSwitcher extends HTMLElement {
       [messages.UPDATE_SETTINGS_SILENTLY]: ({ newSettings }) => {
         settings = newSettings;
       },
-      [messages.CLOSE_SETTINGS]: () => {
-        this.hideOverlay();
-      },
+      [messages.CLOSE_POPUP]: this.hideOverlay,
       [messages.SELECT_TAB]: ({ tabsData, increment }) => {
         tabsArray = tabsData;
         selectedTabIndex = rangedIncrement(selectedTabIndex, increment, tabsArray.length);
@@ -133,8 +134,9 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   removeListeners() {
-    this.removeEventListener('click', this.eventListener);
-    this.removeEventListener('keyup', this.eventListener);
+    this.removeEventListener('click', this.popupEventListener);
+    document.removeEventListener('keyup', this.documentEventListener);
+    window.removeEventListener('blur', this.windowEventListener);
     chrome.runtime.onMessage.removeListener(this.messageListener);
   }
 
@@ -167,6 +169,7 @@ export default class PopupTabSwitcher extends HTMLElement {
   hideOverlay() {
     this.style.display = 'none';
     this.isOverlayVisible = false;
+    selectedTabIndex = 0;
   }
 
   switchToSelectedTab() {
@@ -179,7 +182,6 @@ export default class PopupTabSwitcher extends HTMLElement {
       type: messages.SWITCH_TAB,
       selectedTab,
     });
-    selectedTabIndex = 0;
   }
 
   getTabElements(tabs, selectedId) {
@@ -219,17 +221,22 @@ export default class PopupTabSwitcher extends HTMLElement {
       const startDelayOffset = settings.textScrollDelay / totalTime;
       const endDelayOffset = 1 - startDelayOffset;
       textEl.style.setProperty('text-overflow', 'initial');
-      textEl.animate([{
-        textIndent: 'initial',
-      }, {
-        textIndent: 'initial',
-        offset: startDelayOffset,
-      }, {
-        textIndent: `-${textIndent}px`,
-        offset: endDelayOffset,
-      }, {
-        textIndent: `-${textIndent}px`,
-      }], {
+      textEl.animate([
+        {
+          textIndent: 'initial',
+        },
+        {
+          textIndent: 'initial',
+          offset: startDelayOffset,
+        },
+        {
+          textIndent: `-${textIndent}px`,
+          offset: endDelayOffset,
+        },
+        {
+          textIndent: `-${textIndent}px`,
+        },
+      ], {
         duration: scrollTime + 2 * settings.textScrollDelay,
         iterations: Infinity,
       });

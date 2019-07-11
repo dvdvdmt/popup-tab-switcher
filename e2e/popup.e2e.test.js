@@ -62,6 +62,17 @@ describe('Pop-up', function () {
         .getPropertyValue('display'));
       assert.strictEqual(display, 'none', 'popup hidden');
     });
+
+    it('Hides the popup if a user selects other tab in a browser top bar', async () => {
+      // the closing behaviour is based on a blur event
+      const pageWikipedia = await helper.openPage('wikipedia.html');
+      await helper.selectTabForward();
+      await pageWikipedia.evaluate(() => {
+        window.dispatchEvent(new Event('blur'));
+      });
+      const display = await pageWikipedia.$eval('#popup-tab-switcher', el => getComputedStyle(el).display);
+      assert.strictEqual(display, 'none', 'The popup is closed');
+    });
   });
 
   describe('Many pages', function () {

@@ -133,7 +133,7 @@ browser.runtime.onConnect.addListener((port) => {
       });
 
       await browser.tabs.sendMessage(currentTab.id, {
-        type: messages.CLOSE_SETTINGS,
+        type: messages.CLOSE_POPUP,
       });
     });
   }

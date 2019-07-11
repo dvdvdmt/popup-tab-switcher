@@ -7,7 +7,7 @@ export const ports = Object.freeze({
 export const messages = Object.freeze({
   UPDATE_SETTINGS: 'UPDATE_SETTINGS',
   UPDATE_SETTINGS_SILENTLY: 'UPDATE_SETTINGS_SILENTLY',
-  CLOSE_SETTINGS: 'CLOSE_SETTINGS',
+  CLOSE_POPUP: 'CLOSE_POPUP',
   SELECT_TAB: 'SELECT_TAB',
   SWITCH_TAB: 'SWITCH_TAB',
 });
