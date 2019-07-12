@@ -40,3 +40,7 @@ You can press `Escape` or click on the space around popup to hide it.
 When you close a tab the extension will switch you to the previously active one. 
 It is more helpful than the default Chrome behaviour, which activates the adjacent tab.
 
+## Contributors ##
+
+Design of the icon and promo images - [Alina Zaripova](https://www.behance.net/alicilinia)
+
