@@ -40,6 +40,13 @@ You can press `Escape` or click on the space around popup to hide it.
 When you close a tab the extension will switch you to the previously active one. 
 It is more helpful than the default Chrome behaviour, which activates the adjacent tab.
 
+>**NOTE**  
+>The extension tries to render its popup on the page wherever it is possible, but there are cases where it can't do that:
+>* Chrome's web store pages. The extension doesn't work here.
+>* Special Chrome tabs such as Settings, New tab, History, etc. In this case the extension tries to switch a user from a special tab to a previous tab without showing a popup.
+>* The page has no focus (a user searches on the page, focused on address bar, etc.). In this case the extension shows its popup and starts a timer by the end of which it will switch a user to the selected tab.
+>* File pages (URL starts with `file:///`). The extension can't work on such pages without a special permission which you can turn on in Extensions > Popup Tab Switcher (Details) > Allow access to file URLs.
+
 ## Contributors ##
 
 Design of the icon and promo images - [Alina Zaripova](https://www.behance.net/alicilinia)
