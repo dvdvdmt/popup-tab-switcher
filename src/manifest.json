@@ -1,12 +1,12 @@
 {
   "manifest_version": 2,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "name": "Popup Tab Switcher",
   "description": "Makes switching between tabs more convenient.",
   "permissions": [
     "tabs",
     "activeTab",
-    "file://**/*"
+    "file:///"
   ],
   "background": {
     "scripts": [

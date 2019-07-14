@@ -89,6 +89,7 @@ module.exports = (env) => {
     {
       from: 'src/manifest.json',
       transform(content) {
+        const original = JSON.parse(content.toString());
         // generates the manifest file using the package.json information
         const developmentProps = {
           content_security_policy: 'script-src \'self\' \'unsafe-eval\'; object-src \'self\'',
@@ -96,13 +97,13 @@ module.exports = (env) => {
           browser_action: {
             default_icon: 'images/icon-48-gray.png',
           },
+          name: `${original.name} - Development`,
         };
         const e2eProps = {
           key: developmentProps.key,
         };
         return JSON.stringify(deepmerge.all([
-          { version: process.env.npm_package_version },
-          JSON.parse(content.toString()),
+          original,
           (env.development ? developmentProps : {}),
           (env.e2e ? e2eProps : {}),
         ]), null, 2);
