@@ -90,10 +90,11 @@ modification in Karabiner-Elements Preferences (Complex Modifications >
 Add rule > Maps switching between tabs in Chrome...).
 
 ##### Using Keyboard Maestro #####
-[Keyboard Maestro](https://www.keyboardmaestro.com/main/) is powerful
+[Keyboard Maestro](https://www.keyboardmaestro.com/main/) is a powerful
 macro runner for macOS. The solution with Keyboard Maestro works, but is
 not ideal, because it starts timers in a background. You can find
-necessary macroses in [this forum question](https://forum.keyboardmaestro.com/t/how-to-map-one-key-combination-with-modifier-key-to-another/14385?u=dmitriy_davydov).
+necessary macroses in
+[this forum question](https://forum.keyboardmaestro.com/t/how-to-map-one-key-combination-with-modifier-key-to-another/14385?u=dmitriy_davydov).
 
 ## Contributors ##
 
