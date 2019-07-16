@@ -49,6 +49,52 @@ The extension tries to render its popup on the page wherever it is possible, but
 * The page has no focus (a user searches on the page, focused on address bar, etc.). In this case the extension shows its popup and starts a timer by the end of which it will switch a user to the selected tab.
 * File pages (URL starts with `file:///`). The extension can't work on such pages without a special permission which you can turn on in Extensions > Popup Tab Switcher (Details) > Allow access to file URLs.
 
+## Help ##
+### Settings ###
+You can open the extension settings by clicking on its icon near the
+address bar.
+
+|Option|Description|
+|---|---|
+|Dark theme|Turns on or off the dark theme 🦇|
+|Popup width|Sets the popup width|
+|Popup height|Sets the popup height|
+|Max number of tabs|Specifies how many recently used tabs to show in the popup|
+|Font size|Sets the size of the tab title text|
+|Icon size|Sets the size of the tab icon|
+|Auto switching timeout|If a page has no focus (address bar or search field is focused, etc.) then the extension starts a timer by the end of which it will switch a user to the selected tab. This timer restarts on each selection command (`Alt+Y` or `Alt+Shift+Y` by default)|
+|Text scroll delay|If a tab title is wider than the popup then its overflowing part of the text will be hidden. When such tab is selected in the popup then its text will be scrolled. This option delays the start of the scrolling|
+|Text scroll speed|Sets the speed of a selected tab title scrolling|
+
+### Replace default tab switching behaviour ###
+Default Chrome tab switching shortcuts are `Ctrl+Tab` and
+`Ctrl+Shift+Tab`. These shortcuts can not be assigned to trigger the
+extension commands
+([Keyboard shortcuts](chrome://extensions/shortcuts)). In order to
+switch between tabs on `Ctrl+Tab` by using the extension you can try one
+of the next approaches.
+
+> NOTE: For the moment I know how to do it only for macOS, but I think
+> that solution for Windows is similar and can be done with
+> [AutoHotkey](https://www.autohotkey.com/).
+
+#### macOS ####
+
+##### Using Karabiner-Elements #####
+[Karabiner-Elements](https://pqrs.org/osx/karabiner/index.html) is a
+free keyboard customizer for macOS. After its installation you need to
+place
+[this config file](https://github.com/dvdvdmt/my-configs/blob/master/karabiner/Chrome_Ctrl-Tab_to_Alt-Y.json)
+to `~/.config/karabiner/assets/complex_modifications/` and enable this
+modification in Karabiner-Elements Preferences (Complex Modifications >
+Add rule > Maps switching between tabs in Chrome...).
+
+##### Using Keyboard Maestro #####
+[Keyboard Maestro](https://www.keyboardmaestro.com/main/) is powerful
+macro runner for macOS. The solution with Keyboard Maestro works, but is
+not ideal, because it starts timers in a background. You can find
+necessary macroses in [this forum question](https://forum.keyboardmaestro.com/t/how-to-map-one-key-combination-with-modifier-key-to-another/14385?u=dmitriy_davydov).
+
 ## Contributors ##
 
 Design of the icon and promo images - [Alina Zaripova](https://www.behance.net/alicilinia)
