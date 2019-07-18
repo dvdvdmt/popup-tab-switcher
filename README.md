@@ -8,8 +8,9 @@ store](https://chrome.google.com/webstore/detail/popup-tab-switcher/cehdjppppega
 
 [![Popup tab switcher work demo](./readme-assets/youtube-preview.png)](https://youtu.be/JyX3lk-OrXw)
 
-It remembers the order in which tabs were activated and allows you to switch 
-between recently active tabs in a fraction of a second without using a mouse.
+It remembers the order in which tabs were active and allows you to
+switch between recently active tabs in a fraction of a second without
+using a mouse.
 
 ## Motivation ##
 
