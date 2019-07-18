@@ -14,8 +14,8 @@ between recently active tabs in a fraction of a second without using a mouse.
 My everyday code editor from JetBrains has 
 a handful popup (Settings > Keymap > Switcher) that simplifies switching between
 editor's tabs. A similar switcher is build into all modern operating systems,
-which allows you to jump between apps and it can be triggered by pressing `Alt + Tab` 
-in Windows and `Cmd + Tab` in macOS. 
+which allows you to jump between apps and it can be triggered by pressing `Alt+Tab` 
+in Windows and `Cmd+Tab` in macOS. 
 The project is copying this behaviour to the Chrome browser.
 
 ## How to use ##
@@ -23,13 +23,13 @@ The project is copying this behaviour to the Chrome browser.
 Default shortcuts to trigger the extension are:
 <ul>
   <li>
-    <code>Alt + Y</code> to select tabs from top to bottom (recent to old)
+    <code>Alt+Y</code> to select tabs from top to bottom (recent to old)
     <details><summary>demo</summary>
       <img src="./readme-assets/switching-forward.gif" alt="Work demo. Switching forward" />
     </details> 
   </li>
   <li>
-    <code>Alt + Shift + Y</code> to select tabs from bottom to top (old to recent)
+    <code>Alt+Shift+Y</code> to select tabs from bottom to top (old to recent)
     <details><summary>demo</summary>
       <img src="./readme-assets/switching-backward.gif" alt="Work demo. Switching backward" />
     </details> 
@@ -69,10 +69,10 @@ address bar.
 ### Replace default tab switching behaviour ###
 Default Chrome tab switching shortcuts are `Ctrl+Tab` and
 `Ctrl+Shift+Tab`. These shortcuts can not be assigned to trigger the
-extension commands
-([Keyboard shortcuts](chrome://extensions/shortcuts)). In order to
-switch between tabs on `Ctrl+Tab` by using the extension you can try one
-of the next approaches.
+extension commands (Extensions > Keyboard shortcuts
+`chrome://extensions/shortcuts`). In order to switch between tabs on
+`Ctrl+Tab` by using the extension you can try one of the next
+approaches.
 
 > NOTE: For the moment I know how to do it only for macOS, but I think
 > that solution for Windows is similar and can be done with
@@ -95,6 +95,12 @@ macro runner for macOS. The solution with Keyboard Maestro works, but is
 not ideal, because it starts timers in a background. You can find
 necessary macroses in
 [this forum question](https://forum.keyboardmaestro.com/t/how-to-map-one-key-combination-with-modifier-key-to-another/14385?u=dmitriy_davydov).
+
+## FAQ ##
+> Is there a way to change the default shortcut (Alt+Y)? 
+
+Yes you can do this in Chrome (Extensions > Keyboard shortcuts
+`chrome://extensions/shortcuts`)
 
 ## Contributors ##
 
