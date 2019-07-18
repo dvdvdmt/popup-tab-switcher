@@ -3,6 +3,8 @@
 ![Popup tab switcher logo](./readme-assets/tab-switcher-logo.png)
 
 A browser extension that makes switching between tabs more convenient.
+Available in [Chrome web
+store](https://chrome.google.com/webstore/detail/popup-tab-switcher/cehdjppppegalmaffcdffkkpmoflfhkc).
 
 [![Popup tab switcher work demo](./readme-assets/youtube-preview.png)](https://youtu.be/JyX3lk-OrXw)
 
