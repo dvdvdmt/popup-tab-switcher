@@ -82,7 +82,7 @@ describe('Pop-up', function () {
 
     it('Adds visited pages to the registry in correct order', async () => {
       const expectedTexts = [
-        'Tour - Stack Overflow',
+        'Stack Overflow',
         'Example Domain',
         'Wikipedia',
       ];
@@ -96,7 +96,7 @@ describe('Pop-up', function () {
 
     it('Updates tab list on closing open tabs', async () => {
       const expectedTexts = [
-        'Tour - Stack Overflow',
+        'Stack Overflow',
         'Wikipedia',
       ];
       await helper.openPage('wikipedia.html');
@@ -120,7 +120,7 @@ describe('Pop-up', function () {
       assert.strictEqual(elText, 'Wikipedia');
       await pageStOverflow.keyboard.press('KeyY');
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
-      assert.strictEqual(elText, 'Tour - Stack Overflow');
+      assert.strictEqual(elText, 'Stack Overflow');
       await helper.switchToSelectedTab();
       await helper.selectTabBackward();
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
@@ -128,7 +128,7 @@ describe('Pop-up', function () {
       await helper.selectTabBackward();
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
       assert.strictEqual(elText, 'Example Domain');
-      await helper.selectTabBackward(); // selected Tour - Stack Overflow
+      await helper.selectTabBackward(); // Stack Overflow is selected
       await pageExample.close();
       await helper.selectTabForward();
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
@@ -144,7 +144,7 @@ describe('Pop-up', function () {
       assert.strictEqual(elText, 'Example Domain');
       curTab = await helper.switchTab();
       elText = await curTab.$eval('title', el => el.textContent);
-      assert.strictEqual(elText, 'Tour - Stack Overflow');
+      assert.strictEqual(elText, 'Stack Overflow');
       curTab = await helper.switchTab(2);
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
@@ -164,7 +164,7 @@ describe('Pop-up', function () {
       await pageWikipedia.close();
       let curTab = await helper.getActiveTab();
       let elText = await curTab.$eval('title', el => el.textContent);
-      assert.strictEqual(elText, 'Tour - Stack Overflow');
+      assert.strictEqual(elText, 'Stack Overflow');
       await helper.openPage('wikipedia.html');
       await pageExample.bringToFront();
       await pageExample.close();
@@ -198,7 +198,7 @@ describe('Pop-up', function () {
       await pageStOverflow.keyboard.up('Alt');
       const curTab = await helper.getActiveTab();
       const elText = await curTab.$eval('title', el => el.textContent);
-      assert.strictEqual(elText, 'Tour - Stack Overflow', 'stays on the same tab');
+      assert.strictEqual(elText, 'Stack Overflow', 'stays on the same tab');
     });
 
     it('Switches between windows', async () => {
@@ -248,6 +248,55 @@ describe('Pop-up', function () {
       assert.strictEqual(numberOfShownTabs, 3, 'The number of shown tabs is correct after closing multiple tabs');
       const tabTitle = await activeTab.queryPopup('.tab:nth-child(3)', ([el]) => el.textContent);
       assert.strictEqual(tabTitle, 'Wikipedia');
+    });
+
+    it('Selects tabs with Up/Down arrow keys and switches to them by Enter', async () => {
+      await helper.openPage('wikipedia.html');
+      await helper.openPage('example.html');
+      const pageStOverflow = await helper.openPage('stackoverflow.html');
+      await helper.selectTabForward();
+      await pageStOverflow.keyboard.press('ArrowDown');
+      let elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
+      await pageStOverflow.keyboard.press('ArrowDown');
+      elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
+      assert.strictEqual(elText, 'Stack Overflow');
+      await pageStOverflow.keyboard.press('ArrowDown');
+      elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
+      assert.strictEqual(elText, 'Example Domain');
+      await pageStOverflow.keyboard.press('ArrowUp');
+      await pageStOverflow.keyboard.press('ArrowUp');
+      elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
+      await pageStOverflow.keyboard.press('Enter');
+      const curTab = await helper.getActiveTab();
+      elText = await curTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
+    });
+
+    it('Selects tabs with Tab or Shift+Tab and switches to them by Enter', async () => {
+      await helper.openPage('wikipedia.html');
+      await helper.openPage('example.html');
+      const pageStOverflow = await helper.openPage('stackoverflow.html');
+      await helper.selectTabForward();
+      await pageStOverflow.keyboard.press('Tab');
+      let elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
+      await pageStOverflow.keyboard.press('Tab');
+      elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
+      assert.strictEqual(elText, 'Stack Overflow');
+      await pageStOverflow.keyboard.press('Tab');
+      elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
+      assert.strictEqual(elText, 'Example Domain');
+      await pageStOverflow.keyboard.down('Shift');
+      await pageStOverflow.keyboard.press('Tab');
+      await pageStOverflow.keyboard.press('Tab');
+      elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
+      await pageStOverflow.keyboard.press('Enter');
+      const curTab = await helper.getActiveTab();
+      elText = await curTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'Wikipedia');
     });
   });
 });

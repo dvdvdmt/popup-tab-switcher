@@ -55,6 +55,7 @@
   position: relative;
   border-bottom-right-radius: calc(var(--popup-border-radius-factor) * 100vw);
   border-top-right-radius: calc(var(--popup-border-radius-factor) * 100vw);
+  outline: none;
 
   &:hover {
     background-color: var(--tab_hover-background);

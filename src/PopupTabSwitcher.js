@@ -68,7 +68,6 @@ const contentScriptPort = chrome.runtime.connect({ name: ports.CONTENT_SCRIPT })
 export default class PopupTabSwitcher extends HTMLElement {
   constructor() {
     super();
-
     this.isOverlayVisible = false;
     const shadow = this.attachShadow({ mode: 'open' });
     sprite.mount(shadow);
@@ -78,7 +77,6 @@ export default class PopupTabSwitcher extends HTMLElement {
     shadow.appendChild(style);
     shadow.appendChild(this.card);
     this.hideOverlay = this.hideOverlay.bind(this);
-
     this.setupListeners();
   }
 
@@ -86,16 +84,33 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.popupEventListener = handleMessage({
       click: this.hideOverlay,
     });
-    this.documentEventListener = handleMessage({
-      keyup: ({ key }) => {
+    this.cardEventListener = handleMessage({
+      keyup: (e) => {
         if (!this.isOverlayVisible) {
           return;
         }
-        if (key === 'Alt') {
+        if (e.key === 'Alt') {
           this.switchToSelectedTab();
+          e.preventDefault();
+          e.stopPropagation();
         }
-        if (key === 'Escape') {
-          this.hideOverlay();
+      },
+      keydown: (e) => {
+        if (!this.isOverlayVisible) {
+          return;
+        }
+        const handlers = {
+          Escape: () => this.hideOverlay(),
+          Enter: () => this.switchToSelectedTab(),
+          ArrowUp: () => this.selectNextTab(-1),
+          ArrowDown: () => this.selectNextTab(1),
+          Tab: () => this.selectNextTab(e.shiftKey ? -1 : 1),
+        };
+        const handler = handlers[e.key];
+        if (handler) {
+          handler();
+          e.preventDefault();
+          e.stopPropagation();
         }
       },
     });
@@ -103,9 +118,9 @@ export default class PopupTabSwitcher extends HTMLElement {
       blur: this.hideOverlay,
     });
     this.addEventListener('click', this.popupEventListener);
-    document.addEventListener('keyup', this.documentEventListener);
+    this.card.addEventListener('keyup', this.cardEventListener);
+    this.card.addEventListener('keydown', this.cardEventListener);
     window.addEventListener('blur', this.windowEventListener);
-
     this.messageListener = handleMessage({
       [messages.UPDATE_SETTINGS]: ({ tabsData, newSettings }) => {
         tabsArray = tabsData;
@@ -118,8 +133,7 @@ export default class PopupTabSwitcher extends HTMLElement {
       [messages.CLOSE_POPUP]: this.hideOverlay,
       [messages.SELECT_TAB]: ({ tabsData, increment }) => {
         tabsArray = tabsData;
-        selectedTabIndex = rangedIncrement(selectedTabIndex, increment, tabsArray.length);
-        this.renderTabs(tabsArray, selectedTabIndex);
+        this.selectNextTab(increment);
         // When the focus is on the address bar or the 'search in the page' field
         // then the extension should switch a tab at the end of a timer.
         // Because there is no way to handle key pressings when a page has no focus.
@@ -133,9 +147,15 @@ export default class PopupTabSwitcher extends HTMLElement {
     chrome.runtime.onMessage.addListener(this.messageListener);
   }
 
+  selectNextTab(increment) {
+    selectedTabIndex = rangedIncrement(selectedTabIndex, increment, tabsArray.length);
+    this.renderTabs(tabsArray, selectedTabIndex);
+  }
+
   removeListeners() {
     this.removeEventListener('click', this.popupEventListener);
-    document.removeEventListener('keyup', this.documentEventListener);
+    document.removeEventListener('keyup', this.cardEventListener);
+    document.removeEventListener('keydown', this.cardEventListener);
     window.removeEventListener('blur', this.windowEventListener);
     chrome.runtime.onMessage.removeListener(this.messageListener);
   }
@@ -191,6 +211,7 @@ export default class PopupTabSwitcher extends HTMLElement {
         this.switchTo(tab);
       });
       tabEl.className = 'tab';
+      tabEl.tabIndex = -1;
       if (i === selectedId) {
         tabEl.classList.add('tab_selected');
         if (!document.hasFocus()) {
@@ -201,13 +222,15 @@ export default class PopupTabSwitcher extends HTMLElement {
         }
       }
       const iconEl = getIconEl(tab.favIconUrl, tab.url);
-      tabEl.append(iconEl);
       const textEl = document.createElement('span');
       textEl.textContent = tab.title;
       textEl.className = 'tab__text';
-      tabEl.append(createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_top'));
-      tabEl.append(createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_bottom'));
-      tabEl.append(textEl);
+      tabEl.append(
+        iconEl,
+        createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_top'),
+        createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_bottom'),
+        textEl,
+      );
       return tabEl;
     });
   }
@@ -247,10 +270,9 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.card.innerHTML = '';
     this.card.className = ['card', settings.isDarkTheme ? 'card_dark' : ''].join(' ');
     const tabElements = this.getTabElements(tabs, selectedId);
-    for (const tabElement of tabElements) {
-      this.card.append(tabElement);
-    }
+    this.card.append(...tabElements);
     this.showOverlay();
+    tabElements[selectedId].focus();
     this.scrollLongTextOfSelectedTab();
   }
 }
