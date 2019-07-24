@@ -298,5 +298,20 @@ describe('Pop-up', function () {
       elText = await curTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
     });
+
+    it.skip('Sets focus back to a previously focused element and cursor position', async () => {
+      const pageWikipedia = await helper.openPage('wikipedia.html');
+      await pageWikipedia.focus('#searchInput');
+      await pageWikipedia.keyboard.type('Hello World!');
+      const moveCursorLeftPromises = [];
+      for (let i = 0; i < 7; i += 1) {
+        moveCursorLeftPromises.push(pageWikipedia.keyboard.press('ArrowLeft'));
+      }
+      await Promise.all(moveCursorLeftPromises);
+      await helper.selectTabForward();
+      await pageWikipedia.keyboard.press('Escape');
+      const focusedElId = await pageWikipedia.evaluate(() => document.activeElement.id);
+      assert.strictEqual(focusedElId, 'searchInput');
+    });
   });
 });
