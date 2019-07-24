@@ -51,10 +51,6 @@ function getIconEl(favIconUrl, url) {
   return iconEl;
 }
 
-let selectedTabIndex = 0;
-let tabsArray;
-let timeout;
-
 /**
  * Restricts result of a number increment between [0, maxInteger - 1]
  */
@@ -64,10 +60,12 @@ function rangedIncrement(number, increment, maxInteger) {
 
 const contentScriptPort = chrome.runtime.connect({ name: ports.CONTENT_SCRIPT });
 
-
 export default class PopupTabSwitcher extends HTMLElement {
   constructor() {
     super();
+    this.timeout = undefined;
+    this.tabsArray = undefined;
+    this.selectedTabIndex = 0;
     this.isOverlayVisible = false;
     const shadow = this.attachShadow({ mode: 'open' });
     sprite.mount(shadow);
@@ -123,24 +121,25 @@ export default class PopupTabSwitcher extends HTMLElement {
     window.addEventListener('blur', this.windowEventListener);
     this.messageListener = handleMessage({
       [messages.UPDATE_SETTINGS]: ({ tabsData, newSettings }) => {
-        tabsArray = tabsData;
+        this.tabsArray = tabsData;
         settings = newSettings;
-        this.renderTabs(tabsArray, selectedTabIndex);
+        this.renderTabs();
       },
       [messages.UPDATE_SETTINGS_SILENTLY]: ({ newSettings }) => {
         settings = newSettings;
       },
       [messages.CLOSE_POPUP]: this.hideOverlay,
       [messages.SELECT_TAB]: ({ tabsData, increment }) => {
-        tabsArray = tabsData;
+        this.tabsArray = tabsData;
         this.selectNextTab(increment);
         // When the focus is on the address bar or the 'search in the page' field
         // then the extension should switch a tab at the end of a timer.
         // Because there is no way to handle key pressings when a page has no focus.
         // https://stackoverflow.com/a/20940788/3167855
         if (!document.hasFocus()) {
-          clearTimeout(timeout);
-          timeout = setTimeout(this.switchToSelectedTab.bind(this), settings.autoSwitchingTimeout);
+          clearTimeout(this.timeout);
+          this.timeout = setTimeout(this.switchToSelectedTab.bind(this),
+            settings.autoSwitchingTimeout);
         }
       },
     });
@@ -148,8 +147,10 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   selectNextTab(increment) {
-    selectedTabIndex = rangedIncrement(selectedTabIndex, increment, tabsArray.length);
-    this.renderTabs(tabsArray, selectedTabIndex);
+    this.selectedTabIndex = rangedIncrement(
+      this.selectedTabIndex, increment, this.tabsArray.length,
+    );
+    this.renderTabs();
   }
 
   removeListeners() {
@@ -189,11 +190,11 @@ export default class PopupTabSwitcher extends HTMLElement {
   hideOverlay() {
     this.style.display = 'none';
     this.isOverlayVisible = false;
-    selectedTabIndex = 0;
+    this.selectedTabIndex = 0;
   }
 
   switchToSelectedTab() {
-    this.switchTo(tabsArray[selectedTabIndex]);
+    this.switchTo(this.tabsArray[this.selectedTabIndex]);
   }
 
   switchTo(selectedTab) {
@@ -204,15 +205,15 @@ export default class PopupTabSwitcher extends HTMLElement {
     });
   }
 
-  getTabElements(tabs, selectedId) {
-    return tabs.map((tab, i) => {
+  getTabElements() {
+    return this.tabsArray.map((tab, i) => {
       const tabEl = document.createElement('div');
       tabEl.addEventListener('click', () => {
         this.switchTo(tab);
       });
       tabEl.className = 'tab';
       tabEl.tabIndex = -1;
-      if (i === selectedId) {
+      if (i === this.selectedTabIndex) {
         tabEl.classList.add('tab_selected');
         if (!document.hasFocus()) {
           const indicator = document.createElement('div');
@@ -266,13 +267,13 @@ export default class PopupTabSwitcher extends HTMLElement {
     }
   }
 
-  renderTabs(tabs, selectedId) {
+  renderTabs() {
     this.card.innerHTML = '';
     this.card.className = ['card', settings.isDarkTheme ? 'card_dark' : ''].join(' ');
-    const tabElements = this.getTabElements(tabs, selectedId);
+    const tabElements = this.getTabElements();
     this.card.append(...tabElements);
     this.showOverlay();
-    tabElements[selectedId].focus();
+    tabElements[this.selectedTabIndex].focus();
     this.scrollLongTextOfSelectedTab();
   }
 }
