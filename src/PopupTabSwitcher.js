@@ -63,8 +63,9 @@ const contentScriptPort = chrome.runtime.connect({ name: ports.CONTENT_SCRIPT })
 export default class PopupTabSwitcher extends HTMLElement {
   constructor() {
     super();
-    this.timeout = undefined;
-    this.tabsArray = undefined;
+    this.timeout = null;
+    this.tabsArray = null;
+    this.activeElement = null;
     this.selectedTabIndex = 0;
     this.isOverlayVisible = false;
     const shadow = this.attachShadow({ mode: 'open' });
@@ -191,6 +192,24 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.style.display = 'none';
     this.isOverlayVisible = false;
     this.selectedTabIndex = 0;
+    this.restoreSelectionAndFocus();
+  }
+
+  restoreSelectionAndFocus() {
+    if (this.activeElement) {
+      this.activeElement.focus();
+      const has = Object.prototype.hasOwnProperty;
+      if (
+        has.call(this.activeElement, 'selectionStart')
+        && has.call(this.activeElement, 'selectionEnd')
+        && has.call(this.activeElement, 'selectionDirection')
+        && has.call(this.activeElement, 'setSelectionRange')
+      ) {
+        const { selectionStart, selectionEnd, selectionDirection } = this.activeElement;
+        this.activeElement.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+      }
+    }
+    this.activeElement = null;
   }
 
   switchToSelectedTab() {
@@ -268,6 +287,8 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   renderTabs() {
+    // remember active element to restore focus and selection when switcher hides
+    this.activeElement = this.activeElement || document.activeElement;
     this.card.innerHTML = '';
     this.card.className = ['card', settings.isDarkTheme ? 'card_dark' : ''].join(' ');
     const tabElements = this.getTabElements();

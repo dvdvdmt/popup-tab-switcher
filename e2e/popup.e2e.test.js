@@ -80,6 +80,10 @@ describe('Pop-up', function () {
       await helper.closeTabs();
     });
 
+    after(async () => {
+      await helper.closeTabs();
+    });
+
     it('Adds visited pages to the registry in correct order', async () => {
       const expectedTexts = [
         'Stack Overflow',
@@ -299,19 +303,35 @@ describe('Pop-up', function () {
       assert.strictEqual(elText, 'Wikipedia');
     });
 
-    it.skip('Sets focus back to a previously focused element and cursor position', async () => {
+    it('Sets focus back to a previously focused element and cursor position', async () => {
       const pageWikipedia = await helper.openPage('wikipedia.html');
       await pageWikipedia.focus('#searchInput');
       await pageWikipedia.keyboard.type('Hello World!');
+      await pageWikipedia.keyboard.down('Shift');
       const moveCursorLeftPromises = [];
       for (let i = 0; i < 7; i += 1) {
         moveCursorLeftPromises.push(pageWikipedia.keyboard.press('ArrowLeft'));
       }
       await Promise.all(moveCursorLeftPromises);
+      await pageWikipedia.keyboard.up('Shift');
+      await helper.selectTabForward();
       await helper.selectTabForward();
       await pageWikipedia.keyboard.press('Escape');
-      const focusedElId = await pageWikipedia.evaluate(() => document.activeElement.id);
-      assert.strictEqual(focusedElId, 'searchInput');
+      const focusedEl = await pageWikipedia.evaluate(() => {
+        const {
+          id, selectionStart, selectionEnd, selectionDirection,
+        } = document.activeElement;
+        return {
+          id,
+          selectionStart,
+          selectionEnd,
+          selectionDirection,
+        };
+      });
+      assert.strictEqual(focusedEl.id, 'searchInput');
+      assert.strictEqual(focusedEl.selectionStart, 5);
+      assert.strictEqual(focusedEl.selectionEnd, 12);
+      assert.strictEqual(focusedEl.selectionDirection, 'backward');
     });
   });
 });
