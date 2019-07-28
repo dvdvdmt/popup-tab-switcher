@@ -87,7 +87,7 @@ describe('Pop-up', function () {
     it('Adds visited pages to the registry in correct order', async () => {
       const expectedTexts = [
         'Stack Overflow',
-        'Example Domain',
+        'Example',
         'Wikipedia',
       ];
       await helper.openPage('wikipedia.html');
@@ -118,7 +118,7 @@ describe('Pop-up', function () {
       const pageStOverflow = await helper.openPage('stackoverflow.html');
       await helper.selectTabForward();
       let elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
-      assert.strictEqual(elText, 'Example Domain');
+      assert.strictEqual(elText, 'Example');
       await pageStOverflow.keyboard.press('KeyY');
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
@@ -131,7 +131,7 @@ describe('Pop-up', function () {
       assert.strictEqual(elText, 'Wikipedia');
       await helper.selectTabBackward();
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
-      assert.strictEqual(elText, 'Example Domain');
+      assert.strictEqual(elText, 'Example');
       await helper.selectTabBackward(); // Stack Overflow is selected
       await pageExample.close();
       await helper.selectTabForward();
@@ -143,21 +143,21 @@ describe('Pop-up', function () {
       await helper.openPage('wikipedia.html');
       await helper.openPage('example.html');
       await helper.openPage('stackoverflow.html');
-      let curTab = await helper.switchTab();
-      let elText = await curTab.$eval('title', el => el.textContent);
-      assert.strictEqual(elText, 'Example Domain');
-      curTab = await helper.switchTab();
-      elText = await curTab.$eval('title', el => el.textContent);
+      let activeTab = await helper.switchTab();
+      let elText = await activeTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'Example');
+      activeTab = await helper.switchTab();
+      elText = await activeTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Stack Overflow');
-      curTab = await helper.switchTab(2);
-      elText = await curTab.$eval('title', el => el.textContent);
+      activeTab = await helper.switchTab(2);
+      elText = await activeTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
-      curTab = await helper.switchTab(3);
-      elText = await curTab.$eval('title', el => el.textContent);
+      activeTab = await helper.switchTab(3);
+      elText = await activeTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
-      curTab = await helper.switchTab(2);
-      elText = await curTab.$eval('title', el => el.textContent);
-      assert.strictEqual(elText, 'Example Domain');
+      activeTab = await helper.switchTab(2);
+      elText = await activeTab.$eval('title', el => el.textContent);
+      assert.strictEqual(elText, 'Example');
     });
 
     it('Switches to previously opened tab when current one closes', async () => {
@@ -166,14 +166,14 @@ describe('Pop-up', function () {
       await helper.openPage('stackoverflow.html');
       await pageWikipedia.bringToFront();
       await pageWikipedia.close();
-      let curTab = await helper.getActiveTab();
-      let elText = await curTab.$eval('title', el => el.textContent);
+      let activeTab = await helper.getActiveTab();
+      let elText = await activeTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Stack Overflow');
       await helper.openPage('wikipedia.html');
       await pageExample.bringToFront();
       await pageExample.close();
-      curTab = await helper.getActiveTab();
-      elText = await curTab.$eval('title', el => el.textContent);
+      activeTab = await helper.getActiveTab();
+      elText = await activeTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
     });
 
@@ -186,8 +186,8 @@ describe('Pop-up', function () {
         el.click();
       });
       await pageStOverflow.keyboard.up('Alt');
-      const curTab = await helper.getActiveTab();
-      const elText = await curTab.$eval('title', el => el.textContent);
+      const activeTab = await helper.getActiveTab();
+      const elText = await activeTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia', 'switches to the clicked tab');
     });
 
@@ -200,8 +200,8 @@ describe('Pop-up', function () {
       const isPopupClosed = await pageStOverflow.$eval('#popup-tab-switcher', el => getComputedStyle(el).display === 'none');
       assert(isPopupClosed, 'hides on pressing Esc button');
       await pageStOverflow.keyboard.up('Alt');
-      const curTab = await helper.getActiveTab();
-      const elText = await curTab.$eval('title', el => el.textContent);
+      const activeTab = await helper.getActiveTab();
+      const elText = await activeTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Stack Overflow', 'stays on the same tab');
     });
 
@@ -267,14 +267,14 @@ describe('Pop-up', function () {
       assert.strictEqual(elText, 'Stack Overflow');
       await pageStOverflow.keyboard.press('ArrowDown');
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
-      assert.strictEqual(elText, 'Example Domain');
+      assert.strictEqual(elText, 'Example');
       await pageStOverflow.keyboard.press('ArrowUp');
       await pageStOverflow.keyboard.press('ArrowUp');
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
       await pageStOverflow.keyboard.press('Enter');
-      const curTab = await helper.getActiveTab();
-      elText = await curTab.$eval('title', el => el.textContent);
+      const activeTab = await helper.getActiveTab();
+      elText = await activeTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
     });
 
@@ -291,15 +291,15 @@ describe('Pop-up', function () {
       assert.strictEqual(elText, 'Stack Overflow');
       await pageStOverflow.keyboard.press('Tab');
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
-      assert.strictEqual(elText, 'Example Domain');
+      assert.strictEqual(elText, 'Example');
       await pageStOverflow.keyboard.down('Shift');
       await pageStOverflow.keyboard.press('Tab');
       await pageStOverflow.keyboard.press('Tab');
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
       await pageStOverflow.keyboard.press('Enter');
-      const curTab = await helper.getActiveTab();
-      elText = await curTab.$eval('title', el => el.textContent);
+      const activeTab = await helper.getActiveTab();
+      elText = await activeTab.$eval('title', el => el.textContent);
       assert.strictEqual(elText, 'Wikipedia');
     });
 
@@ -332,6 +332,24 @@ describe('Pop-up', function () {
       assert.strictEqual(focusedEl.selectionStart, 5);
       assert.strictEqual(focusedEl.selectionEnd, 12);
       assert.strictEqual(focusedEl.selectionDirection, 'backward');
+    });
+
+    it('Switches on any modifier (Alt, Control, Command) keyup event', async () => {
+      await helper.openPage('wikipedia.html');
+      await helper.openPage('example.html');
+      let activeTab = await helper.getActiveTab();
+      await activeTab.keyboard.down('Control');
+      await activeTab.keyboard.press('KeyY');
+      await activeTab.keyboard.up('Control');
+      activeTab = await helper.getActiveTab();
+      let tabTitle = await activeTab.$eval('title', el => el.textContent);
+      assert.strictEqual('Wikipedia', tabTitle);
+      await activeTab.keyboard.down('Meta'); // Command or Windows key
+      await activeTab.keyboard.press('KeyY');
+      await activeTab.keyboard.up('Meta');
+      activeTab = await helper.getActiveTab();
+      tabTitle = await activeTab.$eval('title', el => el.textContent);
+      assert.strictEqual('Example', tabTitle);
     });
   });
 });
