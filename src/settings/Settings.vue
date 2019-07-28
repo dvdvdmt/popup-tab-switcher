@@ -9,12 +9,13 @@
 
 <script>
   import browser from 'webextension-polyfill';
-  import * as settings from '../utils/settings';
+  import Settings from '../utils/settings';
   import { messages, ports } from '../utils/constants';
   import SettingsForm from './components/SettingsForm.vue';
   import MTabBar from './components/MTabBar.vue';
   import Contribute from './components/Contribute.vue';
 
+  const settingsService = new Settings();
   const port = browser.runtime.connect({ name: ports.POPUP_SCRIPT });
 
   export default {
@@ -29,7 +30,7 @@
           icon: 'favorite',
         }],
         activeTabId: 0,
-        settings: settings.get(),
+        settings: settingsService.getObject(),
       };
     },
     methods: {
@@ -40,8 +41,8 @@
         });
       },
       setDefaults() {
-        settings.setDefaults();
-        this.settings = settings.get();
+        settingsService.setDefaults();
+        this.settings = settingsService.getObject();
         this.updateSettings();
       },
       onTabActivated(activeTabId) {

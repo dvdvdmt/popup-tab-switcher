@@ -1,12 +1,12 @@
 import browser from 'webextension-polyfill';
 import TabRegistry from './utils/TabRegistry';
-import * as settings from './utils/settings';
+import Settings from './utils/settings';
 import { messages, ports, uninstallURL } from './utils/constants';
 import handleMessage from './utils/handleMessage';
 import isSpecialTab from './utils/isSpecialTab';
 
-settings.initialize();
-const registry = new TabRegistry({ numberOfTabsToShow: settings.get().maxNumberOfTabs });
+const settings = new Settings();
+const registry = new TabRegistry({ numberOfTabsToShow: settings.get('numberOfTabsToShow') });
 
 async function addCurrentTabToRegistry() {
   const [currentTab] = await browser.tabs.query({

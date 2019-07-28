@@ -11,28 +11,36 @@ export const defaultSettings = {
   iconSize: 24,
 };
 
-export function initialize() {
-  let settings;
-  try {
-    settings = JSON.parse(localStorage.settings);
-  } catch (e) {
-    settings = {};
+export default class Settings {
+  constructor(defaults = defaultSettings, storage = localStorage) {
+    this.defauts = defaults;
+    this.storage = storage;
+    let settings;
+    try {
+      settings = JSON.parse(this.storage.settings);
+    } catch (e) {
+      settings = {};
+    }
+    this.storage.settings = JSON.stringify({ ...defaults, ...settings });
   }
-  localStorage.settings = JSON.stringify({ ...defaultSettings, ...settings });
-}
 
-export function getString() {
-  return localStorage.settings;
-}
+  get(name) {
+    return this.getObject()[name];
+  }
 
-export function get() {
-  return JSON.parse(getString());
-}
+  getObject() {
+    return JSON.parse(this.getString());
+  }
 
-export function update(newSettings) {
-  localStorage.settings = JSON.stringify(newSettings);
-}
+  getString() {
+    return this.storage.settings;
+  }
 
-export function setDefaults() {
-  update(defaultSettings);
+  update(newSettings) {
+    this.storage.settings = JSON.stringify(newSettings);
+  }
+
+  setDefaults() {
+    this.update(this.defauts);
+  }
 }
