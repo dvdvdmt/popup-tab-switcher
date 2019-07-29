@@ -34,26 +34,27 @@
       };
     },
     methods: {
-      updateSettings() {
+      updateSettings(newSettings) {
         port.postMessage({
           type: messages.UPDATE_SETTINGS,
-          newSettings: this.settings,
+          newSettings,
         });
       },
       setDefaults() {
         settingsService.setDefaults();
         this.settings = settingsService.getObject();
-        this.updateSettings();
+        this.updateSettings(this.settings);
       },
       onTabActivated(activeTabId) {
         this.activeTabId = activeTabId;
       },
     },
-    created() {
-      this.$watch('settings', this.updateSettings, { deep: true });
-    },
-    mounted() {
-      this.updateSettings();
+    watch: {
+      settings: {
+        handler: 'updateSettings',
+        deep: true,
+        immediate: true
+      }
     },
     components: {
       Contribute,
