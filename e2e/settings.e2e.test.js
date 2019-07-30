@@ -36,6 +36,7 @@ async function getSettingsFromPage(page) {
   res.tabHeight = await page.$eval('#tabHeight', el => +el.value);
   res.fontSize = await page.$eval('#fontSize', el => +el.value);
   res.iconSize = await page.$eval('#iconSize', el => +el.value);
+  res.isSwitchingToPreviouslyUsedTab = await page.$eval('#isSwitchingToPreviouslyUsedTab', el => el.checked);
   return res;
 }
 
@@ -45,6 +46,7 @@ const newSettings = {
   autoSwitchingTimeout: 699,
   numberOfTabsToShow: 5,
   isDarkTheme: true,
+  isSwitchingToPreviouslyUsedTab: true,
   popupWidth: 444,
   tabHeight: 30,
   fontSize: 20,
