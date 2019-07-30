@@ -109,6 +109,18 @@
                     :min="0"
       />
     </div>
+    <div class="settings__row mdc-form-field">
+      <label for="isSwitchingToPreviouslyUsedTab"
+             class="settings__label"
+             title="Switch to a previously used tab when a current one closes"
+      >
+        <i class="settings__icon settings__icon_label material-icons">low_priority</i>
+        Switch to a previously used tab
+      </label>
+      <m-switch id="isSwitchingToPreviouslyUsedTab"
+                v-model="settings.isSwitchingToPreviouslyUsedTab">
+      </m-switch>
+    </div>
     <div class="settings__row settings__row_buttons">
       <m-button id="setDefaults" @click="$emit('setDefaults')" type="button">
         <i slot="icon" class="settings__icon material-icons">restore</i>
@@ -128,14 +140,14 @@
     props: {
       settings: {
         type: Object,
-        required: true
-      }
+        required: true,
+      },
     },
     components: {
       MSwitch,
       MTextField,
       MButton,
-    }
+    },
   };
 </script>
 

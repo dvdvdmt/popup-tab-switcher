@@ -9,6 +9,7 @@ export const defaultSettings = {
   tabHeight: 40,
   fontSize: 16,
   iconSize: 24,
+  isSwitchingToPreviouslyUsedTab: true,
 };
 
 export default class Settings {

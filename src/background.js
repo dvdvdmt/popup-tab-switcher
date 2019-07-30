@@ -64,9 +64,12 @@ async function handleTabUpdate(tabId, changeInfo, tab) {
 
 async function handleTabRemove(tabId) {
   registry.remove(tabId);
-  const currentTab = registry.getActive();
-  if (currentTab) {
-    await browser.tabs.update(currentTab.id, { active: true });
+  const isSwitchingNeeded = settings.get('isSwitchingToPreviouslyUsedTab');
+  if (isSwitchingNeeded) {
+    const currentTab = registry.getActive();
+    if (currentTab) {
+      await browser.tabs.update(currentTab.id, { active: true });
+    }
   }
 }
 

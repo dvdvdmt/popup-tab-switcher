@@ -63,14 +63,14 @@ async function setSettings(page) {
   await input(page, '#iconSize', '55');
 }
 
-describe('Settings', function () {
+describe('settings', function () {
   this.timeout(1000000);
 
   afterEach(async () => {
     await helper.closeTabs();
   });
 
-  it('Render', async function () {
+  it('renders', async function () {
     const expected = defaultSettings;
     const settingsPage = await browser.newPage();
     await settingsPage.goto(settingsPageUrl);
@@ -78,7 +78,7 @@ describe('Settings', function () {
     assert.deepStrictEqual(actual, expected);
   });
 
-  it('Modify and reset', async function () {
+  it('modifies and resets', async function () {
     const settingsPage = await browser.newPage();
     await settingsPage.goto(settingsPageUrl);
     await setSettings(settingsPage);
@@ -91,7 +91,7 @@ describe('Settings', function () {
     assert.deepStrictEqual(actual, defaultSettings, 'set defaults');
   });
 
-  it('Pass to content script', async function () {
+  it('passes settings to a content script', async function () {
     function getSettingsFromContentScript() {
       return ([el]) => {
         const style = window.getComputedStyle(el);
@@ -128,7 +128,7 @@ describe('Settings', function () {
     }, 'new settings apply to the rendered popup');
   });
 
-  it('Inserted values should be validated', async function () {
+  it('validates inserted values', async function () {
     const settingsPage = await browser.newPage();
     await settingsPage.goto(settingsPageUrl);
     await input(settingsPage, '#textScrollDelay', '-1500');
@@ -141,11 +141,25 @@ describe('Settings', function () {
     assert(isValuesCorrect, 'values are valid');
   });
 
-  it('The contribute section opens', async function () {
+  it('opens contribute section', async function () {
     const settingsPage = await browser.newPage();
     await settingsPage.goto(settingsPageUrl);
     await settingsPage.click('#mdc-tab-2');
     const isContributeSectionOpen = await settingsPage.$eval('.contribute', el => getComputedStyle(el).display !== 'none');
     assert(isContributeSectionOpen, 'the contribute section is visible');
+  });
+
+  it('controls automatic switching to a previously used tab when a current one closes', async function () {
+    const settingsPage = await browser.newPage();
+    await settingsPage.goto(settingsPageUrl);
+    await settingsPage.click('#isSwitchingToPreviouslyUsedTab');
+    const pageWikipedia = await helper.openPage('wikipedia.html');
+    await helper.openPage('example.html');
+    await helper.openPage('stackoverflow.html');
+    await pageWikipedia.bringToFront();
+    await pageWikipedia.close();
+    const activeTab = await helper.getActiveTab();
+    const tabTitle = await activeTab.$eval('title', el => el.textContent);
+    assert(tabTitle, 'Example', 'switched to the nearest tab');
   });
 });
