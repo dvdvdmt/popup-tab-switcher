@@ -76,7 +76,6 @@
     margin: 0;
     user-select: none;
     width: 340px;
-    height: 548px;
   }
 
   .settings {
@@ -92,7 +91,7 @@
     $colors: get-theme-colors($theme-light);
     @include theme-colors-as-custom-properties($colors);
 
-    height: 100%;
+    min-height: 100%;
     background-color: var(--settings-background-color);
     color: var(--mdc-theme-text-primary-on-background);
 
@@ -110,7 +109,6 @@
       @include theme-colors-as-custom-properties($colors);
 
       .mdc-button {
-        //--mdc-theme-primary: map_get($colors, text-primary-on-dark);
         @include mdc-button-ink-color(map_get($colors, primary));
 
         &--raised {
