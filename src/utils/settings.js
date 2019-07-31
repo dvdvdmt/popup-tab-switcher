@@ -10,6 +10,7 @@ export const defaultSettings = {
   fontSize: 16,
   iconSize: 24,
   isSwitchingToPreviouslyUsedTab: true,
+  isStayingOpen: false,
 };
 
 export default class Settings {

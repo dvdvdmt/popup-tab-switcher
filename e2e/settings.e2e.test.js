@@ -5,6 +5,7 @@ import { defaultSettings } from '../src/utils/settings';
 import PuppeteerPopupHelper from './utils/PuppeteerPopupHelper';
 
 let browser;
+/** @type {PuppeteerPopupHelper} */
 let helper;
 
 const settingsPageUrl = 'chrome-extension://meonejnmljcnoodabklmloagmnmcmlam/settings/index.html';
@@ -37,20 +38,23 @@ async function getSettingsFromPage(page) {
   res.fontSize = await page.$eval('#fontSize', el => +el.value);
   res.iconSize = await page.$eval('#iconSize', el => +el.value);
   res.isSwitchingToPreviouslyUsedTab = await page.$eval('#isSwitchingToPreviouslyUsedTab', el => el.checked);
+  res.isStayingOpen = await page.$eval('#isStayingOpen', el => el.checked);
   return res;
 }
 
 const newSettings = {
-  textScrollDelay: 1500,
-  textScrollCoefficient: 777,
-  autoSwitchingTimeout: 699,
-  numberOfTabsToShow: 5,
-  isDarkTheme: true,
-  isSwitchingToPreviouslyUsedTab: true,
-  popupWidth: 444,
-  tabHeight: 30,
-  fontSize: 20,
-  iconSize: 55,
+  ...defaultSettings,
+  ...{
+    textScrollDelay: 1500,
+    textScrollCoefficient: 777,
+    autoSwitchingTimeout: 699,
+    numberOfTabsToShow: 5,
+    isDarkTheme: true,
+    popupWidth: 444,
+    tabHeight: 30,
+    fontSize: 20,
+    iconSize: 55,
+  },
 };
 
 async function setSettings(page) {
@@ -163,5 +167,17 @@ describe('settings', function () {
     const activeTab = await helper.getActiveTab();
     const tabTitle = await activeTab.$eval('title', el => el.textContent);
     assert(tabTitle, 'Example', 'switched to the nearest tab');
+  });
+
+  it('controls hiding of the switcher when modifier key is released', async function () {
+    const settingsPage = await browser.newPage();
+    await settingsPage.goto(settingsPageUrl);
+    await settingsPage.click('#isStayingOpen');
+    await helper.openPage('wikipedia.html');
+    await helper.openPage('example.html');
+    await helper.switchTab();
+    const activeTab = await helper.getActiveTab();
+    const tabTitle = await activeTab.$eval('title', el => el.textContent);
+    assert(tabTitle, 'Example', 'does not leave the current tab');
   });
 });

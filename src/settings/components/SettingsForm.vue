@@ -121,6 +121,18 @@
                 v-model="settings.isSwitchingToPreviouslyUsedTab">
       </m-switch>
     </div>
+    <div class="settings__row mdc-form-field">
+      <label for="isStayingOpen"
+             class="settings__label"
+             title="The switcher stays open and stops switching tabs on a modifier key release"
+      >
+        <i class="settings__icon settings__icon_label material-icons">flip_to_front</i>
+        Stay open
+      </label>
+      <m-switch id="isStayingOpen"
+                v-model="settings.isStayingOpen">
+      </m-switch>
+    </div>
     <div class="settings__row settings__row_buttons">
       <m-button id="setDefaults" @click="$emit('setDefaults')" type="button">
         <i slot="icon" class="settings__icon material-icons">restore</i>

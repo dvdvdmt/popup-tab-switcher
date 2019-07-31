@@ -88,7 +88,7 @@ export default class PopupTabSwitcher extends HTMLElement {
         if (!this.isOverlayVisible) {
           return;
         }
-        if (['Alt', 'Control', 'Meta'].includes(e.key)) {
+        if (!settings.isStayingOpen && ['Alt', 'Control', 'Meta'].includes(e.key)) {
           this.switchToSelectedTab();
           e.preventDefault();
           e.stopPropagation();
