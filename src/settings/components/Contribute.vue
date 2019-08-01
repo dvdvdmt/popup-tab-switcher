@@ -5,7 +5,7 @@
     </p>
     <div class="contribute__actions">
       <m-button class="contribute__action"
-                :href="'https://chrome.google.com/webstore/' + extensionId"
+                :href="extensionUrl"
                 target="_blank"
                 outlined
       >
