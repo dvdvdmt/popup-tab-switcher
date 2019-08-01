@@ -6,7 +6,7 @@ A browser extension that makes switching between tabs more convenient.
 Available in [Chrome web
 store](https://chrome.google.com/webstore/detail/popup-tab-switcher/cehdjppppegalmaffcdffkkpmoflfhkc).
 
-[![Popup tab switcher work demo](./readme-assets/youtube-preview.png)](https://youtu.be/JyX3lk-OrXw)
+[![Popup tab switcher work demo](./readme-assets/youtube-preview.png)](https://youtu.be/qrDArVNr5j4)
 
 It remembers the order in which tabs were active and allows you to
 switch between recently active tabs in a fraction of a second without
