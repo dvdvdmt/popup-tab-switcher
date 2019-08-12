@@ -66,8 +66,10 @@ address bar.
 |Font size|Sets the size of the tab title text|
 |Icon size|Sets the size of the tab icon|
 |Auto switching timeout|If a page has no focus (address bar or search field is focused, etc.) then the extension starts a timer by the end of which it will switch a user to the selected tab. This timer restarts on each selection command (`Alt+Y` or `Alt+Shift+Y` by default)|
-|Text scroll delay|If a tab title is wider than the popup then its overflowing part of the text will be hidden. When such tab is selected in the popup then its text will be scrolled. This option delays the start of the scrolling|
-|Text scroll speed|Sets the speed of a selected tab title scrolling|
+|Text scroll delay|If a tab title is wider than the popup then its overflowing part will be hidden. When such a tab is selected its text will be scrolled. This option delays the start of the scrolling|
+|Text scroll speed|Sets the speed of a selected tab text scrolling|
+|Switch to a previously used tab|Switch to a previously active tab when a current one closes|
+|Stay open|The switcher stays open and stops switching tabs on a modifier key release|
 
 ### Replace default tab switching behaviour ###
 Default Chrome tab switching shortcuts are `Ctrl+Tab` and
