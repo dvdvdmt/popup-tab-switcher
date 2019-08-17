@@ -4,13 +4,13 @@ import { ports } from './utils/constants';
 
 const port = browser.runtime.connect({ name: ports.COMMANDS_BRIDGE });
 
-window.addEventListener('keydown', ({
+function handleKeydown({
   key,
   altKey,
   ctrlKey,
   metaKey,
   shiftKey,
-}) => {
+}) {
   const keyLower = key.toLowerCase();
   const isModifier = altKey || ctrlKey || metaKey;
   if (shiftKey && isModifier && keyLower === 'y') {
@@ -18,4 +18,13 @@ window.addEventListener('keydown', ({
   } else if (isModifier && keyLower === 'y') {
     port.postMessage({ command: 'next' });
   }
-});
+}
+
+window.addEventListener('keydown', handleKeydown);
+// Because focused element can be in an iframe and keyboard events don't
+// bubble up from iframes. Therefore we need to set separate keyboard listeners
+// to each iframe on the page
+const frames = document.querySelectorAll('iframe');
+for (const frame of frames) {
+  frame.contentWindow.addEventListener('keydown', handleKeydown);
+}

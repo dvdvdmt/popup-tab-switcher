@@ -351,5 +351,20 @@ describe('Pop-up', function () {
       tabTitle = await activeTab.$eval('title', el => el.textContent);
       assert.strictEqual('Example', tabTitle);
     });
+
+    it('Works in pages with iframe', async () => {
+      await helper.openPage('wikipedia.html');
+      const pageWithIframe = await helper.openPage('page-with-iframe.html');
+      const frame = await pageWithIframe.$('iframe').then(handle => handle.contentFrame());
+      await frame.focus('input');
+      await helper.switchTab();
+      let activeTab = await helper.getActiveTab();
+      let tabTitle = await activeTab.$eval('title', el => el.textContent);
+      assert.strictEqual('Wikipedia', tabTitle);
+      await helper.switchTab();
+      activeTab = await helper.getActiveTab();
+      tabTitle = await activeTab.$eval('title', el => el.textContent);
+      assert.strictEqual('Page with iframe', tabTitle);
+    });
   });
 });

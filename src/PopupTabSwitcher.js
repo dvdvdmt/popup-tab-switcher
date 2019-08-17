@@ -51,6 +51,20 @@ function getIconEl(favIconUrl, url) {
   return iconEl;
 }
 
+function restoreSelectionAndFocus(activeEl) {
+  activeEl.focus();
+  const has = Object.prototype.hasOwnProperty;
+  if (
+    has.call(activeEl, 'selectionStart')
+    && has.call(activeEl, 'selectionEnd')
+    && has.call(activeEl, 'selectionDirection')
+    && has.call(activeEl, 'setSelectionRange')
+  ) {
+    const { selectionStart, selectionEnd, selectionDirection } = activeEl;
+    activeEl.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+  }
+}
+
 /**
  * Restricts result of a number increment between [0, maxInteger - 1]
  */
@@ -192,22 +206,8 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.style.display = 'none';
     this.isOverlayVisible = false;
     this.selectedTabIndex = 0;
-    this.restoreSelectionAndFocus();
-  }
-
-  restoreSelectionAndFocus() {
     if (this.activeElement) {
-      this.activeElement.focus();
-      const has = Object.prototype.hasOwnProperty;
-      if (
-        has.call(this.activeElement, 'selectionStart')
-        && has.call(this.activeElement, 'selectionEnd')
-        && has.call(this.activeElement, 'selectionDirection')
-        && has.call(this.activeElement, 'setSelectionRange')
-      ) {
-        const { selectionStart, selectionEnd, selectionDirection } = this.activeElement;
-        this.activeElement.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
-      }
+      restoreSelectionAndFocus(this.activeElement);
     }
     this.activeElement = null;
   }
