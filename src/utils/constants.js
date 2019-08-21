@@ -12,4 +12,9 @@ export const messages = Object.freeze({
   SWITCH_TAB: 'SWITCH_TAB',
 });
 
+export const commands = Object.freeze({
+  NEXT: 'next',
+  PREVIOUS: 'previous',
+});
+
 export const uninstallURL = 'https://docs.google.com/forms/d/e/1FAIpQLSe9vHJwxa-2XygNm_bRTVharJ8eZSHsbk1QVvgMASf72lwc8w/viewform';

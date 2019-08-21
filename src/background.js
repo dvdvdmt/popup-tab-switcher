@@ -1,7 +1,9 @@
 import browser from 'webextension-polyfill';
 import TabRegistry from './utils/TabRegistry';
 import Settings from './utils/settings';
-import { messages, ports, uninstallURL } from './utils/constants';
+import {
+  commands, messages, ports, uninstallURL,
+} from './utils/constants';
 import handleMessage from './utils/handleMessage';
 import isSpecialTab from './utils/isSpecialTab';
 
@@ -51,7 +53,7 @@ async function handleCommand(command) {
   await browser.tabs.sendMessage(currentTab.id, {
     type: messages.SELECT_TAB,
     tabsData: registry.getTabsToShow(),
-    increment: command === 'next' ? 1 : -1,
+    increment: command === commands.NEXT ? 1 : -1,
   });
 }
 

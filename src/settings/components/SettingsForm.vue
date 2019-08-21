@@ -1,5 +1,12 @@
 <template>
   <form class="settings__form">
+    <m-banner
+      v-if="!isShortcutsSet"
+      message="Keyboard shortcuts for the extension are not configured. You should set them in Chrome settings"
+      action="Set up shortcuts"
+      icon="report_problem"
+      @action="openChromeShortcuts"
+    />
     <div class="settings__row mdc-form-field"
          title="Turns on or off the dark theme"
     >
@@ -153,9 +160,12 @@
 </template>
 
 <script>
+  import browser from 'webextension-polyfill';
   import MSwitch from './MSwitch.vue';
   import MTextField from './MTextField.vue';
   import MButton from './MButton.vue';
+  import MBanner from './MBanner/MBanner.vue';
+  import isShortcutsSet from '../../utils/isShortcutsSet.js';
 
   export default {
     name: 'SettingsForm',
@@ -165,10 +175,27 @@
         required: true,
       },
     },
+    data() {
+      return { isShortcutsSet: false };
+    },
+    methods: {
+      openChromeShortcuts() {
+        browser.tabs.create({
+          active: true,
+          url: 'chrome://extensions/shortcuts',
+        });
+      },
+    },
+    created() {
+      isShortcutsSet().then(isSet => {
+        this.isShortcutsSet = isSet;
+      });
+    },
     components: {
       MSwitch,
       MTextField,
       MButton,
+      MBanner,
     },
   };
 </script>

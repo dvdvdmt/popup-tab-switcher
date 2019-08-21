@@ -1,8 +1,16 @@
 <template>
-  <div class="settings mdc-typography" v-bind:class="{settings_dark: settings.isDarkTheme}">
-    <m-tab-bar class="settings__nav-bar" :tabs="tabs" :active-tab-id="activeTabId"
-               @activated="onTabActivated"/>
-    <settings-form v-if="activeTabId === 0" :settings="settings" @setDefaults="setDefaults"/>
+  <div class="settings mdc-typography"
+       v-bind:class="{settings_dark: settings.isDarkTheme}"
+  >
+    <m-tab-bar class="settings__nav-bar"
+               :tabs="tabs"
+               :active-tab-id="activeTabId"
+               @activated="onTabActivated"
+    />
+    <settings-form v-if="activeTabId === 0"
+                   :settings="settings"
+                   @setDefaults="setDefaults"
+    />
     <contribute v-if="activeTabId === 1"/>
   </div>
 </template>
@@ -22,13 +30,15 @@
     name: 'Settings',
     data() {
       return {
-        tabs: [{
-          id: 'settings',
-          icon: 'settings',
-        }, {
-          id: 'contribute',
-          icon: 'favorite',
-        }],
+        tabs: [
+          {
+            id: 'settings',
+            icon: 'settings',
+          }, {
+            id: 'contribute',
+            icon: 'favorite',
+          },
+        ],
         activeTabId: 0,
         settings: settingsService.getObject(),
       };
@@ -53,8 +63,8 @@
       settings: {
         handler: 'updateSettings',
         deep: true,
-        immediate: true
-      }
+        immediate: true,
+      },
     },
     components: {
       Contribute,
