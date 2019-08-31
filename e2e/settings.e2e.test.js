@@ -2,7 +2,7 @@ import assert from 'assert';
 import puppeteer from 'puppeteer';
 import { launchOptions } from './utils/config';
 import { defaultSettings } from '../src/utils/settings';
-import PuppeteerPopupHelper from './utils/PuppeteerPopupHelper';
+import PuppeteerPopupHelper from './utils/puppeteer-popup-helper';
 
 let browser;
 /** @type {PuppeteerPopupHelper} */

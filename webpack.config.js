@@ -155,7 +155,7 @@ module.exports = (env) => {
   } else if (env.e2e) {
     conf.mode = 'production';
     conf.devtool = 'source-map';
-    conf.entry.e2eTestCommandsBridge = './src/e2eTestCommandsBridge.js';
+    conf.entry['e2e-test-commands-bridge'] = './src/e2e-test-commands-bridge.js';
     conf.output.path = buildE2eDir;
     conf.plugins = [
       new CopyWebpackPlugin(copyWebpackPluginOptions),

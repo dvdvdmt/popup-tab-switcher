@@ -19,7 +19,7 @@
   import { MDCTextField } from '@material/textfield/index';
 
   export default {
-    name: 'MTextField',
+    name: 'm-text-field',
     props: {
       value: {
         type: [String, Number],

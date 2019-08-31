@@ -1,11 +1,11 @@
 import browser from 'webextension-polyfill';
-import TabRegistry from './utils/TabRegistry';
+import TabRegistry from './utils/tab-registry';
 import Settings from './utils/settings';
 import {
   commands, messages, ports, uninstallURL,
 } from './utils/constants';
-import handleMessage from './utils/handleMessage';
-import isSpecialTab from './utils/isSpecialTab';
+import handleMessage from './utils/handle-message';
+import isSpecialTab from './utils/is-special-tab';
 
 const settings = new Settings();
 const registry = new TabRegistry({ numberOfTabsToShow: settings.get('numberOfTabsToShow') });
@@ -162,7 +162,7 @@ if (E2E) { // executes only in end-to-end tests
   });
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete' && isAllowedUrl(tab.url)) {
-      await browser.tabs.executeScript(tabId, { file: 'e2eTestCommandsBridge.js' });
+      await browser.tabs.executeScript(tabId, { file: 'e2e-test-commands-bridge.js' });
     }
   });
 }

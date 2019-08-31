@@ -161,14 +161,14 @@
 
 <script>
   import browser from 'webextension-polyfill';
-  import MSwitch from './MSwitch.vue';
-  import MTextField from './MTextField.vue';
-  import MButton from './MButton.vue';
-  import MBanner from './MBanner/MBanner.vue';
-  import isShortcutsSet from '../../utils/isShortcutsSet.js';
+  import MSwitch from './m-switch.vue';
+  import MTextField from './m-text-field.vue';
+  import MButton from './m-button.vue';
+  import MBanner from './m-banner/m-banner.vue';
+  import isShortcutsSet from '../../utils/is-shortcuts-set.js';
 
   export default {
-    name: 'SettingsForm',
+    name: 'settings-form',
     props: {
       settings: {
         type: Object,

@@ -27,7 +27,7 @@
   import { MDCRipple } from '@material/ripple/index';
 
   export default {
-    name: 'MButton',
+    name: 'm-button',
     props: {
       raised: {
         type: Boolean,

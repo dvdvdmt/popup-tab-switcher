@@ -1,4 +1,4 @@
-import styles from './PopupTabSwitcher.scss';
+import styles from './popup-tab-switcher.scss';
 import sprite from './utils/sprite';
 import { messages, ports } from './utils/constants';
 import tabCornerSymbol from './images/tab-corner.svg';
@@ -8,7 +8,7 @@ import downloadsSymbol from './images/downloads-icon.svg';
 import extensionsSymbol from './images/extensions-icon.svg';
 import historySymbol from './images/history-icon.svg';
 import bookmarksSymbol from './images/bookmarks-icon.svg';
-import handleMessage from './utils/handleMessage';
+import handleMessage from './utils/handle-message';
 
 const favIcons = {
   default: noFaviconSymbol,

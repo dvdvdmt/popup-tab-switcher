@@ -1,5 +1,5 @@
 import assert from 'assert';
-import TabRegistry from './TabRegistry';
+import TabRegistry from './tab-registry';
 
 describe('Tab registry', function () {
   it('Maintains the right order of recently active tabs', function () {

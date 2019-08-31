@@ -16,7 +16,7 @@
 
 <script>
   export default {
-    name: 'MSwitch',
+    name: 'm-switch',
     props: {
       id: {
         type: String,

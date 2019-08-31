@@ -1,6 +1,6 @@
 import assert from 'assert';
 import puppeteer from 'puppeteer';
-import PuppeteerPopupHelper, { getPagePath } from './utils/PuppeteerPopupHelper';
+import PuppeteerPopupHelper, { getPagePath } from './utils/puppeteer-popup-helper';
 import { launchOptions } from './utils/config';
 import { defaultSettings } from '../src/utils/settings';
 

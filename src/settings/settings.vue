@@ -19,9 +19,9 @@
   import browser from 'webextension-polyfill';
   import Settings from '../utils/settings';
   import { messages, ports } from '../utils/constants';
-  import SettingsForm from './components/SettingsForm.vue';
-  import MTabBar from './components/MTabBar.vue';
-  import Contribute from './components/Contribute.vue';
+  import SettingsForm from './components/settings-form.vue';
+  import MTabBar from './components/m-tab-bar.vue';
+  import Contribute from './components/contribute.vue';
 
   const settingsService = new Settings();
   const port = browser.runtime.connect({ name: ports.POPUP_SCRIPT });

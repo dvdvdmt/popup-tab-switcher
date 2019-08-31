@@ -1,6 +1,6 @@
 import '@webcomponents/custom-elements';
 import uuid from './utils/uuid';
-import PopupTabSwitcher from './PopupTabSwitcher';
+import PopupTabSwitcher from './popup-tab-switcher';
 
 const existingEl = document.querySelector('#popup-tab-switcher');
 if (existingEl) {

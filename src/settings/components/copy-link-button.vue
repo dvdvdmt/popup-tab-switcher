@@ -6,7 +6,7 @@
 </template>
 
 <script>
-  import SvgIcon from './SvgIcon.vue';
+  import SvgIcon from './svg-icon.vue';
   import linkSymbol from '../../images/link-icon.svg';
   import linkCopiedSymbol from '../../images/link-copied-icon.svg';
 

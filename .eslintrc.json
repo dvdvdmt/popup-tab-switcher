@@ -29,7 +29,7 @@
       "files": [
         "*background.js",
         "*content.js",
-        "*PopupTabSwitcher.js",
+        "*popup-tab-switcher.js",
         "**/settings/index.js"
       ],
       "env": {

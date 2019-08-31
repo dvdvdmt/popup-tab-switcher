@@ -12,7 +12,7 @@
   import { MDCTopAppBar } from '@material/top-app-bar/index';
 
   export default {
-    name: 'MTopAppBar',
+    name: 'm-top-app-bar',
     mounted() {
       MDCTopAppBar.attachTo(this.$el);
     }

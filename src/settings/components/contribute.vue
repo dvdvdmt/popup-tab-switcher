@@ -57,12 +57,12 @@
 
 <script>
   import browser from 'webextension-polyfill';
-  import MButton from './MButton.vue';
+  import MButton from './m-button.vue';
   import facebookSymbol from '../../images/facebook-icon.svg';
   import twitterSymbol from '../../images/twitter-icon.svg';
   import vkontakteSymbol from '../../images/vkontakte-icon.svg';
-  import SvgIcon from './SvgIcon.vue';
-  import CopyLinkButton from './CopyLinkButton.vue';
+  import SvgIcon from './svg-icon.vue';
+  import CopyLinkButton from './copy-link-button.vue';
 
   function getQueryString(query){
     return Object.entries(query)

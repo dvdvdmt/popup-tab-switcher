@@ -16,10 +16,10 @@
 
 <script>
   import { MDCTabBar } from '@material/tab-bar/index';
-  import MTab from './MTab.vue';
+  import MTab from './m-tab.vue';
 
   export default {
-    name: 'MTabBar',
+    name: 'm-tab-bar',
     props: {
       activeTabId: {
         type: Number,

@@ -23,7 +23,7 @@
 
 <script>
   export default {
-    name: 'MBanner',
+    name: 'm-banner',
     props: {
       message: {
         type: String,
