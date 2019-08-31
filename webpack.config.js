@@ -145,7 +145,7 @@ module.exports = (env) => {
       }),
       env.watch ? new ChromeExtensionReloader({
         entries: {
-          contentScript: 'PopupTabSwitcher.scss.scss',
+          contentScript: 'content',
           background: 'background',
         },
       }) : () => {
