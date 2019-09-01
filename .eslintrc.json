@@ -6,11 +6,12 @@
   },
   "rules": {
     "no-restricted-syntax": "off",
-    "prefer-destructuring": "warn"
+    "prefer-destructuring": "warn",
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": ["src/**/*-test.js", "e2e/*-e2e.js"]}]
   },
   "overrides": [
     {
-      "files": "*.test.js",
+      "files": ["*-test.js", "*-e2e.js"],
       "env": {
         "mocha": true
       },
@@ -20,7 +21,7 @@
       }
     },
     {
-      "files": "*e2e.test.js",
+      "files": "*-e2e.js",
       "env": {
         "browser": true
       }
