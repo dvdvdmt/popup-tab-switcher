@@ -1,4 +1,8 @@
 import assert from 'assert';
+import {
+  describe,
+  it,
+} from 'mocha';
 import TabRegistry from './tab-registry';
 
 describe('Tab registry', function () {
@@ -36,7 +40,6 @@ describe('Tab registry', function () {
         favIconUrl: '3 tab favicon',
       },
     ];
-
     const resultRegistry = [
       {
         id: 3,
@@ -56,7 +59,6 @@ describe('Tab registry', function () {
         favIconUrl: '4 tab favicon',
       },
     ];
-
     const registry = new TabRegistry({ numberOfTabsToShow: 3 });
     tabActivations.forEach(activeTab => registry.push(activeTab));
     assert.deepStrictEqual(registry.getTabsToShow(), resultRegistry);

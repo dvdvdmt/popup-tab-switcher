@@ -7,11 +7,90 @@
   "rules": {
     "no-restricted-syntax": "off",
     "prefer-destructuring": "warn",
-    "import/no-extraneous-dependencies": ["error", {"devDependencies": ["src/**/*-test.js", "e2e/*-e2e.js"]}]
+    "curly": [
+      "error",
+      "all"
+    ],
+    "brace-style": [
+      "error",
+      "1tbs",
+      {
+        "allowSingleLine": false
+      }
+    ],
+    "padding-line-between-statements": [
+      "error",
+      {
+        "blankLine": "never",
+        "prev": "*",
+        "next": "*"
+      },
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": "function"
+      },
+      {
+        "blankLine": "always",
+        "prev": [
+          "function",
+          "import",
+          "export",
+          "cjs-import",
+          "cjs-export"
+        ],
+        "next": "*"
+      },
+      {
+        "blankLine": "never",
+        "prev": [
+          "import",
+          "cjs-import"
+        ],
+        "next": [
+          "import",
+          "cjs-import"
+        ]
+      },
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": [
+          "export",
+          "cjs-export"
+        ]
+      },
+      {
+        "blankLine": "any",
+        "prev": "multiline-expression",
+        "next": "*"
+      }
+    ],
+    "no-multiple-empty-lines": [
+      "error",
+      {
+        "max": 1,
+        "maxEOF": 0,
+        "maxBOF": 0
+      }
+    ],
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": [
+          "src/**/*-test.js",
+          "e2e/*-e2e.js",
+          "webpack.config.js"
+        ]
+      }
+    ]
   },
   "overrides": [
     {
-      "files": ["*-test.js", "*-e2e.js"],
+      "files": [
+        "*-test.js",
+        "*-e2e.js"
+      ],
       "env": {
         "mocha": true
       },

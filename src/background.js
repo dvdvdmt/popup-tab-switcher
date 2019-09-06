@@ -19,36 +19,41 @@ async function initializeContentScript(tab) {
   }
 }
 
-async function handleTabActivation() {
-  const [currentTab] = await browser.tabs.query({
+async function getActiveTab() {
+  const [activeTab] = await browser.tabs.query({
     active: true,
     currentWindow: true,
   });
+  return activeTab;
+}
+
+async function handleTabActivation() {
+  const currentTab = await getActiveTab();
   // the tab can be instantly closed and therefore currentTab can be null
   if (currentTab) {
     registry.push(currentTab);
   }
 }
 
+async function activateTab({ id, windowId }) {
+  await browser.windows.update(windowId, { focused: true });
+  await browser.tabs.update(id, { active: true });
+}
+
 async function handleCommand(command) {
-  const [currentTab] = await browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-
-  if (!currentTab) return;
-
+  const currentTab = await getActiveTab();
+  if (!currentTab) {
+    return;
+  }
   // handle special chrome tabs separately because they do not allow script executions
   if (isSpecialTab(currentTab)) {
     const previousTab = registry.getPreviouslyActive();
     if (previousTab) {
-      await browser.tabs.update(previousTab.id, { active: true });
+      await activateTab(previousTab);
     }
     return;
   }
-
   await initializeContentScript(currentTab);
-
   // send the command to the content script
   await browser.tabs.sendMessage(currentTab.id, {
     type: messages.SELECT_TAB,
@@ -70,7 +75,7 @@ async function handleTabRemove(tabId) {
   if (isSwitchingNeeded) {
     const currentTab = registry.getActive();
     if (currentTab) {
-      await browser.tabs.update(currentTab.id, { active: true });
+      await activateTab(currentTab);
     }
   }
 }
@@ -79,33 +84,26 @@ const handlePopupMessages = handleMessage({
   [messages.UPDATE_SETTINGS]: async ({ newSettings }) => {
     settings.update(newSettings);
     registry.numberOfTabsToShow = newSettings.numberOfTabsToShow;
-
     await Promise.all(Object.values(registry.initializedTabs)
       .map(({ id }) => browser.tabs.sendMessage(id, {
         type: messages.UPDATE_SETTINGS_SILENTLY,
         newSettings,
       })));
-
-    const [currentTab] = await browser.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
-
-    if (!currentTab) return;
-
+    const activeTab = await getActiveTab();
+    if (!activeTab) {
+      return;
+    }
     // handle special chrome tabs separately because they do not allow script executions
-    if (isSpecialTab(currentTab)) {
+    if (isSpecialTab(activeTab)) {
       const previousNormalTab = registry.findBackward(tab => !isSpecialTab(tab));
       if (previousNormalTab) {
-        await browser.tabs.update(previousNormalTab.id, { active: true });
+        await activateTab(previousNormalTab);
       }
       return;
     }
-
-    await initializeContentScript(currentTab);
-
+    await initializeContentScript(activeTab);
     // send the command to the content script
-    await browser.tabs.sendMessage(currentTab.id, {
+    await browser.tabs.sendMessage(activeTab.id, {
       type: messages.UPDATE_SETTINGS,
       newSettings,
       tabsData: registry.getTabsToShow(),
@@ -114,10 +112,7 @@ const handlePopupMessages = handleMessage({
 });
 
 async function handlePopupScriptDisconnection() {
-  const [currentTab] = await browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
+  const currentTab = await getActiveTab();
   await browser.tabs.sendMessage(currentTab.id, {
     type: messages.CLOSE_POPUP,
   });
@@ -125,8 +120,7 @@ async function handlePopupScriptDisconnection() {
 
 const handleContentScriptMessages = handleMessage({
   [messages.SWITCH_TAB]: async ({ selectedTab }) => {
-    await browser.windows.update(selectedTab.windowId, { focused: true });
-    await browser.tabs.update(selectedTab.id, { active: true });
+    await activateTab(selectedTab);
   },
 });
 
@@ -148,10 +142,10 @@ browser.tabs.onRemoved.addListener(handleTabRemove);
 browser.runtime.onConnect.addListener(handleCommunications);
 // initialize registry with currently active tab
 handleTabActivation();
-if (PRODUCTION) { // executes only in production
+if (PRODUCTION) {
   browser.runtime.setUninstallURL(uninstallURL);
 }
-if (E2E) { // executes only in end-to-end tests
+if (E2E) {
   const isAllowedUrl = url => url !== 'about:blank' && !url.startsWith('chrome:');
   browser.runtime.onConnect.addListener((port) => {
     if (port.name === ports.COMMANDS_BRIDGE) {

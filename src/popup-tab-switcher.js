@@ -18,7 +18,6 @@ const favIcons = {
   history: historySymbol,
   bookmarks: bookmarksSymbol,
 };
-
 let { settings } = window;
 
 function createSVGIcon(symbol, className) {

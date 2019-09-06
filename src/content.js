@@ -6,7 +6,6 @@ const existingEl = document.querySelector('#popup-tab-switcher');
 if (existingEl) {
   existingEl.remove();
 }
-
 const id = uuid();
 customElements.define(`popup-tab-switcher-${id}`, PopupTabSwitcher);
 const tabSwitcherEl = document.createElement(`popup-tab-switcher-${id}`);

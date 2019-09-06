@@ -12,9 +12,7 @@ const srcDir = path.join(__dirname, 'src');
 const settingsDir = path.join(srcDir, 'settings');
 const stylesDir = path.join(srcDir, 'styles');
 const nodeModulesDir = path.join(__dirname, 'node_modules');
-
 const sassGlobals = '@import "variables";';
-
 const conf = {
   mode: 'development',
 

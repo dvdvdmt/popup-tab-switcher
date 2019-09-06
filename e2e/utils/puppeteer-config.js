@@ -1,8 +1,9 @@
+// eslint-disable import/prefer-default-export
 import path from 'path';
 
 const pathToExtension = path.join(__dirname, '../../build-e2e');
-// eslint-disable-next-line import/prefer-default-export
-export const launchOptions = {
+
+export default {
   headless: false,
   slowMo: 20,
   args: [
