@@ -74,6 +74,12 @@
         "maxBOF": 0
       }
     ],
+    "no-use-before-define": [
+      "error",
+      {
+        "functions": false
+      }
+    ],
     "import/no-extraneous-dependencies": [
       "error",
       {
