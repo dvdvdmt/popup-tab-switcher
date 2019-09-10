@@ -83,6 +83,7 @@ describe('Pop-up', function () {
       assert.strictEqual(display, 'none', 'The popup is closed');
     });
   });
+
   describe('Many pages', function () {
     beforeEach(async () => {
       await helper.closeTabs();
@@ -185,6 +186,28 @@ describe('Pop-up', function () {
       assert.strictEqual(elText, 'Wikipedia');
     });
 
+    it('Focuses previously active window on a tab closing', async () => {
+      const pageWikipedia = await helper.openPage('wikipedia.html');
+      await pageWikipedia.evaluate((url) => {
+        window.open(url, '_blank', 'width=500,height=500');
+      }, getPagePath('example.html'));
+      const pageExample = await newPagePromise();
+      await pageWikipedia.evaluate((url) => {
+        window.open(url, '_blank', 'width=500,height=500');
+      }, getPagePath('stackoverflow.html'));
+      const pageStOverflow = await newPagePromise();
+      const pageFile = await helper.openPage('file.js');
+      await pageFile.close();
+      const isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus());
+      assert(isStOverflowFocused, 'Switched to a tab in previous window');
+      await pageStOverflow.close();
+      const isExampleFocused = await pageExample.evaluate(() => document.hasFocus());
+      assert(isExampleFocused);
+      await pageExample.close();
+      const isWikipediaFocused = await pageWikipedia.evaluate(() => document.hasFocus());
+      assert(isWikipediaFocused);
+    });
+
     it('Switches to the tab that was clicked', async () => {
       await helper.openPage('wikipedia.html');
       await helper.openPage('example.html');
@@ -225,13 +248,12 @@ describe('Pop-up', function () {
       await pageStOverflow.keyboard.press('KeyY');
       await pageStOverflow.keyboard.press('KeyY');
       await pageStOverflow.keyboard.up('Alt');
-      const activePage = await helper.getActiveTab();
-      let isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus());
-      assert(pageWikipedia === activePage && !isStOverflowFocused, 'Switched back to a previous window');
+      const isWikipediaFocused = await pageWikipedia.evaluate(() => document.hasFocus());
+      assert(isWikipediaFocused, 'Switched back to a previous window');
       await pageStOverflow.keyboard.down('Alt');
       await pageStOverflow.keyboard.press('KeyY');
       await pageStOverflow.keyboard.up('Alt');
-      isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus());
+      const isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus());
       assert(isStOverflowFocused, 'Switched between two windows');
     });
 
@@ -372,28 +394,6 @@ describe('Pop-up', function () {
       activeTab = await helper.getActiveTab();
       tabTitle = await activeTab.$eval('title', el => el.textContent);
       assert.strictEqual('Page with iframe', tabTitle);
-    });
-
-    it('Focuses previously active window on a tab closing', async () => {
-      const pageWikipedia = await helper.openPage('wikipedia.html');
-      await pageWikipedia.evaluate((url) => {
-        window.open(url, '_blank', 'width=500,height=500');
-      }, getPagePath('example.html'));
-      const pageExample = await newPagePromise();
-      await pageWikipedia.evaluate((url) => {
-        window.open(url, '_blank', 'width=500,height=500');
-      }, getPagePath('stackoverflow.html'));
-      const pageStOverflow = await newPagePromise();
-      const pageFile = await helper.openPage('file.js');
-      await pageFile.close();
-      const isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus());
-      assert(isStOverflowFocused, 'Switched to a tab in previous window');
-      await pageStOverflow.close();
-      const isExampleFocused = await pageExample.evaluate(() => document.hasFocus());
-      assert(isExampleFocused);
-      await pageExample.close();
-      const isWikipediaFocused = await pageWikipedia.evaluate(() => document.hasFocus());
-      assert(isWikipediaFocused);
     });
   });
 });

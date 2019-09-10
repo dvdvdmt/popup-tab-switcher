@@ -9,6 +9,7 @@ import {
 } from './utils/constants';
 import handleMessage from './utils/handle-message';
 import isSpecialTab from './utils/is-special-tab';
+import isBrowserFocused from './utils/is-browser-focused';
 
 const settings = new Settings();
 const registry = new TabRegistry({ numberOfTabsToShow: settings.get('numberOfTabsToShow') });
@@ -130,7 +131,9 @@ async function getActiveTab() {
 }
 
 async function activateTab({ id, windowId }) {
-  await browser.windows.update(windowId, { focused: true });
+  if (isBrowserFocused()) {
+    await browser.windows.update(windowId, { focused: true });
+  }
   await browser.tabs.update(id, { active: true });
 }
 

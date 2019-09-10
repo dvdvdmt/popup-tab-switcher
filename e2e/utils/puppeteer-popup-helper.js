@@ -63,6 +63,7 @@ export default class PuppeteerPopupHelper {
       page = await this.browser.newPage();
     }
     await page.goto(getPagePath(pageFileName));
+    await page.bringToFront();
     return Object.assign(page, pageMixin);
   }
 }
