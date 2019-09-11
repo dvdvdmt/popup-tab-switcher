@@ -8,7 +8,7 @@ import {
   it,
 } from 'mocha';
 import puppeteerConfig from './utils/puppeteer-config';
-import { defaultSettings } from '../src/utils/settings';
+import {defaultSettings} from '../src/utils/settings';
 import PuppeteerPopupHelper from './utils/puppeteer-popup-helper';
 
 let browser;
@@ -33,17 +33,17 @@ async function input(page, selector, text) {
 
 async function getSettingsFromPage(page) {
   const res = {};
-  res.textScrollDelay = await page.$eval('#textScrollDelay', el => +el.value);
-  res.textScrollCoefficient = await page.$eval('#textScrollCoefficient', el => +el.value);
-  res.autoSwitchingTimeout = await page.$eval('#autoSwitchingTimeout', el => +el.value);
-  res.numberOfTabsToShow = await page.$eval('#numberOfTabsToShow', el => +el.value);
-  res.isDarkTheme = await page.$eval('#isDarkTheme', el => el.checked);
-  res.popupWidth = await page.$eval('#popupWidth', el => +el.value);
-  res.tabHeight = await page.$eval('#tabHeight', el => +el.value);
-  res.fontSize = await page.$eval('#fontSize', el => +el.value);
-  res.iconSize = await page.$eval('#iconSize', el => +el.value);
-  res.isSwitchingToPreviouslyUsedTab = await page.$eval('#isSwitchingToPreviouslyUsedTab', el => el.checked);
-  res.isStayingOpen = await page.$eval('#isStayingOpen', el => el.checked);
+  res.textScrollDelay = await page.$eval('#textScrollDelay', (el) => +el.value);
+  res.textScrollCoefficient = await page.$eval('#textScrollCoefficient', (el) => +el.value);
+  res.autoSwitchingTimeout = await page.$eval('#autoSwitchingTimeout', (el) => +el.value);
+  res.numberOfTabsToShow = await page.$eval('#numberOfTabsToShow', (el) => +el.value);
+  res.isDarkTheme = await page.$eval('#isDarkTheme', (el) => el.checked);
+  res.popupWidth = await page.$eval('#popupWidth', (el) => +el.value);
+  res.tabHeight = await page.$eval('#tabHeight', (el) => +el.value);
+  res.fontSize = await page.$eval('#fontSize', (el) => +el.value);
+  res.iconSize = await page.$eval('#iconSize', (el) => +el.value);
+  res.isSwitchingToPreviouslyUsedTab = await page.$eval('#isSwitchingToPreviouslyUsedTab', (el) => el.checked);
+  res.isStayingOpen = await page.$eval('#isStayingOpen', (el) => el.checked);
   return res;
 }
 
@@ -144,7 +144,7 @@ describe('settings', function () {
     await input(settingsPage, '#textScrollDelay', '-1500');
     await input(settingsPage, '#popupWidth', 'asdf');
     const isValuesCorrect = await settingsPage.evaluate(() => {
-      const { app: { settings: { textScrollDelay, popupWidth } } } = window;
+      const {app: {settings: {textScrollDelay, popupWidth}}} = window;
       return Number.isInteger(textScrollDelay) && textScrollDelay >= 0
         && Number.isInteger(popupWidth) && popupWidth >= 0;
     });
@@ -155,7 +155,7 @@ describe('settings', function () {
     const settingsPage = await browser.newPage();
     await settingsPage.goto(settingsPageUrl);
     await settingsPage.click('#mdc-tab-2');
-    const isContributeSectionOpen = await settingsPage.$eval('.contribute', el => getComputedStyle(el).display !== 'none');
+    const isContributeSectionOpen = await settingsPage.$eval('.contribute', (el) => getComputedStyle(el).display !== 'none');
     assert(isContributeSectionOpen, 'the contribute section is visible');
   });
 
@@ -169,7 +169,7 @@ describe('settings', function () {
     await pageWikipedia.bringToFront();
     await pageWikipedia.close();
     const activeTab = await helper.getActiveTab();
-    const tabTitle = await activeTab.$eval('title', el => el.textContent);
+    const tabTitle = await activeTab.$eval('title', (el) => el.textContent);
     assert(tabTitle, 'Example', 'switched to the nearest tab');
   });
 
@@ -181,7 +181,7 @@ describe('settings', function () {
     await helper.openPage('example.html');
     await helper.switchTab();
     const activeTab = await helper.getActiveTab();
-    const tabTitle = await activeTab.$eval('title', el => el.textContent);
+    const tabTitle = await activeTab.$eval('title', (el) => el.textContent);
     assert(tabTitle, 'Example', 'does not leave the current tab');
   });
 });

@@ -23,7 +23,7 @@ export default class Settings {
     } catch (e) {
       settings = {};
     }
-    this.storage.settings = JSON.stringify({ ...defaults, ...settings });
+    this.storage.settings = JSON.stringify({...defaults, ...settings});
   }
 
   get(name) {

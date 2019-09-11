@@ -46,9 +46,9 @@ const conf = {
             loader: 'svgo-loader',
             options: {
               plugins: [
-                { removeTitle: true },
-                { convertColors: { shorthex: false } },
-                { convertPathData: false },
+                {removeTitle: true},
+                {convertColors: {shorthex: false}},
+                {convertPathData: false},
               ],
             },
           },
@@ -95,7 +95,7 @@ module.exports = (env) => {
           browser_action: {
             default_icon: 'images/icon-48-gray.png',
           },
-          icons: { 48: 'images/icon-48-gray.png' },
+          icons: {48: 'images/icon-48-gray.png'},
           name: `${original.name} - Development`,
         };
         const e2eProps = {

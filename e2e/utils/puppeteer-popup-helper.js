@@ -20,8 +20,8 @@ export default class PuppeteerPopupHelper {
   async getActiveTab() {
     const pages = await this.browser.pages();
     // eslint-disable-next-line no-undef
-    const promises = pages.map((p, i) => p.evaluate(index => document.visibilityState === 'visible' && index, `${i}`));
-    const firstActivePage = pages[(await Promise.all(promises)).find(i => i)];
+    const promises = pages.map((p, i) => p.evaluate((index) => document.visibilityState === 'visible' && index, `${i}`));
+    const firstActivePage = pages[(await Promise.all(promises)).find((i) => i)];
     return Object.assign(firstActivePage, pageMixin);
   }
 
@@ -54,7 +54,7 @@ export default class PuppeteerPopupHelper {
   }
 
   async closeTabs() {
-    await Promise.all((await this.browser.pages()).map(p => p.close()));
+    await Promise.all((await this.browser.pages()).map((p) => p.close()));
   }
 
   async openPage(pageFileName, existingPage) {

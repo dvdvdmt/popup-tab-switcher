@@ -1,6 +1,6 @@
 import styles from './popup-tab-switcher.scss';
 import sprite from './utils/sprite';
-import { messages, ports } from './utils/constants';
+import {messages, ports} from './utils/constants';
 import tabCornerSymbol from './images/tab-corner.svg';
 import noFaviconSymbol from './images/no-favicon-icon.svg';
 import settingsSymbol from './images/settings-icon.svg';
@@ -18,7 +18,7 @@ const favIcons = {
   history: historySymbol,
   bookmarks: bookmarksSymbol,
 };
-let { settings } = window;
+let {settings} = window;
 
 function createSVGIcon(symbol, className) {
   const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -59,7 +59,7 @@ function restoreSelectionAndFocus(activeEl) {
     && has.call(activeEl, 'selectionDirection')
     && has.call(activeEl, 'setSelectionRange')
   ) {
-    const { selectionStart, selectionEnd, selectionDirection } = activeEl;
+    const {selectionStart, selectionEnd, selectionDirection} = activeEl;
     activeEl.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
   }
 }
@@ -71,7 +71,7 @@ function rangedIncrement(number, increment, maxInteger) {
   return (number + (increment % maxInteger) + maxInteger) % maxInteger;
 }
 
-const contentScriptPort = chrome.runtime.connect({ name: ports.CONTENT_SCRIPT });
+const contentScriptPort = chrome.runtime.connect({name: ports.CONTENT_SCRIPT});
 
 export default class PopupTabSwitcher extends HTMLElement {
   constructor() {
@@ -81,7 +81,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.activeElement = null;
     this.selectedTabIndex = 0;
     this.isOverlayVisible = false;
-    const shadow = this.attachShadow({ mode: 'open' });
+    const shadow = this.attachShadow({mode: 'open'});
     sprite.mount(shadow);
     const style = document.createElement('style');
     style.textContent = styles;
@@ -134,16 +134,16 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.card.addEventListener('keydown', this.cardEventListener);
     window.addEventListener('blur', this.windowEventListener);
     this.messageListener = handleMessage({
-      [messages.UPDATE_SETTINGS]: ({ tabsData, newSettings }) => {
+      [messages.UPDATE_SETTINGS]: ({tabsData, newSettings}) => {
         this.tabsArray = tabsData;
         settings = newSettings;
         this.renderTabs();
       },
-      [messages.UPDATE_SETTINGS_SILENTLY]: ({ newSettings }) => {
+      [messages.UPDATE_SETTINGS_SILENTLY]: ({newSettings}) => {
         settings = newSettings;
       },
       [messages.CLOSE_POPUP]: this.hideOverlay,
-      [messages.SELECT_TAB]: ({ tabsData, increment }) => {
+      [messages.SELECT_TAB]: ({tabsData, increment}) => {
         this.tabsArray = tabsData;
         this.selectNextTab(increment);
         // When the focus is on the address bar or the 'search in the page' field

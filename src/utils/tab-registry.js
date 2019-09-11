@@ -1,12 +1,12 @@
 export default class TabRegistry {
-  constructor({ tabs = [], numberOfTabsToShow = 7 } = {}) {
+  constructor({tabs = [], numberOfTabsToShow = 7} = {}) {
     this.tabs = tabs;
     this.numberOfTabsToShow = numberOfTabsToShow;
     this.initializedTabs = {};
   }
 
   removeTab(tabId) {
-    this.tabs = this.tabs.filter(({ id }) => id !== tabId);
+    this.tabs = this.tabs.filter(({id}) => id !== tabId);
   }
 
   addToInitialized(tab) {

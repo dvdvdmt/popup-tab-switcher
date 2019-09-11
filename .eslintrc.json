@@ -80,6 +80,8 @@
         "functions": false
       }
     ],
+    "object-curly-spacing": ["error", "never"],
+    "arrow-parens": ["error", "always"],
     "import/no-extraneous-dependencies": [
       "error",
       {

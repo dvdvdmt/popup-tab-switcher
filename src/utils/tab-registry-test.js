@@ -59,8 +59,8 @@ describe('Tab registry', function () {
         favIconUrl: '4 tab favicon',
       },
     ];
-    const registry = new TabRegistry({ numberOfTabsToShow: 3 });
-    tabActivations.forEach(activeTab => registry.push(activeTab));
+    const registry = new TabRegistry({numberOfTabsToShow: 3});
+    tabActivations.forEach((activeTab) => registry.push(activeTab));
     assert.deepStrictEqual(registry.getTabsToShow(), resultRegistry);
   });
 
@@ -112,7 +112,7 @@ describe('Tab registry', function () {
       },
     ];
     const registry = new TabRegistry();
-    tabActivations.forEach(activeTab => registry.push(activeTab));
+    tabActivations.forEach((activeTab) => registry.push(activeTab));
     registry.remove(4);
     registry.remove(3);
     registry.push(resultRegistry[0]);
@@ -173,7 +173,7 @@ describe('Tab registry', function () {
       },
     ];
     const registry = new TabRegistry();
-    tabActivations.forEach(activeTab => registry.push(activeTab));
+    tabActivations.forEach((activeTab) => registry.push(activeTab));
     registry.update({
       id: 2,
       title: '2 tab updated',

@@ -1,8 +1,8 @@
 /* eslint-env browser */
 import browser from 'webextension-polyfill';
-import { commands, ports } from './utils/constants';
+import {commands, ports} from './utils/constants';
 
-const port = browser.runtime.connect({ name: ports.COMMANDS_BRIDGE });
+const port = browser.runtime.connect({name: ports.COMMANDS_BRIDGE});
 
 function handleKeydown({
   key,
@@ -14,9 +14,9 @@ function handleKeydown({
   const keyLower = key.toLowerCase();
   const isModifier = altKey || ctrlKey || metaKey;
   if (shiftKey && isModifier && keyLower === 'y') {
-    port.postMessage({ command: commands.PREVIOUS });
+    port.postMessage({command: commands.PREVIOUS});
   } else if (isModifier && keyLower === 'y') {
-    port.postMessage({ command: commands.NEXT });
+    port.postMessage({command: commands.NEXT});
   }
 }
 
