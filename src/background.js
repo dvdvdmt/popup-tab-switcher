@@ -12,11 +12,27 @@ import isSpecialTab from './utils/is-special-tab';
 import isBrowserFocused from './utils/is-browser-focused';
 
 const settings = new Settings();
-const registry = new TabRegistry({numberOfTabsToShow: settings.get('numberOfTabsToShow')});
-init();
+let /** @type {TabRegistry} */ registry;
+initTabRegistry()
+  .then((newRegistry) => {
+    registry = newRegistry;
+    initListeners();
+  });
 
-function init() {
-  initRegistry();
+async function initTabRegistry() {
+  const windows = await browser.windows.getAll({populate: true});
+  const tabs = windows.flatMap((w) => w.tabs).sort(activeLast);
+  return new TabRegistry({
+    tabs,
+    numberOfTabsToShow: settings.get('numberOfTabsToShow'),
+  });
+
+  function activeLast(a, b) {
+    return a.active < b.active ? -1 : 1;
+  }
+}
+
+function initListeners() {
   browser.commands.onCommand.addListener(handleCommand);
   browser.tabs.onActivated.addListener(handleTabActivation);
   browser.windows.onFocusChanged.addListener(handleTabActivation);
@@ -29,10 +45,6 @@ function init() {
   if (E2E) {
     initForE2ETests();
   }
-}
-
-function initRegistry() {
-  handleTabActivation();
 }
 
 function initForProduction() {
