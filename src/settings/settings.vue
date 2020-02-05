@@ -18,13 +18,14 @@
 <script>
   import browser from 'webextension-polyfill';
   import Settings from '../utils/settings';
-  import { messages, ports } from '../utils/constants';
+  import {Port} from '../utils/constants';
   import SettingsForm from './components/settings-form.vue';
   import MTabBar from './components/m-tab-bar.vue';
   import Contribute from './components/contribute.vue';
+  import {updateSettings} from '../utils/messages';
 
   const settingsService = new Settings();
-  const port = browser.runtime.connect({ name: ports.POPUP_SCRIPT });
+  const port = browser.runtime.connect({ name: Port.POPUP_SCRIPT });
 
   export default {
     name: 'Settings',
@@ -45,10 +46,7 @@
     },
     methods: {
       updateSettings(newSettings) {
-        port.postMessage({
-          type: messages.UPDATE_SETTINGS,
-          newSettings,
-        });
+        port.postMessage(updateSettings({newSettings}));
       },
       setDefaults() {
         settingsService.setDefaults();

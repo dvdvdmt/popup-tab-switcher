@@ -1,33 +1,39 @@
-import browser from 'webextension-polyfill';
+import {browser, Runtime, Tabs} from 'webextension-polyfill-ts';
 import TabRegistry from './utils/tab-registry';
 import Settings from './utils/settings';
+import {Command, Port, uninstallURL} from './utils/constants';
 import {
-  commands,
-  messages,
-  ports,
-  uninstallURL,
-} from './utils/constants';
-import handleMessage from './utils/handle-message';
-import isSpecialTab from './utils/is-special-tab';
+  handleMessage,
+  applyNewSettings,
+  applyNewSettingsSilently,
+  closePopup,
+  Message,
+  selectTab,
+  SwitchTabPayload,
+  UpdateSettingsPayload,
+} from './utils/messages';
+import isCodeExecutionForbidden from './utils/is-code-execution-forbidden';
 import isBrowserFocused from './utils/is-browser-focused';
 
+import Tab = Tabs.Tab;
+import OnUpdatedChangeInfoType = Tabs.OnUpdatedChangeInfoType;
+
 const settings = new Settings();
-let /** @type {TabRegistry} */ registry;
-initTabRegistry()
-  .then((newRegistry) => {
-    registry = newRegistry;
-    initListeners();
-  });
+let registry: TabRegistry;
+initTabRegistry().then((newRegistry) => {
+  registry = newRegistry;
+  initListeners();
+});
 
 async function initTabRegistry() {
   const windows = await browser.windows.getAll({populate: true});
   const tabs = windows.flatMap((w) => w.tabs).sort(activeLast);
   return new TabRegistry({
     tabs,
-    numberOfTabsToShow: settings.get('numberOfTabsToShow'),
+    numberOfTabsToShow: settings.get('numberOfTabsToShow') as number,
   });
 
-  function activeLast(a, b) {
+  function activeLast(a: Tab, b: Tab) {
     return a.active < b.active ? -1 : 1;
   }
 }
@@ -52,9 +58,9 @@ function initForProduction() {
 }
 
 function initForE2ETests() {
-  const isAllowedUrl = (url) => url !== 'about:blank' && !url.startsWith('chrome:');
+  const isAllowedUrl = (url: string) => url !== 'about:blank' && !url.startsWith('chrome:');
   browser.runtime.onConnect.addListener((port) => {
-    if (port.name === ports.COMMANDS_BRIDGE) {
+    if (port.name === Port.COMMANDS_BRIDGE) {
       port.onMessage.addListener(async ({command}) => {
         await handleCommand(command);
       });
@@ -62,18 +68,20 @@ function initForE2ETests() {
   });
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete' && isAllowedUrl(tab.url)) {
-      await browser.tabs.executeScript(tabId, {file: 'e2e-test-commands-bridge.js'});
+      await browser.tabs.executeScript(tabId, {
+        file: 'e2e-test-commands-bridge.js',
+        allFrames: true,
+      });
     }
   });
 }
 
-async function handleCommand(command) {
+async function handleCommand(command: Command) {
   const currentTab = await getActiveTab();
   if (!currentTab) {
     return;
   }
-  // handle special chrome tabs separately because they do not allow script executions
-  if (isSpecialTab(currentTab)) {
+  if (isCodeExecutionForbidden(currentTab)) {
     const previousTab = registry.getPreviouslyActive();
     if (previousTab) {
       await activateTab(previousTab);
@@ -82,11 +90,13 @@ async function handleCommand(command) {
   }
   await initializeContentScript(currentTab);
   // send the command to the content script
-  await browser.tabs.sendMessage(currentTab.id, {
-    type: messages.SELECT_TAB,
-    tabsData: registry.getTabsToShow(),
-    increment: command === commands.NEXT ? 1 : -1,
-  });
+  await browser.tabs.sendMessage(
+    currentTab.id,
+    selectTab({
+      tabsData: registry.getTabsToShow(),
+      increment: command === Command.NEXT ? 1 : -1,
+    })
+  );
 }
 
 async function handleTabActivation() {
@@ -97,14 +107,14 @@ async function handleTabActivation() {
   }
 }
 
-async function handleTabUpdate(tabId, changeInfo, tab) {
+async function handleTabUpdate(tabId: number, changeInfo: OnUpdatedChangeInfoType, tab: Tab) {
   if (changeInfo.status === 'complete') {
     registry.removeFromInitialized(tabId);
     registry.update(tab);
   }
 }
 
-async function handleTabRemove(tabId) {
+async function handleTabRemove(tabId: number) {
   registry.remove(tabId);
   const isSwitchingNeeded = settings.get('isSwitchingToPreviouslyUsedTab');
   if (isSwitchingNeeded) {
@@ -115,20 +125,22 @@ async function handleTabRemove(tabId) {
   }
 }
 
-function handleCommunications(port) {
-  if (ports.CONTENT_SCRIPT === port.name) {
+function handleCommunications(port: Runtime.Port) {
+  if (Port.CONTENT_SCRIPT === port.name) {
     port.onMessage.addListener(handleContentScriptMessages());
-  } else if (ports.POPUP_SCRIPT === port.name) {
+  } else if (Port.POPUP_SCRIPT === port.name) {
     port.onMessage.addListener(handlePopupMessages());
     // notify a tab when the settings popup closes
     port.onDisconnect.addListener(handlePopupScriptDisconnection);
   }
 }
 
-async function initializeContentScript(tab) {
+async function initializeContentScript(tab: Tab) {
   if (!registry.isInitialized(tab)) {
     const settingsString = settings.getString();
-    await browser.tabs.executeScript(tab.id, {code: `window.settings = ${settingsString};`});
+    await browser.tabs.executeScript(tab.id, {
+      code: `window.settings = ${settingsString};`,
+    });
     await browser.tabs.executeScript(tab.id, {file: 'content.js'});
     registry.addToInitialized(tab);
   }
@@ -142,7 +154,7 @@ async function getActiveTab() {
   return activeTab;
 }
 
-async function activateTab({id, windowId}) {
+async function activateTab({id, windowId}: Tab) {
   if (isBrowserFocused()) {
     await browser.windows.update(windowId, {focused: true});
   }
@@ -151,47 +163,48 @@ async function activateTab({id, windowId}) {
 
 function handlePopupMessages() {
   return handleMessage({
-    [messages.UPDATE_SETTINGS]: async ({newSettings}) => {
+    [Message.UPDATE_SETTINGS]: async ({newSettings}: UpdateSettingsPayload) => {
       settings.update(newSettings);
-      registry.numberOfTabsToShow = newSettings.numberOfTabsToShow;
-      await Promise.all(Object.values(registry.initializedTabs)
-        .map(({id}) => browser.tabs.sendMessage(id, {
-          type: messages.UPDATE_SETTINGS_SILENTLY,
-          newSettings,
-        })));
+      registry.setNumberOfTabsToShow(newSettings.numberOfTabsToShow);
+      await Promise.all(
+        registry
+          .getInitializedTabsIds()
+          .map((id) => browser.tabs.sendMessage(id, applyNewSettingsSilently({newSettings})))
+      );
       const activeTab = await getActiveTab();
       if (!activeTab) {
         return;
       }
-      // handle special chrome tabs separately because they do not allow script executions
-      if (isSpecialTab(activeTab)) {
-        const previousNormalTab = registry.findBackward((tab) => !isSpecialTab(tab));
+      if (isCodeExecutionForbidden(activeTab)) {
+        const previousNormalTab = registry.findBackward(
+          (tab: Tab) => !isCodeExecutionForbidden(tab)
+        );
         if (previousNormalTab) {
           await activateTab(previousNormalTab);
         }
         return;
       }
       await initializeContentScript(activeTab);
-      // send the command to the content script
-      await browser.tabs.sendMessage(activeTab.id, {
-        type: messages.UPDATE_SETTINGS,
-        newSettings,
-        tabsData: registry.getTabsToShow(),
-      });
+      // send a command to the content script
+      await browser.tabs.sendMessage(
+        activeTab.id,
+        applyNewSettings({
+          newSettings,
+          tabsData: registry.getTabsToShow(),
+        })
+      );
     },
   });
 }
 
 async function handlePopupScriptDisconnection() {
   const currentTab = await getActiveTab();
-  await browser.tabs.sendMessage(currentTab.id, {
-    type: messages.CLOSE_POPUP,
-  });
+  await browser.tabs.sendMessage(currentTab.id, closePopup());
 }
 
 function handleContentScriptMessages() {
   return handleMessage({
-    [messages.SWITCH_TAB]: async ({selectedTab}) => {
+    [Message.SWITCH_TAB]: async ({selectedTab}: SwitchTabPayload) => {
       await activateTab(selectedTab);
     },
   });

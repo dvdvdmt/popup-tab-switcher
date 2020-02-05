@@ -1,39 +1,41 @@
 import assert from 'assert';
-import {
-  describe,
-  it,
-} from 'mocha';
+import {describe, it} from 'mocha';
 import TabRegistry from './tab-registry';
 
-describe('Tab registry', function () {
-  it('Maintains the right order of recently active tabs', function () {
+describe('Tab registry', () => {
+  it('Maintains the right order of recently active tabs', () => {
     const tabActivations = [
       {
         id: 1,
         title: '1 tab',
         url: '1 tab url',
         favIconUrl: '1 tab favicon',
-      }, {
+      },
+      {
         id: 2,
         title: '2 tab',
         url: '2 tab url',
         favIconUrl: '2 tab favicon',
-      }, {
+      },
+      {
         id: 3,
         title: '3 tab',
         url: '3 tab url',
         favIconUrl: '3 tab favicon',
-      }, {
+      },
+      {
         id: 4,
         title: '4 tab',
         url: '4 tab url',
         favIconUrl: '4 tab favicon',
-      }, {
+      },
+      {
         id: 2,
         title: '2 tab',
         url: '2 tab url',
         favIconUrl: '2 tab favicon',
-      }, {
+      },
+      {
         id: 3,
         title: '3 tab',
         url: '3 tab url',
@@ -46,7 +48,8 @@ describe('Tab registry', function () {
         title: '3 tab',
         url: '3 tab url',
         favIconUrl: '3 tab favicon',
-      }, {
+      },
+      {
         id: 2,
         title: '2 tab',
         url: '2 tab url',
@@ -64,7 +67,7 @@ describe('Tab registry', function () {
     assert.deepStrictEqual(registry.getTabsToShow(), resultRegistry);
   });
 
-  it('Removes tabs correctly', function () {
+  it('Removes tabs correctly', () => {
     const tabActivations = [
       {
         id: 3,
@@ -119,7 +122,7 @@ describe('Tab registry', function () {
     assert.deepStrictEqual(registry.getTabsToShow(), resultRegistry);
   });
 
-  it('Updates tab with new info', function () {
+  it('Updates tab with new info', () => {
     const tabActivations = [
       {
         id: 1,

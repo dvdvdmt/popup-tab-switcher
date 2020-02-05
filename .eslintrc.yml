@@ -1,85 +1,44 @@
-extends: airbnb-base
-globals:
-  E2E: readonly
-  PRODUCTION: readonly
+env:
+  browser: true
+  webextensions: true
+parser: '@typescript-eslint/parser'
+plugins:
+  - '@typescript-eslint'
+  - import
+  - prettier
+  - mocha-no-only
+extends:
+  - airbnb-base
+  - plugin:@typescript-eslint/eslint-recommended
+  - plugin:@typescript-eslint/recommended
+  - plugin:import/errors
+  - plugin:import/warnings
+  - plugin:prettier/recommended
+settings:
+  import/resolver:
+    node:
+      extensions: ['.js', '.jsx', '.ts', '.tsx']
+  react:
+    version: detect
 rules:
-  no-restricted-syntax: 'off'
   prefer-destructuring: warn
-  curly:
-    - error
-    - all
-  brace-style:
-    - error
-    - 1tbs
-    - allowSingleLine: false
-  padding-line-between-statements:
-    - error
-    - blankLine: never
-      prev: "*"
-      next: "*"
-    - blankLine: always
-      prev: "*"
-      next: function
-    - blankLine: always
-      prev:
-        - function
-        - import
-        - export
-        - cjs-import
-        - cjs-export
-      next: "*"
-    - blankLine: never
-      prev:
-        - import
-        - cjs-import
-      next:
-        - import
-        - cjs-import
-    - blankLine: always
-      prev: "*"
-      next:
-        - export
-        - cjs-export
-    - blankLine: any
-      prev: multiline-expression
-      next: "*"
-  no-multiple-empty-lines:
-    - error
-    - max: 1
-      maxEOF: 0
-      maxBOF: 0
-  no-use-before-define:
-    - error
-    - functions: false
-  object-curly-spacing:
-    - error
-    - never
-  arrow-parens:
-    - error
-    - always
-  import/no-extraneous-dependencies:
-    - error
-    - devDependencies:
-        - src/**/*-test.js
-        - e2e/*-e2e.js
-        - webpack.config.js
+  curly: [error, all]
+  brace-style: [error, 1tbs, {allowSingleLine: false}]
+  no-multiple-empty-lines: [error, {max: 1, maxEOF: 0, maxBOF: 0}]
+  no-use-before-define: [error, {functions: false}]
+  '@typescript-eslint/no-use-before-define': [error, {functions: false}]
+  '@typescript-eslint/explicit-function-return-type': off
+  prefer-arrow-callback: off
+  object-curly-spacing: [error, never]
+  arrow-parens: [error, always]
+  import/extensions: off
+  import/no-extraneous-dependencies: [error, {devDependencies: ["./**/*e2e.js", "./**/*test.js", 'webpack.config.js']}]
+  react/prop-types: off
+  react/display-name: off
+  mocha-no-only/mocha-no-only: [error]
 overrides:
-  - files:
-      - "*-test.js"
-      - "*-e2e.js"
-    env:
-      mocha: true
+  - files: ['webpack.config.js']
     rules:
-      prefer-arrow-callback: 'off'
-      func-names: 'off'
-  - files: "*-e2e.js"
-    env:
-      browser: true
-  - files:
-      - "*background.js"
-      - "*content.js"
-      - "*popup-tab-switcher.js"
-      - "**/settings/index.js"
-    env:
-      browser: true
-      webextensions: true
+      '@typescript-eslint/no-var-requires': off
+      '@typescript-eslint/camelcase': off
+      '@typescript-eslint/no-empty-function': off

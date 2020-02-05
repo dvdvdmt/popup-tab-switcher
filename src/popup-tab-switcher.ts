@@ -1,6 +1,7 @@
+import {Tabs} from 'webextension-polyfill-ts';
 import styles from './popup-tab-switcher.scss';
 import sprite from './utils/sprite';
-import {messages, ports} from './utils/constants';
+import {Port} from './utils/constants';
 import tabCornerSymbol from './images/tab-corner.svg';
 import noFaviconSymbol from './images/no-favicon-icon.svg';
 import settingsSymbol from './images/settings-icon.svg';
@@ -8,9 +9,23 @@ import downloadsSymbol from './images/downloads-icon.svg';
 import extensionsSymbol from './images/extensions-icon.svg';
 import historySymbol from './images/history-icon.svg';
 import bookmarksSymbol from './images/bookmarks-icon.svg';
-import handleMessage from './utils/handle-message';
+import {
+  ApplyNewSettingsPayload,
+  ApplyNewSettingsSilentlyPayload,
+  handleMessage,
+  Handlers,
+  Message,
+  SelectTabPayload,
+  switchTab,
+} from './utils/messages';
+import {DefaultSettings} from './utils/settings';
 
-const favIcons = {
+import Tab = Tabs.Tab;
+
+interface FavIcons {
+  [key: string]: SvgSymbol;
+}
+const favIcons: FavIcons = {
   default: noFaviconSymbol,
   settings: settingsSymbol,
   downloads: downloadsSymbol,
@@ -18,9 +33,11 @@ const favIcons = {
   history: historySymbol,
   bookmarks: bookmarksSymbol,
 };
-let {settings} = window;
 
-function createSVGIcon(symbol, className) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let {settings}: {settings: DefaultSettings} = window as any;
+
+function createSVGIcon(symbol: SvgSymbol, className: string) {
   const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svgEl.setAttribute('viewBox', symbol.viewBox);
   svgEl.classList.add(...className.split(' '));
@@ -30,7 +47,7 @@ function createSVGIcon(symbol, className) {
   return svgEl;
 }
 
-function getIconEl(favIconUrl, url) {
+function getIconEl(favIconUrl: string, url: string) {
   let iconEl;
   if (!favIconUrl && url) {
     const matches = /chrome:\/\/(\w*?)\//.exec(url);
@@ -50,37 +67,53 @@ function getIconEl(favIconUrl, url) {
   return iconEl;
 }
 
-function restoreSelectionAndFocus(activeEl) {
+function restoreSelectionAndFocus(activeEl: Element) {
+  if (!(activeEl instanceof HTMLElement)) {
+    return;
+  }
   activeEl.focus();
-  const has = Object.prototype.hasOwnProperty;
-  if (
-    has.call(activeEl, 'selectionStart')
-    && has.call(activeEl, 'selectionEnd')
-    && has.call(activeEl, 'selectionDirection')
-    && has.call(activeEl, 'setSelectionRange')
-  ) {
+  if (activeEl instanceof HTMLInputElement || activeEl instanceof HTMLTextAreaElement) {
     const {selectionStart, selectionEnd, selectionDirection} = activeEl;
-    activeEl.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+    activeEl.setSelectionRange(
+      selectionStart,
+      selectionEnd,
+      selectionDirection as 'forward' | 'backward' | 'none'
+    );
   }
 }
 
 /**
  * Restricts result of a number increment between [0, maxInteger - 1]
  */
-function rangedIncrement(number, increment, maxInteger) {
+function rangedIncrement(number: number, increment: number, maxInteger: number) {
   return (number + (increment % maxInteger) + maxInteger) % maxInteger;
 }
 
-const contentScriptPort = chrome.runtime.connect({name: ports.CONTENT_SCRIPT});
+const contentScriptPort = chrome.runtime.connect({name: Port.CONTENT_SCRIPT});
 
 export default class PopupTabSwitcher extends HTMLElement {
+  private activeElement: Element;
+
+  private timeout: number;
+
+  private popupEventListener: (message: unknown) => void;
+
+  private tabsArray: Tab[];
+
+  private selectedTabIndex = 0;
+
+  private isOverlayVisible = false;
+
+  private readonly card: HTMLDivElement;
+
+  private cardEventListener: (message: unknown) => void;
+
+  private messageListener: (message: unknown) => void;
+
+  private windowEventListener: (message: unknown) => void;
+
   constructor() {
     super();
-    this.timeout = null;
-    this.tabsArray = null;
-    this.activeElement = null;
-    this.selectedTabIndex = 0;
-    this.isOverlayVisible = false;
     const shadow = this.attachShadow({mode: 'open'});
     sprite.mount(shadow);
     const style = document.createElement('style');
@@ -97,7 +130,7 @@ export default class PopupTabSwitcher extends HTMLElement {
       click: this.hideOverlay,
     });
     this.cardEventListener = handleMessage({
-      keyup: (e) => {
+      keyup: (e: KeyboardEvent) => {
         if (!this.isOverlayVisible) {
           return;
         }
@@ -107,11 +140,11 @@ export default class PopupTabSwitcher extends HTMLElement {
           e.stopPropagation();
         }
       },
-      keydown: (e) => {
+      keydown: (e: KeyboardEvent) => {
         if (!this.isOverlayVisible) {
           return;
         }
-        const handlers = {
+        const handlers: Handlers = {
           Escape: () => this.hideOverlay(),
           Enter: () => this.switchToSelectedTab(),
           ArrowUp: () => this.selectNextTab(-1),
@@ -134,16 +167,16 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.card.addEventListener('keydown', this.cardEventListener);
     window.addEventListener('blur', this.windowEventListener);
     this.messageListener = handleMessage({
-      [messages.UPDATE_SETTINGS]: ({tabsData, newSettings}) => {
+      [Message.APPLY_NEW_SETTINGS]: ({tabsData, newSettings}: ApplyNewSettingsPayload) => {
         this.tabsArray = tabsData;
         settings = newSettings;
         this.renderTabs();
       },
-      [messages.UPDATE_SETTINGS_SILENTLY]: ({newSettings}) => {
+      [Message.APPLY_NEW_SETTINGS_SILENTLY]: ({newSettings}: ApplyNewSettingsSilentlyPayload) => {
         settings = newSettings;
       },
-      [messages.CLOSE_POPUP]: this.hideOverlay,
-      [messages.SELECT_TAB]: ({tabsData, increment}) => {
+      [Message.CLOSE_POPUP]: this.hideOverlay,
+      [Message.SELECT_TAB]: ({tabsData, increment}: SelectTabPayload) => {
         this.tabsArray = tabsData;
         this.selectNextTab(increment);
         // When the focus is on the address bar or the 'search in the page' field
@@ -152,17 +185,21 @@ export default class PopupTabSwitcher extends HTMLElement {
         // https://stackoverflow.com/a/20940788/3167855
         if (!document.hasFocus()) {
           clearTimeout(this.timeout);
-          this.timeout = setTimeout(this.switchToSelectedTab.bind(this),
-            settings.autoSwitchingTimeout);
+          this.timeout = setTimeout(
+            this.switchToSelectedTab.bind(this),
+            settings.autoSwitchingTimeout
+          );
         }
       },
     });
     chrome.runtime.onMessage.addListener(this.messageListener);
   }
 
-  selectNextTab(increment) {
+  selectNextTab(increment: number) {
     this.selectedTabIndex = rangedIncrement(
-      this.selectedTabIndex, increment, this.tabsArray.length,
+      this.selectedTabIndex,
+      increment,
+      this.tabsArray.length
     );
     this.renderTabs();
   }
@@ -180,22 +217,19 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   showOverlay() {
-    const {
-      tabHeight,
-      popupWidth,
-      fontSize,
-      iconSize,
-      numberOfTabsToShow,
-    } = settings;
+    const {tabHeight, popupWidth, fontSize, iconSize, numberOfTabsToShow} = settings;
     const popupHeight = numberOfTabsToShow * tabHeight;
     const popupBorderRadius = 8;
-    this.style.setProperty('--popup-width-factor', popupWidth / window.outerWidth);
-    this.style.setProperty('--popup-height-factor', popupHeight / window.outerWidth);
-    this.style.setProperty('--popup-border-radius-factor', popupBorderRadius / window.outerWidth);
-    this.style.setProperty('--tab-height-factor', tabHeight / window.outerWidth);
-    this.style.setProperty('--font-size-factor', fontSize / window.outerWidth);
-    this.style.setProperty('--icon-size-factor', iconSize / window.outerWidth);
-    this.style.setProperty('--size-window-width', window.outerWidth);
+    this.style.setProperty('--popup-width-factor', `${popupWidth / window.outerWidth}`);
+    this.style.setProperty('--popup-height-factor', `${popupHeight / window.outerWidth}`);
+    this.style.setProperty(
+      '--popup-border-radius-factor',
+      `${popupBorderRadius / window.outerWidth}`
+    );
+    this.style.setProperty('--tab-height-factor', `${tabHeight / window.outerWidth}`);
+    this.style.setProperty('--font-size-factor', `${fontSize / window.outerWidth}`);
+    this.style.setProperty('--icon-size-factor', `${iconSize / window.outerWidth}`);
+    this.style.setProperty('--size-window-width', `${window.outerWidth}`);
     this.style.setProperty('--time-auto-switch-timeout', `${settings.autoSwitchingTimeout}ms`);
     this.style.display = 'flex';
     this.isOverlayVisible = true;
@@ -215,12 +249,13 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.switchTo(this.tabsArray[this.selectedTabIndex]);
   }
 
-  switchTo(selectedTab) {
+  switchTo(selectedTab: Tab) {
     this.hideOverlay();
-    contentScriptPort.postMessage({
-      type: messages.SWITCH_TAB,
-      selectedTab,
-    });
+    contentScriptPort.postMessage(
+      switchTab({
+        selectedTab,
+      })
+    );
   }
 
   getTabElements() {
@@ -248,40 +283,43 @@ export default class PopupTabSwitcher extends HTMLElement {
         iconEl,
         createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_top'),
         createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_bottom'),
-        textEl,
+        textEl
       );
       return tabEl;
     });
   }
 
   scrollLongTextOfSelectedTab() {
-    const textEl = this.shadowRoot.querySelector('.tab_selected .tab__text');
+    const textEl: HTMLElement = this.shadowRoot.querySelector('.tab_selected .tab__text');
     const textIndent = textEl.scrollWidth - textEl.offsetWidth;
     if (textIndent) {
-      const scrollTime = textIndent / textEl.offsetWidth * settings.textScrollCoefficient;
+      const scrollTime = (textIndent / textEl.offsetWidth) * settings.textScrollCoefficient;
       const totalTime = 2 * settings.textScrollDelay + scrollTime;
       const startDelayOffset = settings.textScrollDelay / totalTime;
       const endDelayOffset = 1 - startDelayOffset;
       textEl.style.setProperty('text-overflow', 'initial');
-      textEl.animate([
+      textEl.animate(
+        [
+          {
+            textIndent: 'initial',
+          },
+          {
+            textIndent: 'initial',
+            offset: startDelayOffset,
+          },
+          {
+            textIndent: `-${textIndent}px`,
+            offset: endDelayOffset,
+          },
+          {
+            textIndent: `-${textIndent}px`,
+          },
+        ],
         {
-          textIndent: 'initial',
-        },
-        {
-          textIndent: 'initial',
-          offset: startDelayOffset,
-        },
-        {
-          textIndent: `-${textIndent}px`,
-          offset: endDelayOffset,
-        },
-        {
-          textIndent: `-${textIndent}px`,
-        },
-      ], {
-        duration: scrollTime + 2 * settings.textScrollDelay,
-        iterations: Infinity,
-      });
+          duration: scrollTime + 2 * settings.textScrollDelay,
+          iterations: Infinity,
+        }
+      );
     }
   }
 

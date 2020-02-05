@@ -1,4 +1,2 @@
-e2e/web-pages/
-.github/
 build-*/
-readme-assets/
+e2e/web-pages

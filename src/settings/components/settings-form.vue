@@ -165,7 +165,7 @@
   import MTextField from './m-text-field.vue';
   import MButton from './m-button.vue';
   import MBanner from './m-banner/m-banner.vue';
-  import isShortcutsSet from '../../utils/is-shortcuts-set.js';
+  import areShortcutsSet from '../../utils/are-shortcuts-set.ts';
 
   export default {
     name: 'settings-form',
@@ -187,7 +187,7 @@
       },
     },
     created() {
-      isShortcutsSet().then(isSet => {
+      areShortcutsSet().then(isSet => {
         this.isShortcutsSet = isSet;
       });
     },

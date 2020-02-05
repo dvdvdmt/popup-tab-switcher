@@ -17,8 +17,8 @@ const conf = {
   mode: 'development',
 
   entry: {
-    background: './src/background.js',
-    content: './src/content.js',
+    background: './src/background.ts',
+    content: './src/content.ts',
     'settings/index': './src/settings/index.js',
   },
 
@@ -29,6 +29,11 @@ const conf = {
 
   module: {
     rules: [
+      {
+        test: /\.ts$/,
+        use: 'ts-loader',
+        exclude: nodeModulesDir,
+      },
       {
         test: /\.vue$/,
         loader: 'vue-loader',
@@ -57,29 +62,40 @@ const conf = {
       {
         test: /\.scss$/,
         include: settingsDir,
-        use: ['style-loader', 'css-loader', {
-          loader: 'sass-loader',
-          options: {
-            data: sassGlobals,
-            includePaths: [nodeModulesDir, stylesDir],
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              data: sassGlobals,
+              includePaths: [nodeModulesDir, stylesDir],
+            },
           },
-        }],
+        ],
       },
       {
         test: /\.scss$/,
         exclude: settingsDir,
-        use: ['raw-loader', {
-          loader: 'sass-loader',
-          options: {
-            data: sassGlobals,
-            includePaths: [stylesDir],
+        use: [
+          'raw-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              data: sassGlobals,
+              includePaths: [stylesDir],
+            },
           },
-        }],
+        ],
       },
     ],
   },
 
   devtool: 'eval-source-map',
+
+  resolve: {
+    extensions: ['.ts', '.js'],
+  },
 };
 
 module.exports = (env) => {
@@ -90,7 +106,7 @@ module.exports = (env) => {
         const original = JSON.parse(content.toString());
         // generates the manifest file using the package.json information
         const developmentProps = {
-          content_security_policy: 'script-src \'self\' \'unsafe-eval\'; object-src \'self\'',
+          content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'",
           key: 'popuptabswitcher', // id: meonejnmljcnoodabklmloagmnmcmlam
           browser_action: {
             default_icon: 'images/icon-48-gray.png',
@@ -101,11 +117,15 @@ module.exports = (env) => {
         const e2eProps = {
           key: developmentProps.key,
         };
-        return JSON.stringify(deepmerge.all([
-          original,
-          (env.development ? developmentProps : {}),
-          (env.e2e ? e2eProps : {}),
-        ]), null, 2);
+        return JSON.stringify(
+          deepmerge.all([
+            original,
+            env.development ? developmentProps : {},
+            env.e2e ? e2eProps : {},
+          ]),
+          null,
+          2
+        );
       },
     },
     {
@@ -141,19 +161,20 @@ module.exports = (env) => {
         E2E: 'false',
         PRODUCTION: 'false',
       }),
-      env.watch ? new ChromeExtensionReloader({
-        entries: {
-          contentScript: 'content',
-          background: 'background',
-        },
-      }) : () => {
-      },
+      env.watch
+        ? new ChromeExtensionReloader({
+            entries: {
+              contentScript: 'content',
+              background: 'background',
+            },
+          })
+        : () => {},
       new VueLoaderPlugin(),
     ];
   } else if (env.e2e) {
     conf.mode = 'production';
     conf.devtool = 'source-map';
-    conf.entry['e2e-test-commands-bridge'] = './src/e2e-test-commands-bridge.js';
+    conf.entry['e2e-test-commands-bridge'] = path.resolve(srcDir, 'e2e-test-commands-bridge.ts');
     conf.output.path = buildE2eDir;
     conf.plugins = [
       new CopyWebpackPlugin(copyWebpackPluginOptions),
