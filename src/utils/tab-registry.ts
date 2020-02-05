@@ -1,37 +1,59 @@
+import {Tabs} from 'webextension-polyfill-ts';
+
+import Tab = Tabs.Tab;
+
+interface TabRegistryOptions {
+  tabs?: Tab[];
+  numberOfTabsToShow?: number;
+}
+
+interface InitializedTabs {
+  [key: number]: Tab;
+}
+
 export default class TabRegistry {
-  constructor({tabs = [], numberOfTabsToShow = 7} = {}) {
+  private tabs: Tab[];
+
+  private numberOfTabsToShow: number;
+
+  private initializedTabs: InitializedTabs = {};
+
+  constructor({tabs = [], numberOfTabsToShow = 7}: TabRegistryOptions = {}) {
     this.tabs = tabs;
     this.numberOfTabsToShow = numberOfTabsToShow;
-    this.initializedTabs = {};
   }
 
-  removeTab(tabId) {
+  setNumberOfTabsToShow(n: number) {
+    this.numberOfTabsToShow = n;
+  }
+
+  removeTab(tabId: number) {
     this.tabs = this.tabs.filter(({id}) => id !== tabId);
   }
 
-  addToInitialized(tab) {
+  addToInitialized(tab: Tab) {
     this.initializedTabs[tab.id] = tab;
   }
 
-  removeFromInitialized(tabId) {
+  removeFromInitialized(tabId: number) {
     delete this.initializedTabs[tabId];
   }
 
-  isInitialized(tab) {
+  isInitialized(tab: Tab) {
     return this.initializedTabs[tab.id];
   }
 
-  push(current) {
+  push(current: Tab) {
     this.removeTab(current.id);
     this.tabs.push(current);
   }
 
-  remove(tabId) {
+  remove(tabId: number) {
     this.removeTab(tabId);
     this.removeFromInitialized(tabId);
   }
 
-  update(tabToUpdate) {
+  update(tabToUpdate: Tab) {
     this.tabs = this.tabs.map((t) => {
       if (t.id === tabToUpdate.id) {
         return tabToUpdate;
@@ -44,9 +66,12 @@ export default class TabRegistry {
     return this.tabs.slice();
   }
 
+  getInitializedTabsIds() {
+    return Object.values(this.initializedTabs).map(({id}) => id);
+  }
+
   getTabsToShow() {
-    return this.tabs.slice(-this.numberOfTabsToShow)
-      .reverse();
+    return this.tabs.slice(-this.numberOfTabsToShow).reverse();
   }
 
   getActive() {
@@ -57,7 +82,7 @@ export default class TabRegistry {
     return this.tabs[this.tabs.length - 2];
   }
 
-  findBackward(findFn) {
+  findBackward(findFn: (t: Tab) => boolean) {
     for (let i = this.tabs.length - 1; i >= 0; i -= 1) {
       if (findFn(this.tabs[i])) {
         return this.tabs[i];

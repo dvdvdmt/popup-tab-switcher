@@ -1,8 +1,8 @@
-import browser from 'webextension-polyfill';
+import {browser} from 'webextension-polyfill-ts';
 
 let isFocused = false;
 browser.windows.onFocusChanged.addListener((windowId) => {
-  isFocused = (windowId !== browser.windows.WINDOW_ID_NONE);
+  isFocused = windowId !== browser.windows.WINDOW_ID_NONE;
 });
 
 export default function isBrowserFocused() {

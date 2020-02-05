@@ -1,5 +1,18 @@
-/* eslint-env browser */
-export const defaultSettings = {
+export interface DefaultSettings {
+  textScrollDelay: number;
+  textScrollCoefficient: number;
+  autoSwitchingTimeout: number;
+  numberOfTabsToShow: number;
+  isDarkTheme: boolean;
+  popupWidth: number;
+  tabHeight: number;
+  fontSize: number;
+  iconSize: number;
+  isSwitchingToPreviouslyUsedTab: boolean;
+  isStayingOpen: boolean;
+}
+
+export const defaultSettings: DefaultSettings = {
   textScrollDelay: 1000,
   textScrollCoefficient: 2500,
   autoSwitchingTimeout: 1000,
@@ -14,8 +27,12 @@ export const defaultSettings = {
 };
 
 export default class Settings {
+  private readonly defaults: DefaultSettings;
+
+  private storage: Storage;
+
   constructor(defaults = defaultSettings, storage = localStorage) {
-    this.defauts = defaults;
+    this.defaults = defaults;
     this.storage = storage;
     let settings;
     try {
@@ -26,11 +43,11 @@ export default class Settings {
     this.storage.settings = JSON.stringify({...defaults, ...settings});
   }
 
-  get(name) {
+  get(name: keyof DefaultSettings) {
     return this.getObject()[name];
   }
 
-  getObject() {
+  getObject(): DefaultSettings {
     return JSON.parse(this.getString());
   }
 
@@ -38,11 +55,11 @@ export default class Settings {
     return this.storage.settings;
   }
 
-  update(newSettings) {
+  update(newSettings: DefaultSettings) {
     this.storage.settings = JSON.stringify(newSettings);
   }
 
   setDefaults() {
-    this.update(this.defauts);
+    this.update(this.defaults);
   }
 }

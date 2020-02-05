@@ -12,10 +12,10 @@
     "build:e2e": "rm -rf build-e2e && webpack --env.e2e",
     "build:dev": "rm -rf build-dev && webpack --env.development",
     "start": "rm -rf build-dev && webpack --env.development --env.watch --watch",
-    "test": "mocha --require @babel/register -b ./src/**/*-test.js",
-    "test:e2e": "npm run build-e2e && mocha --require @babel/register -b ./e2e/*-e2e.js",
+    "test": "mocha --require @babel/register --require ts-node/register --bail ./src/**/*-test.js",
+    "test:e2e": "npm run build:e2e && mocha --require @babel/register --require ts-node/register --bail ./e2e/*-e2e.js",
     "clean": "rm -rf build*",
-    "lint": "eslint ./"
+    "lint": "eslint --ext .ts,.js ./"
   },
   "keywords": [
     "extension",
@@ -28,14 +28,21 @@
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@babel/register": "^7.5.5",
+    "@types/chrome": "0.0.95",
+    "@typescript-eslint/eslint-plugin": "^2.18.0",
+    "@typescript-eslint/parser": "^2.18.0",
     "copy-webpack-plugin": "^4.6.0",
     "css-loader": "^2.1.1",
     "deepmerge": "^3.3.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-mocha-no-only": "^1.1.0",
+    "eslint-plugin-prettier": "^3.1.2",
     "mocha": "^6.2.0",
     "node-sass": "^4.12.0",
+    "prettier": "^1.19.1",
     "puppeteer": "^1.19.0",
     "raw-loader": "^2.0.0",
     "sass-loader": "^7.3.1",
@@ -43,10 +50,12 @@
     "svg-sprite-loader": "^4.1.6",
     "svgo": "^1.3.0",
     "svgo-loader": "^2.2.1",
+    "ts-loader": "^6.2.1",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.7.5",
     "url-loader": "^1.1.2",
     "vue-loader": "^15.7.1",
     "vue-template-compiler": "^2.6.10",
-    "webextension-polyfill-ts": "^0.9.1",
     "webpack": "^4.39.3",
     "webpack-chrome-extension-reloader": "^1.3.0",
     "webpack-cli": "^3.3.7"
@@ -56,6 +65,7 @@
     "material-components-web": "^2.3.1",
     "svg-baker-runtime": "^1.4.3",
     "vue": "^2.6.10",
+    "webextension-polyfill-ts": "^0.9.1",
     "webextension-polyfill": "^0.4.0"
   }
 }

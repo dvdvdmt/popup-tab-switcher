@@ -8,7 +8,9 @@ const pageMixin = {
   async queryPopup(queryString, resultFn) {
     // NOTE: This awful string was created because other ways for selecting
     // elements in shadow root did not work. It would be great to rewrite this part
-    return this.evaluate(`(${resultFn})(Array.from(document.querySelector('#popup-tab-switcher').shadowRoot.querySelectorAll('${queryString}')))`);
+    return this.evaluate(
+      `(${resultFn})(Array.from(document.querySelector('#popup-tab-switcher').shadowRoot.querySelectorAll('${queryString}')))`
+    );
   },
 };
 
@@ -20,7 +22,9 @@ export default class PuppeteerPopupHelper {
   async getActiveTab() {
     const pages = await this.browser.pages();
     // eslint-disable-next-line no-undef
-    const promises = pages.map((p, i) => p.evaluate((index) => document.visibilityState === 'visible' && index, `${i}`));
+    const promises = pages.map((p, i) =>
+      p.evaluate((index) => document.visibilityState === 'visible' && index, `${i}`)
+    );
     const firstActivePage = pages[(await Promise.all(promises)).find((i) => i)];
     return Object.assign(firstActivePage, pageMixin);
   }

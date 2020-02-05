@@ -1,12 +1,6 @@
 import assert from 'assert';
 import puppeteer from 'puppeteer';
-import {
-  after,
-  before,
-  beforeEach,
-  describe,
-  it,
-} from 'mocha';
+import {after, before, beforeEach, describe, it} from 'mocha';
 import PuppeteerPopupHelper, {getPagePath} from './utils/puppeteer-popup-helper';
 import puppeteerConfig from './utils/puppeteer-config';
 import {defaultSettings} from '../src/utils/settings';
@@ -20,25 +14,28 @@ before(async () => {
   helper = new PuppeteerPopupHelper(browser);
 });
 
-after(function () {
+after(() => {
   browser.close();
 });
 
 function newPagePromise() {
-  return new Promise((resolve) => browser.once('targetcreated', (target) => resolve(target.page())));
+  return new Promise((resolve) =>
+    browser.once('targetcreated', (target) => resolve(target.page()))
+  );
 }
 
-describe('Pop-up', function () {
+describe('Pop-up', function TestPopup() {
   this.timeout(1000000);
-  describe('One page', function () {
+  describe('One page', () => {
     after(async () => {
       await helper.closeTabs();
     });
 
     async function popupOpens(page) {
       await helper.selectTabForward();
-      const display = await page.$eval('#popup-tab-switcher', (popup) => getComputedStyle(popup)
-        .getPropertyValue('display'));
+      const display = await page.$eval('#popup-tab-switcher', (popup) =>
+        getComputedStyle(popup).getPropertyValue('display')
+      );
       assert(display === 'flex', 'popup visible');
     }
 
@@ -66,8 +63,9 @@ describe('Pop-up', function () {
       const page = await helper.openPage('wikipedia.html');
       await popupOpens(page);
       await page.keyboard.up('Alt');
-      const display = await page.$eval('#popup-tab-switcher', (popup) => getComputedStyle(popup)
-        .getPropertyValue('display'));
+      const display = await page.$eval('#popup-tab-switcher', (popup) =>
+        getComputedStyle(popup).getPropertyValue('display')
+      );
       assert.strictEqual(display, 'none', 'popup hidden');
     });
 
@@ -79,12 +77,15 @@ describe('Pop-up', function () {
         window.dispatchEvent(new Event('blur'));
       });
 
-      const display = await pageWikipedia.$eval('#popup-tab-switcher', (el) => getComputedStyle(el).display);
+      const display = await pageWikipedia.$eval(
+        '#popup-tab-switcher',
+        (el) => getComputedStyle(el).display
+      );
       assert.strictEqual(display, 'none', 'The popup is closed');
     });
   });
 
-  describe('Many pages', function () {
+  describe('Many pages', () => {
     beforeEach(async () => {
       await helper.closeTabs();
     });
@@ -94,30 +95,27 @@ describe('Pop-up', function () {
     });
 
     it('Adds visited pages to the registry in correct order', async () => {
-      const expectedTexts = [
-        'Stack Overflow',
-        'Example',
-        'Wikipedia',
-      ];
+      const expectedTexts = ['Stack Overflow', 'Example', 'Wikipedia'];
       await helper.openPage('wikipedia.html');
       await helper.openPage('example.html');
       const pageStOverflow = await helper.openPage('stackoverflow.html');
       await helper.selectTabForward();
-      const elTexts = await pageStOverflow.queryPopup('.tab', (els) => els.map((el) => el.textContent));
+      const elTexts = await pageStOverflow.queryPopup('.tab', (els) =>
+        els.map((el) => el.textContent)
+      );
       assert.deepStrictEqual(elTexts, expectedTexts, '3 tabs were added');
     });
 
     it('Updates tab list on closing open tabs', async () => {
-      const expectedTexts = [
-        'Stack Overflow',
-        'Wikipedia',
-      ];
+      const expectedTexts = ['Stack Overflow', 'Wikipedia'];
       await helper.openPage('wikipedia.html');
       const pageExample = await helper.openPage('example.html');
       const pageStOverflow = await helper.openPage('stackoverflow.html');
       await pageExample.close();
       await helper.selectTabForward();
-      const elTexts = await pageStOverflow.queryPopup('.tab', (els) => els.map((el) => el.textContent));
+      const elTexts = await pageStOverflow.queryPopup('.tab', (els) =>
+        els.map((el) => el.textContent)
+      );
       assert.deepStrictEqual(elTexts, expectedTexts, '2 tabs were left');
     });
 
@@ -229,7 +227,10 @@ describe('Pop-up', function () {
       const pageStOverflow = await helper.openPage('stackoverflow.html');
       await helper.selectTabForward();
       await pageStOverflow.keyboard.press('Escape');
-      const isPopupClosed = await pageStOverflow.$eval('#popup-tab-switcher', (el) => getComputedStyle(el).display === 'none');
+      const isPopupClosed = await pageStOverflow.$eval(
+        '#popup-tab-switcher',
+        (el) => getComputedStyle(el).display === 'none'
+      );
       assert(isPopupClosed, 'hides on pressing Esc button');
       await pageStOverflow.keyboard.up('Alt');
       const activeTab = await helper.getActiveTab();
@@ -268,7 +269,11 @@ describe('Pop-up', function () {
       await helper.selectTabForward();
       let activeTab = await helper.getActiveTab();
       let numberOfShownTabs = await activeTab.queryPopup('.tab', (els) => els.length);
-      assert.strictEqual(numberOfShownTabs, defaultSettings.numberOfTabsToShow, 'The number of shown tabs is correct');
+      assert.strictEqual(
+        numberOfShownTabs,
+        defaultSettings.numberOfTabsToShow,
+        'The number of shown tabs is correct'
+      );
       const closingPagesPromises = [];
       for (let i = pages.length - 1; i > 2; i -= 1) {
         closingPagesPromises.push(pages[i].close());
@@ -277,7 +282,11 @@ describe('Pop-up', function () {
       await helper.selectTabForward();
       activeTab = await helper.getActiveTab();
       numberOfShownTabs = await activeTab.queryPopup('.tab', (els) => els.length);
-      assert.strictEqual(numberOfShownTabs, 3, 'The number of shown tabs is correct after closing multiple tabs');
+      assert.strictEqual(
+        numberOfShownTabs,
+        3,
+        'The number of shown tabs is correct after closing multiple tabs'
+      );
       const tabTitle = await activeTab.queryPopup('.tab:nth-child(3)', ([el]) => el.textContent);
       assert.strictEqual(tabTitle, 'Wikipedia');
     });
@@ -346,9 +355,7 @@ describe('Pop-up', function () {
       await helper.selectTabForward();
       await pageWikipedia.keyboard.press('Escape');
       const focusedEl = await pageWikipedia.evaluate(() => {
-        const {
-          id, selectionStart, selectionEnd, selectionDirection,
-        } = document.activeElement;
+        const {id, selectionStart, selectionEnd, selectionDirection} = document.activeElement;
         return {
           id,
           selectionStart,
@@ -383,8 +390,7 @@ describe('Pop-up', function () {
     it('Works in pages with iframe', async () => {
       await helper.openPage('wikipedia.html');
       const pageWithIframe = await helper.openPage('page-with-iframe.html');
-      const frame = await pageWithIframe.$('iframe')
-        .then((handle) => handle.contentFrame());
+      const frame = await pageWithIframe.$('iframe').then((handle) => handle.contentFrame());
       await frame.focus('input');
       await helper.switchTab();
       let activeTab = await helper.getActiveTab();
