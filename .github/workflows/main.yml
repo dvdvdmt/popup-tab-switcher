@@ -1,5 +1,5 @@
 name: Main
-on: [push]
+on: push
 jobs:
   test:
     name: Checks sources with linter, run tests and build for production
@@ -17,3 +17,5 @@ jobs:
         run: npm run test
       - name: Build for production
         run: npm run build:prod
+      - name: Run end-to-end tests
+        run: npm run test:e2e
