@@ -1,5 +1,5 @@
 name: Main
-on: push
+on: [push, pull_request]
 jobs:
   test:
     name: Checks sources with linter, run tests and build for production
