@@ -1,7 +1,8 @@
 import path from 'path';
 
+const webPagesDir = path.resolve(__dirname, '..', 'web-pages');
 export function getPagePath(pageFileName) {
-  return `file:${path.join(__dirname, '../web-pages', pageFileName)}`;
+  return `file:${path.resolve(webPagesDir, pageFileName)}`;
 }
 
 const pageMixin = {
