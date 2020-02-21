@@ -13,7 +13,7 @@ import {
   UpdateSettingsPayload,
 } from './utils/messages';
 import isCodeExecutionForbidden from './utils/is-code-execution-forbidden';
-import isBrowserFocused from './utils/is-browser-focused';
+import {isBrowserFocused} from './utils/is-browser-focused';
 
 import Tab = Tabs.Tab;
 import OnUpdatedChangeInfoType = Tabs.OnUpdatedChangeInfoType;
@@ -41,7 +41,6 @@ async function initTabRegistry() {
 function initListeners() {
   browser.commands.onCommand.addListener(handleCommand);
   browser.tabs.onActivated.addListener(handleTabActivation);
-  browser.windows.onFocusChanged.addListener(handleTabActivation);
   browser.tabs.onUpdated.addListener(handleTabUpdate);
   browser.tabs.onRemoved.addListener(handleTabRemove);
   browser.runtime.onConnect.addListener(handleCommunications);
@@ -84,7 +83,7 @@ async function handleCommand(command: Command) {
   if (isCodeExecutionForbidden(currentTab)) {
     const previousTab = registry.getPreviouslyActive();
     if (previousTab) {
-      await activateTab(previousTab);
+      activateTab(previousTab);
     }
     return;
   }
@@ -154,11 +153,11 @@ async function getActiveTab() {
   return activeTab;
 }
 
-async function activateTab({id, windowId}: Tab) {
+function activateTab({id, windowId}: Tab) {
+  browser.tabs.update(id, {active: true});
   if (isBrowserFocused()) {
-    await browser.windows.update(windowId, {focused: true});
+    browser.windows.update(windowId, {focused: true});
   }
-  await browser.tabs.update(id, {active: true});
 }
 
 function handlePopupMessages() {
@@ -180,7 +179,7 @@ function handlePopupMessages() {
           (tab: Tab) => !isCodeExecutionForbidden(tab)
         );
         if (previousNormalTab) {
-          await activateTab(previousNormalTab);
+          activateTab(previousNormalTab);
         }
         return;
       }
@@ -205,7 +204,7 @@ async function handlePopupScriptDisconnection() {
 function handleContentScriptMessages() {
   return handleMessage({
     [Message.SWITCH_TAB]: async ({selectedTab}: SwitchTabPayload) => {
-      await activateTab(selectedTab);
+      activateTab(selectedTab);
     },
   });
 }

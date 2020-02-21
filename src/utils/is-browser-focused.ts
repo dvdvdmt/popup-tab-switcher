@@ -1,10 +1,11 @@
 import {browser} from 'webextension-polyfill-ts';
 
 let isFocused = false;
-browser.windows.onFocusChanged.addListener((windowId) => {
-  isFocused = windowId !== browser.windows.WINDOW_ID_NONE;
+browser.windows.onFocusChanged.addListener(async () => {
+  const lastFocused = await browser.windows.getLastFocused();
+  isFocused = lastFocused.focused;
 });
 
-export default function isBrowserFocused() {
+export function isBrowserFocused() {
   return isFocused;
 }

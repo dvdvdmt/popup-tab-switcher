@@ -1,21 +1,27 @@
 import assert from 'assert';
-import puppeteer from 'puppeteer';
-import {after, afterEach, before, describe, it} from 'mocha';
-import puppeteerConfig from './utils/puppeteer-config';
+import {after, beforeEach, before, describe, it} from 'mocha';
 import {defaultSettings} from '../src/utils/settings';
-import PuppeteerPopupHelper from './utils/puppeteer-popup-helper';
+import {restartPuppeteer, startPuppeteer} from './utils/puppeteer-utils';
 
+/** @type {Browser} */
 let browser;
 /** @type {PuppeteerPopupHelper} */
 let helper;
 const settingsPageUrl = 'chrome-extension://meonejnmljcnoodabklmloagmnmcmlam/settings/index.html';
-before(async () => {
-  browser = await puppeteer.launch(puppeteerConfig);
-  helper = new PuppeteerPopupHelper(browser);
+
+before(function() {
+  this.timeout(10000);
+  return startPuppeteer().then((res) => {
+    browser = res.browser;
+    helper = res.helper;
+  });
 });
 
 after(() => {
-  browser.close();
+  if (!browser) {
+    return Promise.resolve();
+  }
+  return browser.close();
 });
 
 async function input(page, selector, text) {
@@ -73,8 +79,10 @@ async function setSettings(page) {
 
 describe('settings', function TestSettings() {
   this.timeout(1000000);
-  afterEach(async () => {
-    await helper.closeTabs();
+  beforeEach(async () => {
+    const res = await restartPuppeteer();
+    browser = res.browser;
+    helper = res.helper;
   });
 
   it('renders', async () => {
