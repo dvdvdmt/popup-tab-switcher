@@ -16,8 +16,9 @@ const pageMixin = {
 };
 
 export default class PuppeteerPopupHelper {
-  constructor(browser) {
+  constructor(browser, blankPage) {
     this.browser = browser;
+    this.blankPage = blankPage;
   }
 
   async getActiveTab() {
@@ -58,14 +59,15 @@ export default class PuppeteerPopupHelper {
     return this.getActiveTab();
   }
 
-  async closeTabs() {
-    await Promise.all((await this.browser.pages()).map((p) => p.close()));
-  }
-
   async openPage(pageFileName, existingPage) {
     let page = existingPage;
     if (!page) {
-      page = await this.browser.newPage();
+      if (this.blankPage) {
+        page = this.blankPage;
+        this.blankPage = null;
+      } else {
+        page = await this.browser.newPage();
+      }
     }
     await page.goto(getPagePath(pageFileName));
     await page.bringToFront();

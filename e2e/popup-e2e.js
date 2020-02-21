@@ -1,21 +1,27 @@
 import assert from 'assert';
-import puppeteer from 'puppeteer';
 import {after, before, beforeEach, describe, it} from 'mocha';
-import PuppeteerPopupHelper, {getPagePath} from './utils/puppeteer-popup-helper';
-import puppeteerConfig from './utils/puppeteer-config';
+import {getPagePath} from './utils/puppeteer-popup-helper';
 import {defaultSettings} from '../src/utils/settings';
+import {restartPuppeteer, startPuppeteer} from './utils/puppeteer-utils';
 
 /** @type {Browser} */
 let browser;
 /** @type {PuppeteerPopupHelper} */
 let helper;
-before(async () => {
-  browser = await puppeteer.launch(puppeteerConfig);
-  helper = new PuppeteerPopupHelper(browser);
+
+before(function() {
+  this.timeout(10000);
+  return startPuppeteer().then((res) => {
+    browser = res.browser;
+    helper = res.helper;
+  });
 });
 
 after(() => {
-  browser.close();
+  if (!browser) {
+    return Promise.resolve();
+  }
+  return browser.close();
 });
 
 function newPagePromise() {
@@ -27,10 +33,6 @@ function newPagePromise() {
 describe('Pop-up', function TestPopup() {
   this.timeout(1000000);
   describe('One page', () => {
-    after(async () => {
-      await helper.closeTabs();
-    });
-
     async function popupOpens(page) {
       await helper.selectTabForward();
       const display = await page.$eval('#popup-tab-switcher', (popup) =>
@@ -55,7 +57,6 @@ describe('Pop-up', function TestPopup() {
 
     it('Opens on file pages', async () => {
       await popupOpens(await helper.openPage('file.png'));
-      await popupOpens(await helper.openPage('file.pdf'));
       await popupOpens(await helper.openPage('file.js'));
     });
 
@@ -87,11 +88,9 @@ describe('Pop-up', function TestPopup() {
 
   describe('Many pages', () => {
     beforeEach(async () => {
-      await helper.closeTabs();
-    });
-
-    after(async () => {
-      await helper.closeTabs();
+      const res = await restartPuppeteer();
+      browser = res.browser;
+      helper = res.helper;
     });
 
     it('Adds visited pages to the registry in correct order', async () => {
@@ -197,13 +196,13 @@ describe('Pop-up', function TestPopup() {
       const pageFile = await helper.openPage('file.js');
       await pageFile.close();
       const isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus());
-      assert(isStOverflowFocused, 'Switched to a tab in previous window');
+      assert(isStOverflowFocused, 'Switched to a tab in previous window (StackOverflow)');
       await pageStOverflow.close();
       const isExampleFocused = await pageExample.evaluate(() => document.hasFocus());
-      assert(isExampleFocused);
+      assert(isExampleFocused, 'Switched to a tab in previous window (Example)');
       await pageExample.close();
       const isWikipediaFocused = await pageWikipedia.evaluate(() => document.hasFocus());
-      assert(isWikipediaFocused);
+      assert(isWikipediaFocused, 'Switched to a tab in previous window (Wikipedia)');
     });
 
     it('Switches to the tab that was clicked', async () => {

@@ -6,7 +6,7 @@ const pathToExtension = path.join(__dirname, '../../build-e2e');
 export default {
   executablePath: process.env.PUPPETEER_EXEC_PATH,
   headless: false,
-  slowMo: 20,
+  slowMo: process.env.CI ? 100 : 20,
   args: [
     `--disable-extensions-except=${pathToExtension}`,
     `--load-extension=${pathToExtension}`,

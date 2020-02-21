@@ -21,18 +21,20 @@ settings:
   react:
     version: detect
 rules:
-  prefer-destructuring: warn
+  prefer-destructuring: off
   curly: [error, all]
   brace-style: [error, 1tbs, {allowSingleLine: false}]
   no-multiple-empty-lines: [error, {max: 1, maxEOF: 0, maxBOF: 0}]
   no-use-before-define: [error, {functions: false}]
   '@typescript-eslint/no-use-before-define': [error, {functions: false}]
   '@typescript-eslint/explicit-function-return-type': off
+  '@typescript-eslint/no-unused-vars': [error, {argsIgnorePattern: '^_', varsIgnorePattern: '^_'}]
   prefer-arrow-callback: off
   object-curly-spacing: [error, never]
   arrow-parens: [error, always]
   import/extensions: off
-  import/no-extraneous-dependencies: [error, {devDependencies: ["./**/*e2e.js", "./**/*test.js", 'webpack.config.js']}]
+  import/no-extraneous-dependencies: [error, {devDependencies: ["e2e/**/*", "./**/*test.js", 'webpack.config.js']}]
+  import/prefer-default-export: off
   react/prop-types: off
   react/display-name: off
   mocha-no-only/mocha-no-only: [error]
