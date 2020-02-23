@@ -90,4 +90,14 @@ export default class TabRegistry {
     }
     return undefined;
   }
+
+  pushUnderTop(tab: Tab) {
+    if (this.tabs.length) {
+      const top = this.getActive();
+      this.tabs.push(top);
+      this.tabs[this.tabs.length - 2] = tab;
+    } else {
+      this.tabs.push(tab);
+    }
+  }
 }

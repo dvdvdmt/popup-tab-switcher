@@ -41,6 +41,7 @@ async function initTabRegistry() {
 function initListeners() {
   browser.commands.onCommand.addListener(handleCommand);
   browser.tabs.onActivated.addListener(handleTabActivation);
+  browser.tabs.onCreated.addListener(handleTabCreation);
   browser.tabs.onUpdated.addListener(handleTabUpdate);
   browser.tabs.onRemoved.addListener(handleTabRemove);
   browser.runtime.onConnect.addListener(handleCommunications);
@@ -103,6 +104,12 @@ async function handleTabActivation() {
   // the tab can be instantly closed and therefore currentTab can be null
   if (currentTab) {
     registry.push(currentTab);
+  }
+}
+
+function handleTabCreation(tab: Tab) {
+  if (!tab.active) {
+    registry.pushUnderTop(tab);
   }
 }
 

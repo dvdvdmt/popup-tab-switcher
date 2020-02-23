@@ -398,5 +398,18 @@ describe('Pop-up', function TestPopup() {
       tabTitle = await activeTab.$eval('title', (el) => el.textContent);
       assert.strictEqual('Page with iframe', tabTitle);
     });
+
+    it('adds tabs opened by Ctrl+Click to the registry', async () => {
+      const pageWithLinks = await helper.openPage('page-with-links.html');
+      await pageWithLinks.click('#wikipedia', {button: 'middle'});
+      await pageWithLinks.click('#stack', {button: 'middle'});
+      await pageWithLinks.click('#example', {button: 'middle'});
+      await helper.selectTabForward();
+      const elTexts = await pageWithLinks.queryPopup('.tab', (els) =>
+        els.map((el) => el.textContent)
+      );
+      const expectedTexts = ['Page with links', 'Example', 'Stack Overflow', 'Wikipedia'];
+      assert.deepStrictEqual(elTexts, expectedTexts, 'background tabs were added');
+    });
   });
 });
