@@ -42,16 +42,14 @@ describe('Pop-up', function TestPopup() {
     }
 
     it('Opens on "Alt+Y"', async () => {
-      const [page] = await browser.pages();
-      await helper.openPage('wikipedia.html', page);
+      const page = await helper.openPage('wikipedia.html');
       await popupOpens(page);
       // Works after page reload
       await popupOpens(await helper.openPage('wikipedia.html', page));
     });
 
     it('Opens on "Alt+Y" even if the page has popup-tab-switcher element', async () => {
-      const [page] = await browser.pages();
-      await helper.openPage('page-with-popup-tab-switcher.html', page);
+      const page = await helper.openPage('page-with-popup-tab-switcher.html');
       await popupOpens(page);
     });
 
