@@ -9,21 +9,6 @@ let browser;
 let helper;
 const settingsPageUrl = 'chrome-extension://meonejnmljcnoodabklmloagmnmcmlam/settings/index.html';
 
-before(function() {
-  this.timeout(10000);
-  return startPuppeteer().then((res) => {
-    browser = res.browser;
-    helper = res.helper;
-  });
-});
-
-after(() => {
-  if (!browser) {
-    return Promise.resolve();
-  }
-  return browser.close();
-});
-
 async function input(page, selector, text) {
   await page.evaluate((s) => {
     document.querySelector(s).value = '';
@@ -78,7 +63,22 @@ async function setSettings(page) {
 }
 
 describe('settings', function TestSettings() {
-  this.timeout(1000000);
+  this.timeout(30000);
+
+  before(() => {
+    return startPuppeteer().then((res) => {
+      browser = res.browser;
+      helper = res.helper;
+    });
+  });
+
+  after(() => {
+    if (!browser) {
+      return Promise.resolve();
+    }
+    return browser.close();
+  });
+
   beforeEach(async () => {
     const res = await restartPuppeteer();
     browser = res.browser;

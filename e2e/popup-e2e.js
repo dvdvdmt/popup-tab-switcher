@@ -9,21 +9,6 @@ let browser;
 /** @type {PuppeteerPopupHelper} */
 let helper;
 
-before(function() {
-  this.timeout(10000);
-  return startPuppeteer().then((res) => {
-    browser = res.browser;
-    helper = res.helper;
-  });
-});
-
-after(() => {
-  if (!browser) {
-    return Promise.resolve();
-  }
-  return browser.close();
-});
-
 function newPagePromise() {
   return new Promise((resolve) =>
     browser.once('targetcreated', (target) => resolve(target.page()))
@@ -31,7 +16,22 @@ function newPagePromise() {
 }
 
 describe('Pop-up', function TestPopup() {
-  this.timeout(1000000);
+  this.timeout(30000);
+
+  before(() =>
+    startPuppeteer().then((res) => {
+      browser = res.browser;
+      helper = res.helper;
+    })
+  );
+
+  after(() => {
+    if (!browser) {
+      return Promise.resolve();
+    }
+    return browser.close();
+  });
+
   describe('One page', () => {
     async function popupOpens(page) {
       await helper.selectTabForward();
