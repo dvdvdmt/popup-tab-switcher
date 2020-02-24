@@ -1,6 +1,6 @@
 import assert from 'assert';
 import {defaultSettings} from '../src/utils/settings';
-import {restartPuppeteer, startPuppeteer} from './utils/puppeteer-utils';
+import {closeTabs, startPuppeteer, stopPuppeteer} from './utils/puppeteer-utils';
 
 /** @type {Browser} */
 let browser;
@@ -71,18 +71,9 @@ describe('settings >', function TestSettings() {
     });
   });
 
-  after(() => {
-    if (!browser) {
-      return Promise.resolve();
-    }
-    return browser.close();
-  });
+  after(stopPuppeteer);
 
-  beforeEach(async () => {
-    const res = await restartPuppeteer();
-    browser = res.browser;
-    helper = res.helper;
-  });
+  afterEach(closeTabs);
 
   it('renders', async () => {
     const expected = defaultSettings;

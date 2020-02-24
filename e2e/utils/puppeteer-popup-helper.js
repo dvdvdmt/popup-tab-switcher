@@ -15,10 +15,13 @@ const pageMixin = {
   },
 };
 
+function isBlank(page) {
+  return page.url() === 'about:blank';
+}
+
 export default class PuppeteerPopupHelper {
-  constructor(browser, blankPage) {
+  constructor(browser) {
     this.browser = browser;
-    this.blankPage = blankPage;
   }
 
   async getActiveTab() {
@@ -62,9 +65,9 @@ export default class PuppeteerPopupHelper {
   async openPage(pageFileName, existingPage) {
     let page = existingPage;
     if (!page) {
-      if (this.blankPage) {
-        page = this.blankPage;
-        this.blankPage = null;
+      const [firstPage] = await this.browser.pages();
+      if (isBlank(firstPage)) {
+        page = firstPage;
       } else {
         page = await this.browser.newPage();
       }

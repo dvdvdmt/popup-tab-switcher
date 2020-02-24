@@ -12,15 +12,20 @@ export async function startPuppeteer() {
     return {browser, helper};
   }
   browser = await puppeteer.launch(puppeteerConfig);
-  const [blankPage] = await browser.pages();
-  helper = new PuppeteerPopupHelper(browser, blankPage);
+  helper = new PuppeteerPopupHelper(browser);
   return {browser, helper};
 }
 
-export async function restartPuppeteer() {
+export async function closeTabs() {
+  const [firstPage, ...restPages] = await browser.pages();
+  await firstPage.goto('about:blank');
+  const closeRestPromises = restPages.map((p) => p.close());
+  return Promise.all(closeRestPromises);
+}
+
+export async function stopPuppeteer() {
   if (browser) {
     await browser.close();
     browser = null;
   }
-  return startPuppeteer();
 }

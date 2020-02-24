@@ -1,7 +1,7 @@
 import assert from 'assert';
 import {getPagePath} from './utils/puppeteer-popup-helper';
 import {defaultSettings} from '../src/utils/settings';
-import {restartPuppeteer, startPuppeteer} from './utils/puppeteer-utils';
+import {closeTabs, startPuppeteer, stopPuppeteer} from './utils/puppeteer-utils';
 
 /** @type {Browser} */
 let browser;
@@ -14,7 +14,7 @@ function newPagePromise() {
   );
 }
 
-describe('pop-up >', function TestPopup() {
+describe('popup >', function TestPopup() {
   this.timeout(30000);
 
   before(() =>
@@ -24,14 +24,11 @@ describe('pop-up >', function TestPopup() {
     })
   );
 
-  after(() => {
-    if (!browser) {
-      return Promise.resolve();
-    }
-    return browser.close();
-  });
+  after(stopPuppeteer);
 
   context('one page >', () => {
+    after(closeTabs);
+
     async function popupOpens(page) {
       await helper.selectTabForward();
       const display = await page.$eval('#popup-tab-switcher', (popup) =>
@@ -84,10 +81,8 @@ describe('pop-up >', function TestPopup() {
   });
 
   context('many pages >', () => {
-    beforeEach(async () => {
-      const res = await restartPuppeteer();
-      browser = res.browser;
-      helper = res.helper;
+    afterEach(() => {
+      return closeTabs();
     });
 
     it('adds visited pages to the registry in correct order', async () => {
