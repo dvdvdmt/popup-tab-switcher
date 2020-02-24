@@ -1,5 +1,4 @@
 import assert from 'assert';
-import {after, beforeEach, before, describe, it} from 'mocha';
 import {defaultSettings} from '../src/utils/settings';
 import {restartPuppeteer, startPuppeteer} from './utils/puppeteer-utils';
 
@@ -62,7 +61,7 @@ async function setSettings(page) {
   await input(page, '#iconSize', '55');
 }
 
-describe('settings', function TestSettings() {
+describe('settings >', function TestSettings() {
   this.timeout(30000);
 
   before(() => {

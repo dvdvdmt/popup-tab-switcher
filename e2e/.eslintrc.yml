@@ -1,0 +1,8 @@
+env:
+  node: true
+  mocha: true
+extends:
+  - ../.eslintrc.yml
+rules:
+  import/no-extraneous-dependencies: off
+  mocha-no-only/mocha-no-only: [error]

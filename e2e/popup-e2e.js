@@ -1,5 +1,4 @@
 import assert from 'assert';
-import {after, before, beforeEach, describe, it} from 'mocha';
 import {getPagePath} from './utils/puppeteer-popup-helper';
 import {defaultSettings} from '../src/utils/settings';
 import {restartPuppeteer, startPuppeteer} from './utils/puppeteer-utils';
@@ -15,7 +14,7 @@ function newPagePromise() {
   );
 }
 
-describe('Pop-up', function TestPopup() {
+describe('pop-up >', function TestPopup() {
   this.timeout(30000);
 
   before(() =>
@@ -32,7 +31,7 @@ describe('Pop-up', function TestPopup() {
     return browser.close();
   });
 
-  describe('One page', () => {
+  context('one page >', () => {
     async function popupOpens(page) {
       await helper.selectTabForward();
       const display = await page.$eval('#popup-tab-switcher', (popup) =>
@@ -41,24 +40,24 @@ describe('Pop-up', function TestPopup() {
       assert(display === 'flex', 'popup visible');
     }
 
-    it('Opens on "Alt+Y"', async () => {
+    it('opens on "Alt+Y"', async () => {
       const page = await helper.openPage('wikipedia.html');
       await popupOpens(page);
       // Works after page reload
       await popupOpens(await helper.openPage('wikipedia.html', page));
     });
 
-    it('Opens on "Alt+Y" even if the page has popup-tab-switcher element', async () => {
+    it('opens on "Alt+Y" even if the page has popup-tab-switcher element', async () => {
       const page = await helper.openPage('page-with-popup-tab-switcher.html');
       await popupOpens(page);
     });
 
-    it('Opens on file pages', async () => {
+    it('opens on file pages', async () => {
       await popupOpens(await helper.openPage('file.png'));
       await popupOpens(await helper.openPage('file.js'));
     });
 
-    it('Hides on "Alt" release', async () => {
+    it('hides on "Alt" release', async () => {
       const page = await helper.openPage('wikipedia.html');
       await popupOpens(page);
       await page.keyboard.up('Alt');
@@ -68,7 +67,7 @@ describe('Pop-up', function TestPopup() {
       assert.strictEqual(display, 'none', 'popup hidden');
     });
 
-    it('Hides the popup if a user selects other tab in a browser top bar', async () => {
+    it('hides the popup if a user selects other tab in a browser top bar', async () => {
       // the closing behaviour is based on a blur event
       const pageWikipedia = await helper.openPage('wikipedia.html');
       await helper.selectTabForward();
@@ -84,14 +83,14 @@ describe('Pop-up', function TestPopup() {
     });
   });
 
-  describe('Many pages', () => {
+  context('many pages >', () => {
     beforeEach(async () => {
       const res = await restartPuppeteer();
       browser = res.browser;
       helper = res.helper;
     });
 
-    it('Adds visited pages to the registry in correct order', async () => {
+    it('adds visited pages to the registry in correct order', async () => {
       const expectedTexts = ['Stack Overflow', 'Example', 'Wikipedia'];
       await helper.openPage('wikipedia.html');
       await helper.openPage('example.html');
@@ -103,7 +102,7 @@ describe('Pop-up', function TestPopup() {
       assert.deepStrictEqual(elTexts, expectedTexts, '3 tabs were added');
     });
 
-    it('Updates tab list on closing open tabs', async () => {
+    it('updates tab list on closing open tabs', async () => {
       const expectedTexts = ['Stack Overflow', 'Wikipedia'];
       await helper.openPage('wikipedia.html');
       const pageExample = await helper.openPage('example.html');
@@ -116,7 +115,7 @@ describe('Pop-up', function TestPopup() {
       assert.deepStrictEqual(elTexts, expectedTexts, '2 tabs were left');
     });
 
-    it('Selects proper tab names in the popup', async () => {
+    it('selects proper tab names in the popup', async () => {
       await helper.openPage('wikipedia.html');
       const pageExample = await helper.openPage('example.html');
       const pageStOverflow = await helper.openPage('stackoverflow.html');
@@ -143,7 +142,7 @@ describe('Pop-up', function TestPopup() {
       assert.strictEqual(elText, 'Wikipedia');
     });
 
-    it('Switches between tabs on Alt release', async () => {
+    it('switches between tabs on Alt release', async () => {
       await helper.openPage('wikipedia.html');
       await helper.openPage('example.html');
       await helper.openPage('stackoverflow.html');
@@ -164,7 +163,7 @@ describe('Pop-up', function TestPopup() {
       assert.strictEqual(elText, 'Example');
     });
 
-    it('Switches to previously opened tab when current one closes', async () => {
+    it('switches to previously opened tab when current one closes', async () => {
       const pageWikipedia = await helper.openPage('wikipedia.html');
       const pageExample = await helper.openPage('example.html');
       await helper.openPage('stackoverflow.html');
@@ -181,7 +180,7 @@ describe('Pop-up', function TestPopup() {
       assert.strictEqual(elText, 'Wikipedia');
     });
 
-    it('Focuses previously active window on a tab closing', async () => {
+    it('focuses previously active window on a tab closing', async () => {
       const pageWikipedia = await helper.openPage('wikipedia.html');
       await pageWikipedia.evaluate((url) => {
         window.open(url, '_blank', 'width=500,height=500');
@@ -203,7 +202,7 @@ describe('Pop-up', function TestPopup() {
       assert(isWikipediaFocused, 'Switched to a tab in previous window (Wikipedia)');
     });
 
-    it('Switches to the tab that was clicked', async () => {
+    it('switches to the tab that was clicked', async () => {
       await helper.openPage('wikipedia.html');
       await helper.openPage('example.html');
       const pageStOverflow = await helper.openPage('stackoverflow.html');
@@ -218,7 +217,7 @@ describe('Pop-up', function TestPopup() {
       assert.strictEqual(elText, 'Wikipedia', 'switches to the clicked tab');
     });
 
-    it('Pressing ESC stops switching', async () => {
+    it('pressing ESC stops switching', async () => {
       await helper.openPage('wikipedia.html');
       await helper.openPage('example.html');
       const pageStOverflow = await helper.openPage('stackoverflow.html');
@@ -235,7 +234,7 @@ describe('Pop-up', function TestPopup() {
       assert.strictEqual(elText, 'Stack Overflow', 'stays on the same tab');
     });
 
-    it('Switches between windows', async () => {
+    it('switches between windows', async () => {
       const pageWikipedia = await helper.openPage('wikipedia.html');
       const pageExample = await helper.openPage('example.html');
       await pageExample.evaluate((url) => {
@@ -255,7 +254,7 @@ describe('Pop-up', function TestPopup() {
       assert(isStOverflowFocused, 'Switched between two windows');
     });
 
-    it('Stores unlimited number of opened tabs in history', async () => {
+    it('stores unlimited number of opened tabs in history', async () => {
       const pages = [await helper.openPage('wikipedia.html')];
       const numberOfTabsToOpen = defaultSettings.numberOfTabsToShow + 3;
       for (let i = 0; i < numberOfTabsToOpen; i += 1) {
@@ -288,7 +287,7 @@ describe('Pop-up', function TestPopup() {
       assert.strictEqual(tabTitle, 'Wikipedia');
     });
 
-    it('Selects tabs with Up/Down arrow keys and switches to them by Enter', async () => {
+    it('selects tabs with Up/Down arrow keys and switches to them by Enter', async () => {
       await helper.openPage('wikipedia.html');
       await helper.openPage('example.html');
       const pageStOverflow = await helper.openPage('stackoverflow.html');
@@ -312,7 +311,7 @@ describe('Pop-up', function TestPopup() {
       assert.strictEqual(elText, 'Wikipedia');
     });
 
-    it('Selects tabs with Tab or Shift+Tab and switches to them by Enter', async () => {
+    it('selects tabs with Tab or Shift+Tab and switches to them by Enter', async () => {
       await helper.openPage('wikipedia.html');
       await helper.openPage('example.html');
       const pageStOverflow = await helper.openPage('stackoverflow.html');
@@ -337,7 +336,7 @@ describe('Pop-up', function TestPopup() {
       assert.strictEqual(elText, 'Wikipedia');
     });
 
-    it('Sets focus back to a previously focused element and cursor position', async () => {
+    it('sets focus back to a previously focused element and cursor position', async () => {
       const pageWikipedia = await helper.openPage('wikipedia.html');
       await pageWikipedia.focus('#searchInput');
       await pageWikipedia.keyboard.type('Hello World!');
@@ -366,7 +365,7 @@ describe('Pop-up', function TestPopup() {
       assert.strictEqual(focusedEl.selectionDirection, 'backward');
     });
 
-    it('Switches on any modifier (Alt, Control, Command) keyup event', async () => {
+    it('switches on any modifier (Alt, Control, Command) keyup event', async () => {
       await helper.openPage('wikipedia.html');
       await helper.openPage('example.html');
       let activeTab = await helper.getActiveTab();
@@ -384,7 +383,7 @@ describe('Pop-up', function TestPopup() {
       assert.strictEqual('Example', tabTitle);
     });
 
-    it('Works in pages with iframe', async () => {
+    it('works in pages with iframe', async () => {
       await helper.openPage('wikipedia.html');
       const pageWithIframe = await helper.openPage('page-with-iframe.html');
       const frame = await pageWithIframe.$('iframe').then((handle) => handle.contentFrame());
