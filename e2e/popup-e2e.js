@@ -360,6 +360,32 @@ describe('popup >', function TestPopup() {
       assert.strictEqual(focusedEl.selectionDirection, 'backward');
     });
 
+    it('restores focus without breaking switching', async () => {
+      const errors = [];
+      await helper.openPage('example.html');
+      const pageWithInputs = await helper.openPage('non-selectable-inputs.html');
+      pageWithInputs.on('pageerror', (err) => {
+        errors.push(err);
+      });
+      await pageWithInputs.focus('#dewey');
+      await helper.switchTab();
+      let activeTab = await helper.getActiveTab();
+      let tabTitle = await activeTab.$eval('title', (el) => el.textContent);
+      assert.strictEqual('Example', tabTitle, 'focus on radio button does not prevent switching');
+
+      await pageWithInputs.bringToFront();
+      await pageWithInputs.focus('#manual-mode');
+      await helper.switchTab();
+      activeTab = await helper.getActiveTab();
+      tabTitle = await activeTab.$eval('title', (el) => el.textContent);
+      assert.strictEqual('Example', tabTitle, 'focus on checkbox does not prevent switching');
+
+      const [firstError] = errors;
+      if (firstError) {
+        throw firstError;
+      }
+    });
+
     it('switches on any modifier (Alt, Control, Command) keyup event', async () => {
       await helper.openPage('wikipedia.html');
       await helper.openPage('example.html');

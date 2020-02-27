@@ -74,11 +74,14 @@ function restoreSelectionAndFocus(activeEl: Element) {
   activeEl.focus();
   if (activeEl instanceof HTMLInputElement || activeEl instanceof HTMLTextAreaElement) {
     const {selectionStart, selectionEnd, selectionDirection} = activeEl;
-    activeEl.setSelectionRange(
-      selectionStart,
-      selectionEnd,
-      selectionDirection as 'forward' | 'backward' | 'none'
-    );
+    try {
+      activeEl.setSelectionRange(
+        selectionStart,
+        selectionEnd,
+        selectionDirection as 'forward' | 'backward' | 'none'
+      );
+      // eslint-disable-next-line no-empty
+    } catch (e) {}
   }
 }
 
