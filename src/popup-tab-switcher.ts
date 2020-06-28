@@ -115,15 +115,20 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   private windowEventListener: (message: unknown) => void;
 
+  private overlay: HTMLDivElement;
+
   constructor() {
     super();
     const shadow = this.attachShadow({mode: 'open'});
     sprite.mount(shadow);
     const style = document.createElement('style');
     style.textContent = styles;
+    this.overlay = document.createElement('div');
+    this.overlay.classList.add('overlay');
     this.card = document.createElement('div');
     shadow.appendChild(style);
-    shadow.appendChild(this.card);
+    this.overlay.appendChild(this.card);
+    shadow.appendChild(this.overlay);
     this.hideOverlay = this.hideOverlay.bind(this);
     this.setupListeners();
   }
@@ -234,7 +239,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.style.setProperty('--icon-size-factor', `${iconSize / window.outerWidth}`);
     this.style.setProperty('--size-window-width', `${window.outerWidth}`);
     this.style.setProperty('--time-auto-switch-timeout', `${settings.autoSwitchingTimeout}ms`);
-    this.style.display = 'flex';
+    this.style.display = 'block';
     this.isOverlayVisible = true;
   }
 
