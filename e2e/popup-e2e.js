@@ -34,7 +34,7 @@ describe('popup >', function TestPopup() {
       const display = await page.$eval('#popup-tab-switcher', (popup) =>
         getComputedStyle(popup).getPropertyValue('display')
       );
-      assert(display === 'flex', 'popup visible');
+      assert(display !== 'none', 'popup visible');
     }
 
     it('opens on "Alt+Y"', async () => {
