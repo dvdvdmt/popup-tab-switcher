@@ -232,21 +232,33 @@ describe('popup >', function TestPopup() {
     it('switches between windows', async () => {
       const pageWikipedia = await helper.openPage('wikipedia.html');
       const pageExample = await helper.openPage('example.html');
-      await pageExample.evaluate((url) => {
-        window.open(url, '_blank', 'width=500,height=500');
-      }, getPagePath('stackoverflow.html'));
-      const pageStOverflow = await newPagePromise();
+      const pageStOverflow = await openPageInAPopup(pageExample, 'stackoverflow.html');
+
+      await pageStOverflow.keyboard.down('Alt');
+      await pageStOverflow.keyboard.press('KeyY');
+      await pageStOverflow.keyboard.up('Alt');
+      const isExampleFocused = await pageExample.evaluate(() => document.hasFocus());
+      assert(isExampleFocused, 'Example page is focused');
+
+      await pageExample.keyboard.down('Alt');
+      await pageExample.keyboard.press('KeyY');
+      await pageExample.keyboard.up('Alt');
+      const isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus());
+      assert(isStOverflowFocused, 'Stack Overflow page is focused');
+
       await pageStOverflow.keyboard.down('Alt');
       await pageStOverflow.keyboard.press('KeyY');
       await pageStOverflow.keyboard.press('KeyY');
       await pageStOverflow.keyboard.up('Alt');
       const isWikipediaFocused = await pageWikipedia.evaluate(() => document.hasFocus());
-      assert(isWikipediaFocused, 'Switched back to a previous window');
-      await pageStOverflow.keyboard.down('Alt');
-      await pageStOverflow.keyboard.press('KeyY');
-      await pageStOverflow.keyboard.up('Alt');
-      const isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus());
-      assert(isStOverflowFocused, 'Switched between two windows');
+      assert(isWikipediaFocused, 'Wikipedia page is focused');
+
+      async function openPageInAPopup(existingPage, pageFileName) {
+        await existingPage.evaluate((url) => {
+          window.open(url, '_blank', 'width=500,height=500');
+        }, getPagePath(pageFileName));
+        return newPagePromise();
+      }
     });
 
     it('stores unlimited number of opened tabs in history', async () => {

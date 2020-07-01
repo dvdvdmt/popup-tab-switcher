@@ -41,6 +41,7 @@ async function initTabRegistry() {
 function initListeners() {
   browser.commands.onCommand.addListener(handleCommand);
   browser.tabs.onActivated.addListener(handleTabActivation);
+  browser.windows.onFocusChanged.addListener(handleWindowActivation);
   browser.tabs.onCreated.addListener(handleTabCreation);
   browser.tabs.onUpdated.addListener(handleTabUpdate);
   browser.tabs.onRemoved.addListener(handleTabRemove);
@@ -97,6 +98,15 @@ async function handleCommand(command: Command) {
       increment: command === Command.NEXT ? 1 : -1,
     })
   );
+}
+
+async function handleWindowActivation(windowId: number) {
+  // Do not react on windows without ids.
+  // This happens on each window activation in some Linux window managers.
+  if (windowId === browser.windows.WINDOW_ID_NONE) {
+    return;
+  }
+  handleTabActivation();
 }
 
 async function handleTabActivation() {
