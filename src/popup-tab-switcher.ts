@@ -193,7 +193,7 @@ export default class PopupTabSwitcher extends HTMLElement {
         // https://stackoverflow.com/a/20940788/3167855
         if (!document.hasFocus()) {
           clearTimeout(this.timeout);
-          this.timeout = setTimeout(
+          this.timeout = window.setTimeout(
             this.switchToSelectedTab.bind(this),
             settings.autoSwitchingTimeout
           );
