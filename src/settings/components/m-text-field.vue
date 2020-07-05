@@ -52,10 +52,10 @@
               return;
             }
             state = +state;
-            if (this.min !== null) {
+            if (this.min != null) {
               state = Math.max(state, this.min);
             }
-            if (this.max !== null) {
+            if (this.max != null) {
               state = Math.min(state, this.max);
             }
           }

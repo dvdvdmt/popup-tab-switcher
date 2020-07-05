@@ -12,7 +12,7 @@ async function input(page, selector, text) {
   await page.evaluate((s) => {
     document.querySelector(s).value = '';
   }, selector);
-  await page.type(selector, text);
+  await page.type(selector, text.toString());
 }
 
 async function getSettingsFromPage(page) {
@@ -26,6 +26,7 @@ async function getSettingsFromPage(page) {
   res.tabHeight = await page.$eval('#tabHeight', (el) => +el.value);
   res.fontSize = await page.$eval('#fontSize', (el) => +el.value);
   res.iconSize = await page.$eval('#iconSize', (el) => +el.value);
+  res.opacity = await page.$eval('#opacity', (el) => +el.value);
   res.isSwitchingToPreviouslyUsedTab = await page.$eval(
     '#isSwitchingToPreviouslyUsedTab',
     (el) => el.checked
@@ -46,19 +47,21 @@ const newSettings = {
     tabHeight: 30,
     fontSize: 20,
     iconSize: 55,
+    opacity: 30,
   },
 };
 
 async function setSettings(page) {
-  await input(page, '#textScrollDelay', '1500');
-  await input(page, '#textScrollCoefficient', '777');
-  await input(page, '#autoSwitchingTimeout', '699');
-  await input(page, '#numberOfTabsToShow', '5');
+  await input(page, '#textScrollDelay', newSettings.textScrollDelay);
+  await input(page, '#textScrollCoefficient', newSettings.textScrollCoefficient);
+  await input(page, '#autoSwitchingTimeout', newSettings.autoSwitchingTimeout);
+  await input(page, '#numberOfTabsToShow', newSettings.numberOfTabsToShow);
   await page.click('#isDarkTheme');
-  await input(page, '#popupWidth', '444');
-  await input(page, '#tabHeight', '30');
-  await input(page, '#fontSize', '20');
-  await input(page, '#iconSize', '55');
+  await input(page, '#popupWidth', newSettings.popupWidth);
+  await input(page, '#tabHeight', newSettings.tabHeight);
+  await input(page, '#fontSize', newSettings.fontSize);
+  await input(page, '#iconSize', newSettings.iconSize);
+  await input(page, '#opacity', newSettings.opacity);
 }
 
 describe('settings >', function TestSettings() {
@@ -106,10 +109,12 @@ describe('settings >', function TestSettings() {
         const tabHeight = Math.round(
           style.getPropertyValue('--tab-height-factor') * window.outerWidth
         );
+        const opacity = Math.round(style.getPropertyValue('--popup-opacity') * 100);
         return {
           popupWidth,
           tabHeight,
           isDarkTheme: el.classList.contains('card_dark'),
+          opacity,
         };
       };
     }
@@ -126,6 +131,7 @@ describe('settings >', function TestSettings() {
         popupWidth: newSettings.popupWidth,
         tabHeight: newSettings.tabHeight,
         isDarkTheme: newSettings.isDarkTheme,
+        opacity: newSettings.opacity,
       },
       'settings apply to the content script popup'
     );
@@ -140,6 +146,7 @@ describe('settings >', function TestSettings() {
         popupWidth: defaultSettings.popupWidth,
         tabHeight: defaultSettings.tabHeight,
         isDarkTheme: defaultSettings.isDarkTheme,
+        opacity: defaultSettings.opacity,
       },
       'new settings apply to the rendered popup'
     );
