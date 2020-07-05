@@ -83,6 +83,8 @@ async function handleCommand(command: Command) {
     return;
   }
   if (isCodeExecutionForbidden(currentTab)) {
+    // If the content script can't be initialized then switch to the previous tab.
+    // TODO: Create popup window on the center of a screen and show PTS in it.
     const previousTab = registry.getPreviouslyActive();
     if (previousTab) {
       activateTab(previousTab);
@@ -145,6 +147,9 @@ function handleCommunications(port: Runtime.Port) {
   if (Port.CONTENT_SCRIPT === port.name) {
     port.onMessage.addListener(handleContentScriptMessages());
   } else if (Port.POPUP_SCRIPT === port.name) {
+    // TODO: On settings opening select a tab where content script can be executed and show popup in it.
+    //  Remove initial updateSettings() execution from settings.vue.
+    //  This will probably prevent a bug when extension icon is clicked twice which results in opened popup but closed settings.
     port.onMessage.addListener(handlePopupMessages());
     // notify a tab when the settings popup closes
     port.onDisconnect.addListener(handlePopupScriptDisconnection);
