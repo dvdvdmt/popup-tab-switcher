@@ -8,6 +8,7 @@ export interface DefaultSettings {
   tabHeight: number;
   fontSize: number;
   iconSize: number;
+  opacity: number;
   isSwitchingToPreviouslyUsedTab: boolean;
   isStayingOpen: boolean;
 }
@@ -22,6 +23,7 @@ export const defaultSettings: DefaultSettings = {
   tabHeight: 40,
   fontSize: 16,
   iconSize: 24,
+  opacity: 100,
   isSwitchingToPreviouslyUsedTab: true,
   isStayingOpen: false,
 };

@@ -6,6 +6,7 @@
            :class="{'mdc-text-field__input--suffix': suffix}"
            :name="id"
            :min="min"
+           :max="max"
            v-model="model">
     <div v-if="suffix" class="mdc-text-field__suffix">{{suffix}}</div>
     <div class="mdc-notched-outline">
@@ -38,6 +39,7 @@
         default: '',
       },
       min: Number,
+      max: Number,
     },
     computed: {
       model: {
@@ -50,8 +52,11 @@
               return;
             }
             state = +state;
-            if (this.min != null) {
+            if (this.min !== null) {
               state = Math.max(state, this.min);
+            }
+            if (this.max !== null) {
+              state = Math.min(state, this.max);
             }
           }
           this.$emit('input', state);
