@@ -83,6 +83,21 @@
       />
     </div>
     <div class="settings__row mdc-form-field"
+         title="Sets popup opacity (0 - invisible, 100 - visible)">
+      <label for="opacity" class="settings__label">
+        <i class="settings__icon settings__icon_label material-icons">opacity</i>
+        Opacity
+      </label>
+      <m-text-field id="opacity"
+                    type="number"
+                    class="settings__field"
+                    v-model="settings.opacity"
+                    suffix="%"
+                    :min="0"
+                    :max="100"
+      />
+    </div>
+    <div class="settings__row mdc-form-field"
          title="If a page has no focus (address bar or search field is focused, etc.) then the extension starts a timer by the end of which it will switch a user to the selected tab. This timer restarts on each selection command (Alt+Y or Alt+Shift+Y by default)"
     >
       <label for="autoSwitchingTimeout" class="settings__label">

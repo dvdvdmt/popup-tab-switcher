@@ -225,7 +225,7 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   showOverlay() {
-    const {tabHeight, popupWidth, fontSize, iconSize, numberOfTabsToShow} = settings;
+    const {tabHeight, popupWidth, fontSize, iconSize, numberOfTabsToShow, opacity} = settings;
     const popupHeight = numberOfTabsToShow * tabHeight;
     const popupBorderRadius = 8;
     this.style.setProperty('--popup-width-factor', `${popupWidth / window.outerWidth}`);
@@ -238,6 +238,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.style.setProperty('--font-size-factor', `${fontSize / window.outerWidth}`);
     this.style.setProperty('--icon-size-factor', `${iconSize / window.outerWidth}`);
     this.style.setProperty('--size-window-width', `${window.outerWidth}`);
+    this.style.setProperty('--popup-opacity', `${opacity / 100}`);
     this.style.setProperty('--time-auto-switch-timeout', `${settings.autoSwitchingTimeout}ms`);
     this.style.display = 'block';
     this.isOverlayVisible = true;
