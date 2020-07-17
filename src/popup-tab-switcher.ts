@@ -133,6 +133,10 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.setupListeners();
   }
 
+  get nextTab() {
+    return this.tabsArray[this.selectedTabIndex];
+  }
+
   setupListeners() {
     this.popupEventListener = handleMessage({
       click: this.hideOverlay,
@@ -192,6 +196,15 @@ export default class PopupTabSwitcher extends HTMLElement {
         // Because there is no way to handle key pressings when a page has no focus.
         // https://stackoverflow.com/a/20940788/3167855
         if (!document.hasFocus()) {
+          // When PDF file opens 'document.hasFocus() === false' no mater if the page
+          // focused or not. This enables auto switching timeout which must not happen.
+          // To prevent that we can switch to another tab instantly for all PDFs and
+          // other locally opened files.
+          if (document.contentType !== 'text/html') {
+            this.switchToSelectedTab();
+            return;
+          }
+
           clearTimeout(this.timeout);
           this.timeout = window.setTimeout(
             this.switchToSelectedTab.bind(this),
@@ -255,7 +268,7 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   switchToSelectedTab() {
-    this.switchTo(this.tabsArray[this.selectedTabIndex]);
+    this.switchTo(this.nextTab);
   }
 
   switchTo(selectedTab: Tab) {
