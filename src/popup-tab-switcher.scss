@@ -46,8 +46,10 @@
   color: var(--card-color);
   font-size: calc(var(--font-size-factor) * 100vw);
   height: calc(var(--popup-height-factor) * 100vw);
+  max-height: 100vh;
   width: calc(var(--popup-width-factor) * 100vw);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 
   &_dark {
     @include popup-theme-dark();

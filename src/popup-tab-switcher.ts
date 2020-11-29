@@ -281,7 +281,7 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   getTabElements() {
-    return this.tabsArray.map((tab, i) => {
+    return this.tabsArray.map((tab, i, tabs) => {
       const tabEl = document.createElement('div');
       tabEl.addEventListener('click', () => {
         this.switchTo(tab);
@@ -298,15 +298,21 @@ export default class PopupTabSwitcher extends HTMLElement {
         }
       }
       const iconEl = getIconEl(tab.favIconUrl, tab.url);
+      const topCornerEl = createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_top');
+      const bottomCornerEl = createSVGIcon(
+        tabCornerSymbol,
+        'tab__cornerIcon tab__cornerIcon_bottom'
+      );
       const textEl = document.createElement('span');
       textEl.textContent = tab.title;
       textEl.className = 'tab__text';
-      tabEl.append(
-        iconEl,
-        createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_top'),
-        createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_bottom'),
-        textEl
-      );
+      let tabElements = [iconEl, topCornerEl, bottomCornerEl, textEl];
+      if (i === 0) {
+        tabElements = [iconEl, bottomCornerEl, textEl];
+      } else if (i === tabs.length - 1) {
+        tabElements = [iconEl, topCornerEl, textEl];
+      }
+      tabEl.append(...tabElements);
       return tabEl;
     });
   }
