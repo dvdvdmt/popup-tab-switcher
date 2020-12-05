@@ -3,10 +3,10 @@ import TabRegistry from './utils/tab-registry';
 import Settings from './utils/settings';
 import {Command, Port, uninstallURL} from './utils/constants';
 import {
-  handleMessage,
   applyNewSettings,
   applyNewSettingsSilently,
   closePopup,
+  handleMessage,
   Message,
   selectTab,
   SwitchTabPayload,
@@ -62,9 +62,13 @@ function initForE2ETests() {
   const isAllowedUrl = (url: string) => url !== 'about:blank' && !url.startsWith('chrome:');
   browser.runtime.onConnect.addListener((port) => {
     if (port.name === Port.COMMANDS_BRIDGE) {
-      port.onMessage.addListener(async ({command}) => {
-        await handleCommand(command);
-      });
+      port.onMessage.addListener(
+        handleMessage({
+          [Message.COMMAND]: async ({command}) => {
+            await handleCommand(command);
+          },
+        })
+      );
     }
   });
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
@@ -150,7 +154,11 @@ function handleCommunications(port: Runtime.Port) {
     // TODO: On settings opening select a tab where content script can be executed and show popup in it.
     //  Remove initial updateSettings() execution from settings.vue.
     //  This will probably prevent a bug when extension icon is clicked twice which results in opened popup but closed settings.
-    port.onMessage.addListener(handlePopupMessages());
+    port.onMessage.addListener(
+      handleMessage({
+        [Message.UPDATE_SETTINGS]: updateSettings,
+      })
+    );
     // notify a tab when the settings popup closes
     port.onDisconnect.addListener(handlePopupScriptDisconnection);
   }
@@ -182,40 +190,34 @@ function activateTab({id, windowId}: Tab) {
   }
 }
 
-function handlePopupMessages() {
-  return handleMessage({
-    [Message.UPDATE_SETTINGS]: async ({newSettings}: UpdateSettingsPayload) => {
-      settings.update(newSettings);
-      registry.setNumberOfTabsToShow(newSettings.numberOfTabsToShow);
-      await Promise.all(
-        registry
-          .getInitializedTabsIds()
-          .map((id) => browser.tabs.sendMessage(id, applyNewSettingsSilently({newSettings})))
-      );
-      const activeTab = await getActiveTab();
-      if (!activeTab) {
-        return;
-      }
-      if (isCodeExecutionForbidden(activeTab)) {
-        const previousNormalTab = registry.findBackward(
-          (tab: Tab) => !isCodeExecutionForbidden(tab)
-        );
-        if (previousNormalTab) {
-          activateTab(previousNormalTab);
-        }
-        return;
-      }
-      await initializeContentScript(activeTab);
-      // send a command to the content script
-      await browser.tabs.sendMessage(
-        activeTab.id,
-        applyNewSettings({
-          newSettings,
-          tabsData: registry.getTabsToShow(),
-        })
-      );
-    },
-  });
+async function updateSettings({newSettings}: UpdateSettingsPayload) {
+  settings.update(newSettings);
+  registry.setNumberOfTabsToShow(newSettings.numberOfTabsToShow);
+  await Promise.all(
+    registry
+      .getInitializedTabsIds()
+      .map((id) => browser.tabs.sendMessage(id, applyNewSettingsSilently({newSettings})))
+  );
+  const activeTab = await getActiveTab();
+  if (!activeTab) {
+    return;
+  }
+  if (isCodeExecutionForbidden(activeTab)) {
+    const previousNormalTab = registry.findBackward((tab: Tab) => !isCodeExecutionForbidden(tab));
+    if (previousNormalTab) {
+      activateTab(previousNormalTab);
+    }
+    return;
+  }
+  await initializeContentScript(activeTab);
+  // send a command to the content script
+  await browser.tabs.sendMessage(
+    activeTab.id,
+    applyNewSettings({
+      newSettings,
+      tabsData: registry.getTabsToShow(),
+    })
+  );
 }
 
 async function handlePopupScriptDisconnection() {
