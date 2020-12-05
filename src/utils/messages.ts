@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import {Tabs} from 'webextension-polyfill-ts';
 import {DefaultSettings} from './settings';
+import {Command} from './constants';
 
 import Tab = Tabs.Tab;
 
@@ -11,10 +12,17 @@ export enum Message {
   CLOSE_POPUP = 'CLOSE_POPUP',
   SELECT_TAB = 'SELECT_TAB',
   SWITCH_TAB = 'SWITCH_TAB',
+  COMMAND = 'COMMAND',
+}
+
+interface CommandMessage {
+  type: Message.COMMAND;
+  command: Command;
 }
 
 export interface Handlers {
   [key: string]: (message?: unknown) => void;
+  [Message.COMMAND]?: (message: CommandMessage) => void;
 }
 
 export interface UpdateSettingsPayload {
@@ -61,6 +69,10 @@ export function selectTab(payload: SelectTabPayload) {
 
 export function closePopup() {
   return {type: Message.CLOSE_POPUP};
+}
+
+export function command(cmd: Command): CommandMessage {
+  return {type: Message.COMMAND, command: cmd};
 }
 
 export function handleMessage(handlers: Handlers, typeKey = 'type') {
