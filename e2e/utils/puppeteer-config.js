@@ -7,6 +7,7 @@ export default {
   executablePath: process.env.PUPPETEER_EXEC_PATH,
   headless: false,
   slowMo: process.env.CI ? 100 : 20,
+  defaultViewport: null,
   args: [
     `--disable-extensions-except=${pathToExtension}`,
     `--load-extension=${pathToExtension}`,
