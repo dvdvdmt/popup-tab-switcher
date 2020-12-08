@@ -14,5 +14,6 @@ export default {
     '--no-sandbox',
     '--allow-file-access',
     '--allow-file-access-from-files',
+    // '--auto-open-devtools-for-tabs',
   ],
 };
