@@ -31,10 +31,10 @@ describe('popup >', function TestPopup() {
 
     async function popupOpens(page) {
       await helper.selectTabForward();
-      const display = await page.$eval('#popup-tab-switcher', (popup) =>
-        getComputedStyle(popup).getPropertyValue('display')
+      const isVisible = await page.$eval('#popup-tab-switcher', (popup) =>
+        window.e2e.isVisible(popup)
       );
-      assert(display !== 'none', 'popup visible');
+      assert(isVisible, 'Popup is not visible');
     }
 
     it('opens on "Alt+Y"', async () => {

@@ -1,4 +1,7 @@
 import path from 'path';
+import fs from 'fs';
+
+const pageScripts = fs.readFileSync(path.resolve(__dirname, 'page-scripts.js'));
 
 const webPagesDir = path.resolve(__dirname, '..', 'web-pages');
 export function getPagePath(pageFileName) {
@@ -7,11 +10,7 @@ export function getPagePath(pageFileName) {
 
 const pageMixin = {
   async queryPopup(queryString, resultFn) {
-    // NOTE: This awful string was created because other ways for selecting
-    // elements in shadow root did not work. It would be great to rewrite this part
-    return this.evaluate(
-      `(${resultFn})(Array.from(document.querySelector('#popup-tab-switcher').shadowRoot.querySelectorAll('${queryString}')))`
-    );
+    return this.evaluate(`(${resultFn})(e2e.queryPopup('${queryString}'))`);
   },
 };
 
@@ -72,6 +71,7 @@ export default class PuppeteerPopupHelper {
         page = await this.browser.newPage();
       }
     }
+    await page.evaluateOnNewDocument(pageScripts);
     await page.goto(getPagePath(pageFileName));
     await page.bringToFront();
     return Object.assign(page, pageMixin);
