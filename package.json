@@ -11,7 +11,7 @@
     "build:prod": "rm -rf build-prod && webpack --env.production && cd build-prod/ && zip -r archive.zip .",
     "build:e2e": "rm -rf build-e2e && webpack --env.e2e",
     "build:dev": "rm -rf build-dev && webpack --env.development",
-    "start": "rm -rf build-dev && webpack --env.development --env.watch --watch",
+    "start": "webpack --env.development --env.watch --watch",
     "test": "mocha --require @babel/register --require ts-node/register --bail ./src/**/*-test.js",
     "test:e2e": "npm run build:e2e && mocha --require @babel/register --require ts-node/register --slow 6000 --bail ./e2e/*-e2e.js",
     "clean": "rm -rf build*",
