@@ -39,15 +39,16 @@
   border-radius: calc(var(--popup-border-radius-factor) * 100vw);
   border-left: calc(var(--popup-border-radius-factor) * 100vw) solid;
   border-left-color: var(--tab_selected-background);
-  border-right: calc(var(--popup-border-radius-factor) * 100vw) solid transparent;
+  padding-right: calc(var(--popup-border-radius-factor) * 100vw);
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2),
   0 3px 4px rgba(0, 0, 0, 0.12),
   0 2px 4px rgba(0, 0, 0, 0.14);
   color: var(--card-color);
   font-size: calc(var(--font-size-factor) * 100vw);
   height: calc(var(--popup-height-factor) * 100vw);
-  max-height: 100vh;
+  max-height: 100%;
   width: calc(var(--popup-width-factor) * 100vw);
+  max-width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
 
@@ -65,6 +66,7 @@
   border-bottom-right-radius: calc(var(--popup-border-radius-factor) * 100vw);
   border-top-right-radius: calc(var(--popup-border-radius-factor) * 100vw);
   outline: none;
+  cursor: default;
 
   &:hover {
     background-color: var(--tab_hover-background);
