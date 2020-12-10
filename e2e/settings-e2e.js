@@ -209,4 +209,27 @@ describe('settings >', function TestSettings() {
     const tabTitle = await activeTab.$eval('title', (el) => el.textContent);
     assert(tabTitle, 'Example', 'does not leave the current tab');
   });
+
+  it('limits the height of the popup to the height of the window and allows scrolling if there are many tabs', async () => {
+    const settingsPage = await browser.newPage();
+    await settingsPage.goto(settingsPageUrl);
+    await input(settingsPage, '#tabHeight', 250);
+    await input(settingsPage, '#numberOfTabsToShow', 10);
+    for (let i = 0; i < 10; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      await helper.openPage('example.html');
+    }
+    await helper.selectTabForward();
+    await helper.selectTabBackward(); // Focuses on the first tab
+    const activeTab = await helper.getActiveTab();
+    const isFirstTabVisible = await activeTab.queryPopup('.tab_selected', ([el]) => {
+      return window.e2e.isVisible(el);
+    });
+    assert(isFirstTabVisible, 'First tab is not visible');
+    await helper.selectTabBackward();
+    const isSecondTabVisible = await activeTab.queryPopup('.tab_selected', ([el]) => {
+      return window.e2e.isVisible(el);
+    });
+    assert(isSecondTabVisible, 'Second tab is not visible');
+  });
 });
