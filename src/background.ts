@@ -9,8 +9,6 @@ import {
   handleMessage,
   Message,
   selectTab,
-  SwitchTabPayload,
-  UpdateSettingsPayload,
 } from './utils/messages';
 import isCodeExecutionForbidden from './utils/is-code-execution-forbidden';
 import {isBrowserFocused} from './utils/is-browser-focused';
@@ -99,10 +97,7 @@ async function handleCommand(command: Command) {
   // send the command to the content script
   await browser.tabs.sendMessage(
     currentTab.id,
-    selectTab({
-      tabsData: registry.getTabsToShow(),
-      increment: command === Command.NEXT ? 1 : -1,
-    })
+    selectTab(registry.getTabsToShow(), command === Command.NEXT ? 1 : -1)
   );
 }
 
@@ -156,7 +151,34 @@ function handleCommunications(port: Runtime.Port) {
     //  This will probably prevent a bug when extension icon is clicked twice which results in opened popup but closed settings.
     port.onMessage.addListener(
       handleMessage({
-        [Message.UPDATE_SETTINGS]: updateSettings,
+        [Message.UPDATE_SETTINGS]: async ({newSettings}) => {
+          settings.update(newSettings);
+          registry.setNumberOfTabsToShow(newSettings.numberOfTabsToShow);
+          await Promise.all(
+            registry
+              .getInitializedTabsIds()
+              .map((id) => browser.tabs.sendMessage(id, applyNewSettingsSilently(newSettings)))
+          );
+          const activeTab = await getActiveTab();
+          if (!activeTab) {
+            return;
+          }
+          if (isCodeExecutionForbidden(activeTab)) {
+            const previousNormalTab = registry.findBackward(
+              (tab: Tab) => !isCodeExecutionForbidden(tab)
+            );
+            if (previousNormalTab) {
+              activateTab(previousNormalTab);
+            }
+            return;
+          }
+          await initializeContentScript(activeTab);
+          // send a command to the content script
+          await browser.tabs.sendMessage(
+            activeTab.id,
+            applyNewSettings(newSettings, registry.getTabsToShow())
+          );
+        },
       })
     );
     // notify a tab when the settings popup closes
@@ -190,36 +212,6 @@ function activateTab({id, windowId}: Tab) {
   }
 }
 
-async function updateSettings({newSettings}: UpdateSettingsPayload) {
-  settings.update(newSettings);
-  registry.setNumberOfTabsToShow(newSettings.numberOfTabsToShow);
-  await Promise.all(
-    registry
-      .getInitializedTabsIds()
-      .map((id) => browser.tabs.sendMessage(id, applyNewSettingsSilently({newSettings})))
-  );
-  const activeTab = await getActiveTab();
-  if (!activeTab) {
-    return;
-  }
-  if (isCodeExecutionForbidden(activeTab)) {
-    const previousNormalTab = registry.findBackward((tab: Tab) => !isCodeExecutionForbidden(tab));
-    if (previousNormalTab) {
-      activateTab(previousNormalTab);
-    }
-    return;
-  }
-  await initializeContentScript(activeTab);
-  // send a command to the content script
-  await browser.tabs.sendMessage(
-    activeTab.id,
-    applyNewSettings({
-      newSettings,
-      tabsData: registry.getTabsToShow(),
-    })
-  );
-}
-
 async function handlePopupScriptDisconnection() {
   const currentTab = await getActiveTab();
   await browser.tabs.sendMessage(currentTab.id, closePopup());
@@ -227,7 +219,7 @@ async function handlePopupScriptDisconnection() {
 
 function handleContentScriptMessages() {
   return handleMessage({
-    [Message.SWITCH_TAB]: async ({selectedTab}: SwitchTabPayload) => {
+    [Message.SWITCH_TAB]: ({selectedTab}) => {
       activateTab(selectedTab);
     },
   });
