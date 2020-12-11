@@ -15,64 +15,45 @@ export enum Message {
   COMMAND = 'COMMAND',
 }
 
-interface CommandMessage {
-  type: Message.COMMAND;
-  command: Command;
+export function updateSettings(newSettings: DefaultSettings) {
+  return {type: Message.UPDATE_SETTINGS, newSettings} as const;
+}
+
+export function applyNewSettings(newSettings: DefaultSettings, tabsData: Tab[]) {
+  return {type: Message.APPLY_NEW_SETTINGS, newSettings, tabsData} as const;
+}
+
+export function applyNewSettingsSilently(newSettings: DefaultSettings) {
+  return {type: Message.APPLY_NEW_SETTINGS_SILENTLY, newSettings} as const;
+}
+
+export function switchTab(selectedTab: Tab) {
+  return {type: Message.SWITCH_TAB, selectedTab} as const;
+}
+
+export function selectTab(tabsData: Tab[], increment: number) {
+  return {type: Message.SELECT_TAB, tabsData, increment} as const;
+}
+
+export function closePopup() {
+  return {type: Message.CLOSE_POPUP} as const;
+}
+
+export function command(cmd: Command) {
+  return {type: Message.COMMAND, command: cmd} as const;
 }
 
 export interface Handlers {
   [key: string]: (message?: unknown) => void;
-  [Message.COMMAND]?: (message: CommandMessage) => void;
-}
-
-export interface UpdateSettingsPayload {
-  newSettings: DefaultSettings;
-}
-
-export function updateSettings(payload: UpdateSettingsPayload) {
-  return {type: Message.UPDATE_SETTINGS, ...payload};
-}
-
-export interface ApplyNewSettingsPayload {
-  newSettings: DefaultSettings;
-  tabsData: Tab[];
-}
-
-export function applyNewSettings(payload: ApplyNewSettingsPayload) {
-  return {type: Message.APPLY_NEW_SETTINGS, ...payload};
-}
-
-export interface ApplyNewSettingsSilentlyPayload {
-  newSettings: DefaultSettings;
-}
-
-export function applyNewSettingsSilently(payload: ApplyNewSettingsSilentlyPayload) {
-  return {type: Message.APPLY_NEW_SETTINGS_SILENTLY, ...payload};
-}
-
-export interface SwitchTabPayload {
-  selectedTab: Tab;
-}
-
-export function switchTab(payload: SwitchTabPayload) {
-  return {type: Message.SWITCH_TAB, ...payload};
-}
-
-export interface SelectTabPayload {
-  tabsData: Tab[];
-  increment: number;
-}
-
-export function selectTab(payload: SelectTabPayload) {
-  return {type: Message.SELECT_TAB, ...payload};
-}
-
-export function closePopup() {
-  return {type: Message.CLOSE_POPUP};
-}
-
-export function command(cmd: Command): CommandMessage {
-  return {type: Message.COMMAND, command: cmd};
+  [Message.UPDATE_SETTINGS]?: (message: ReturnType<typeof updateSettings>) => void;
+  [Message.APPLY_NEW_SETTINGS]?: (message: ReturnType<typeof applyNewSettings>) => void;
+  [Message.APPLY_NEW_SETTINGS_SILENTLY]?: (
+    message: ReturnType<typeof applyNewSettingsSilently>
+  ) => void;
+  [Message.SWITCH_TAB]?: (message: ReturnType<typeof switchTab>) => void;
+  [Message.SELECT_TAB]?: (message: ReturnType<typeof selectTab>) => void;
+  [Message.CLOSE_POPUP]?: () => void;
+  [Message.COMMAND]?: (message: ReturnType<typeof command>) => void;
 }
 
 export function handleMessage(handlers: Handlers, typeKey = 'type') {

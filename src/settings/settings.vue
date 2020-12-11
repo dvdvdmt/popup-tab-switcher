@@ -46,7 +46,7 @@
     },
     methods: {
       updateSettings(newSettings) {
-        port.postMessage(updateSettings({newSettings}));
+        port.postMessage(updateSettings(newSettings));
       },
       setDefaults() {
         settingsService.setDefaults();

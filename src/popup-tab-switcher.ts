@@ -9,15 +9,7 @@ import downloadsSymbol from './images/downloads-icon.svg';
 import extensionsSymbol from './images/extensions-icon.svg';
 import historySymbol from './images/history-icon.svg';
 import bookmarksSymbol from './images/bookmarks-icon.svg';
-import {
-  ApplyNewSettingsPayload,
-  ApplyNewSettingsSilentlyPayload,
-  handleMessage,
-  Handlers,
-  Message,
-  SelectTabPayload,
-  switchTab,
-} from './utils/messages';
+import {handleMessage, Handlers, Message, switchTab} from './utils/messages';
 import {DefaultSettings} from './utils/settings';
 
 import Tab = Tabs.Tab;
@@ -179,16 +171,16 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.card.addEventListener('keydown', this.cardEventListener);
     window.addEventListener('blur', this.windowEventListener);
     this.messageListener = handleMessage({
-      [Message.APPLY_NEW_SETTINGS]: ({tabsData, newSettings}: ApplyNewSettingsPayload) => {
+      [Message.APPLY_NEW_SETTINGS]: ({tabsData, newSettings}) => {
         this.tabsArray = tabsData;
         settings = newSettings;
         this.renderTabs();
       },
-      [Message.APPLY_NEW_SETTINGS_SILENTLY]: ({newSettings}: ApplyNewSettingsSilentlyPayload) => {
+      [Message.APPLY_NEW_SETTINGS_SILENTLY]: ({newSettings}) => {
         settings = newSettings;
       },
       [Message.CLOSE_POPUP]: this.hideOverlay,
-      [Message.SELECT_TAB]: ({tabsData, increment}: SelectTabPayload) => {
+      [Message.SELECT_TAB]: ({tabsData, increment}) => {
         this.tabsArray = tabsData;
         this.selectNextTab(increment);
         // When the focus is on the address bar or the 'search in the page' field
@@ -273,11 +265,7 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   switchTo(selectedTab: Tab) {
     this.hideOverlay();
-    contentScriptPort.postMessage(
-      switchTab({
-        selectedTab,
-      })
-    );
+    contentScriptPort.postMessage(switchTab(selectedTab));
   }
 
   getTabElements() {
