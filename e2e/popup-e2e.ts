@@ -1,15 +1,14 @@
 import assert from 'assert';
-import {getPagePath} from './utils/puppeteer-popup-helper';
+import {Browser, Page} from 'puppeteer';
+import {PuppeteerPopupHelper, getPagePath} from './utils/puppeteer-popup-helper';
 import {defaultSettings} from '../src/utils/settings';
 import {closeTabs, startPuppeteer, stopPuppeteer} from './utils/puppeteer-utils';
 
-/** @type {Browser} */
-let browser;
-/** @type {PuppeteerPopupHelper} */
-let helper;
+let browser: Browser;
+let helper: PuppeteerPopupHelper;
 
 function newPagePromise() {
-  return new Promise((resolve) =>
+  return new Promise<Page>((resolve) =>
     browser.once('targetcreated', (target) => resolve(target.page()))
   );
 }
@@ -29,7 +28,7 @@ describe('popup >', function TestPopup() {
   context('one page >', () => {
     after(closeTabs);
 
-    async function popupOpens(page) {
+    async function popupOpens(page: Page) {
       await helper.selectTabForward();
       const isVisible = await page.$eval('#popup-tab-switcher', (popup) =>
         window.e2e.isVisible(popup)
@@ -253,7 +252,7 @@ describe('popup >', function TestPopup() {
       const isWikipediaFocused = await pageWikipedia.evaluate(() => document.hasFocus());
       assert(isWikipediaFocused, 'Wikipedia page is focused');
 
-      async function openPageInAPopup(existingPage, pageFileName) {
+      async function openPageInAPopup(existingPage: Page, pageFileName: string) {
         await existingPage.evaluate((url) => {
           window.open(url, '_blank', 'width=500,height=500');
         }, getPagePath(pageFileName));
@@ -358,7 +357,12 @@ describe('popup >', function TestPopup() {
       await helper.selectTabForward();
       await pageWikipedia.keyboard.press('Escape');
       const focusedEl = await pageWikipedia.evaluate(() => {
-        const {id, selectionStart, selectionEnd, selectionDirection} = document.activeElement;
+        const {
+          id,
+          selectionStart,
+          selectionEnd,
+          selectionDirection,
+        } = document.activeElement as HTMLInputElement;
         return {
           id,
           selectionStart,
@@ -373,7 +377,7 @@ describe('popup >', function TestPopup() {
     });
 
     it('restores focus without breaking switching', async () => {
-      const errors = [];
+      const errors: Error[] = [];
       await helper.openPage('example.html');
       const pageWithInputs = await helper.openPage('non-selectable-inputs.html');
       pageWithInputs.on('pageerror', (err) => {

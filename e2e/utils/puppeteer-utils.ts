@@ -1,11 +1,9 @@
-import puppeteer from 'puppeteer';
+import puppeteer, {Browser} from 'puppeteer';
 import puppeteerConfig from './puppeteer-config';
-import PuppeteerPopupHelper from './puppeteer-popup-helper';
+import {PuppeteerPopupHelper} from './puppeteer-popup-helper';
 
-/** @type {Browser} */
-let browser;
-/** @type {PuppeteerPopupHelper} */
-let helper;
+let browser: Browser;
+let helper: PuppeteerPopupHelper;
 
 export async function startPuppeteer() {
   if (browser) {

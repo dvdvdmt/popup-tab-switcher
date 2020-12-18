@@ -1,6 +1,18 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function registerScripts() {
-  function getElementFromPoint({x, y}) {
+declare global {
+  interface Window {
+    e2e: {
+      isVisible(el: Element): boolean;
+      queryPopup(selector: string): Element[];
+    };
+  }
+}
+
+export function registerScripts() {
+  // NOTE:
+  // All helper functions that are available in opened pages must be defined inside this function.
+  // This is because the registration function will be passed as string and the information about
+  // external definitions will be lost.
+  function getElementFromPoint({x, y}: WebKitPoint) {
     // Penetrates shadow roots
     let el = document.elementFromPoint(x, y);
     while (el.shadowRoot) {
@@ -9,7 +21,7 @@ function registerScripts() {
     return el;
   }
 
-  function isVisible(el) {
+  function isVisible(el: HTMLElement) {
     const style = getComputedStyle(el);
     if (style.display === 'none') {
       return false;
@@ -17,7 +29,7 @@ function registerScripts() {
     if (style.visibility !== 'visible') {
       return false;
     }
-    if (style.opacity < 0.1) {
+    if (Number(style.opacity) < 0.1) {
       return false;
     }
     const elRect = el.getBoundingClientRect();
@@ -36,7 +48,7 @@ function registerScripts() {
     ) {
       return false;
     }
-    let pointContainer = getElementFromPoint(elCenter);
+    let pointContainer: Node = getElementFromPoint(elCenter);
     while (pointContainer) {
       if (pointContainer === el) {
         return true;
@@ -47,7 +59,7 @@ function registerScripts() {
     return false;
   }
 
-  function queryPopup(selector) {
+  function queryPopup(selector: string) {
     return Array.from(
       document.querySelector('#popup-tab-switcher').shadowRoot.querySelectorAll(selector)
     );

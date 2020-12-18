@@ -1,31 +1,31 @@
 import path from 'path';
-import fs from 'fs';
-
-const pageScripts = fs.readFileSync(path.resolve(__dirname, 'page-scripts.js'));
+import {Browser, Page} from 'puppeteer';
+import {registerScripts} from './page-scripts';
 
 const webPagesDir = path.resolve(__dirname, '..', 'web-pages');
-export function getPagePath(pageFileName) {
+export function getPagePath(pageFileName: string) {
   return `file:${path.resolve(webPagesDir, pageFileName)}`;
 }
 
 const pageMixin = {
-  async queryPopup(queryString, resultFn) {
+  async queryPopup(queryString: string, resultFn: (els: HTMLElement[]) => void) {
     return this.evaluate(`(${resultFn})(e2e.queryPopup('${queryString}'))`);
   },
 };
 
-function isBlank(page) {
+function isBlank(page: Page) {
   return page.url() === 'about:blank';
 }
 
-export default class PuppeteerPopupHelper {
-  constructor(browser) {
+export class PuppeteerPopupHelper {
+  private browser: Browser;
+
+  constructor(browser: Browser) {
     this.browser = browser;
   }
 
   async getActiveTab() {
     const pages = await this.browser.pages();
-    // eslint-disable-next-line no-undef
     const promises = pages.map((p, i) =>
       p.evaluate((index) => document.visibilityState === 'visible' && index, `${i}`)
     );
@@ -61,7 +61,7 @@ export default class PuppeteerPopupHelper {
     return this.getActiveTab();
   }
 
-  async openPage(pageFileName, existingPage) {
+  async openPage(pageFileName: string, existingPage?: Page) {
     let page = existingPage;
     if (!page) {
       const [firstPage] = await this.browser.pages();
@@ -71,7 +71,7 @@ export default class PuppeteerPopupHelper {
         page = await this.browser.newPage();
       }
     }
-    await page.evaluateOnNewDocument(pageScripts);
+    await page.evaluateOnNewDocument(registerScripts);
     await page.goto(getPagePath(pageFileName));
     await page.bringToFront();
     return Object.assign(page, pageMixin);
