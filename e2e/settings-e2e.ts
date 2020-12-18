@@ -1,38 +1,65 @@
 import assert from 'assert';
-import {defaultSettings} from '../src/utils/settings';
+import {Browser, Page} from 'puppeteer';
+import {defaultSettings, DefaultSettings} from '../src/utils/settings';
 import {closeTabs, startPuppeteer, stopPuppeteer} from './utils/puppeteer-utils';
+import {PuppeteerPopupHelper} from './utils/puppeteer-popup-helper';
 
-/** @type {Browser} */
-let browser;
-/** @type {PuppeteerPopupHelper} */
-let helper;
+declare global {
+  interface Window {
+    app: {settings: DefaultSettings};
+  }
+}
+
+let browser: Browser;
+let helper: PuppeteerPopupHelper;
 const settingsPageUrl = 'chrome-extension://meonejnmljcnoodabklmloagmnmcmlam/settings/index.html';
 
-async function input(page, selector, text) {
+async function input(page: Page, selector: string, text: string) {
   await page.evaluate((s) => {
     document.querySelector(s).value = '';
   }, selector);
-  await page.type(selector, text.toString());
+  await page.type(selector, text);
 }
 
-async function getSettingsFromPage(page) {
-  const res = {};
-  res.textScrollDelay = await page.$eval('#textScrollDelay', (el) => +el.value);
-  res.textScrollCoefficient = await page.$eval('#textScrollCoefficient', (el) => +el.value);
-  res.autoSwitchingTimeout = await page.$eval('#autoSwitchingTimeout', (el) => +el.value);
-  res.numberOfTabsToShow = await page.$eval('#numberOfTabsToShow', (el) => +el.value);
-  res.isDarkTheme = await page.$eval('#isDarkTheme', (el) => el.checked);
-  res.popupWidth = await page.$eval('#popupWidth', (el) => +el.value);
-  res.tabHeight = await page.$eval('#tabHeight', (el) => +el.value);
-  res.fontSize = await page.$eval('#fontSize', (el) => +el.value);
-  res.iconSize = await page.$eval('#iconSize', (el) => +el.value);
-  res.opacity = await page.$eval('#opacity', (el) => +el.value);
-  res.isSwitchingToPreviouslyUsedTab = await page.$eval(
-    '#isSwitchingToPreviouslyUsedTab',
-    (el) => el.checked
+async function getSettingsFromPage(page: Page) {
+  const textScrollDelay = await page.$eval('#textScrollDelay', (el: HTMLInputElement) => +el.value);
+  const textScrollCoefficient = await page.$eval(
+    '#textScrollCoefficient',
+    (el: HTMLInputElement) => +el.value
   );
-  res.isStayingOpen = await page.$eval('#isStayingOpen', (el) => el.checked);
-  return res;
+  const autoSwitchingTimeout = await page.$eval(
+    '#autoSwitchingTimeout',
+    (el: HTMLInputElement) => +el.value
+  );
+  const numberOfTabsToShow = await page.$eval(
+    '#numberOfTabsToShow',
+    (el: HTMLInputElement) => +el.value
+  );
+  const isDarkTheme = await page.$eval('#isDarkTheme', (el: HTMLInputElement) => el.checked);
+  const popupWidth = await page.$eval('#popupWidth', (el: HTMLInputElement) => +el.value);
+  const tabHeight = await page.$eval('#tabHeight', (el: HTMLInputElement) => +el.value);
+  const fontSize = await page.$eval('#fontSize', (el: HTMLInputElement) => +el.value);
+  const iconSize = await page.$eval('#iconSize', (el: HTMLInputElement) => +el.value);
+  const opacity = await page.$eval('#opacity', (el: HTMLInputElement) => +el.value);
+  const isSwitchingToPreviouslyUsedTab = await page.$eval(
+    '#isSwitchingToPreviouslyUsedTab',
+    (el: HTMLInputElement) => el.checked
+  );
+  const isStayingOpen = await page.$eval('#isStayingOpen', (el: HTMLInputElement) => el.checked);
+  return {
+    textScrollDelay,
+    textScrollCoefficient,
+    autoSwitchingTimeout,
+    numberOfTabsToShow,
+    isDarkTheme,
+    popupWidth,
+    tabHeight,
+    fontSize,
+    iconSize,
+    opacity,
+    isSwitchingToPreviouslyUsedTab,
+    isStayingOpen,
+  };
 }
 
 const newSettings = {
@@ -51,17 +78,17 @@ const newSettings = {
   },
 };
 
-async function setSettings(page) {
-  await input(page, '#textScrollDelay', newSettings.textScrollDelay);
-  await input(page, '#textScrollCoefficient', newSettings.textScrollCoefficient);
-  await input(page, '#autoSwitchingTimeout', newSettings.autoSwitchingTimeout);
-  await input(page, '#numberOfTabsToShow', newSettings.numberOfTabsToShow);
+async function setSettings(page: Page) {
+  await input(page, '#textScrollDelay', `${newSettings.textScrollDelay}`);
+  await input(page, '#textScrollCoefficient', `${newSettings.textScrollCoefficient}`);
+  await input(page, '#autoSwitchingTimeout', `${newSettings.autoSwitchingTimeout}`);
+  await input(page, '#numberOfTabsToShow', `${newSettings.numberOfTabsToShow}`);
   await page.click('#isDarkTheme');
-  await input(page, '#popupWidth', newSettings.popupWidth);
-  await input(page, '#tabHeight', newSettings.tabHeight);
-  await input(page, '#fontSize', newSettings.fontSize);
-  await input(page, '#iconSize', newSettings.iconSize);
-  await input(page, '#opacity', newSettings.opacity);
+  await input(page, '#popupWidth', `${newSettings.popupWidth}`);
+  await input(page, '#tabHeight', `${newSettings.tabHeight}`);
+  await input(page, '#fontSize', `${newSettings.fontSize}`);
+  await input(page, '#iconSize', `${newSettings.iconSize}`);
+  await input(page, '#opacity', `${newSettings.opacity}`);
 }
 
 describe('settings >', function TestSettings() {
@@ -101,15 +128,15 @@ describe('settings >', function TestSettings() {
 
   it('passes settings to a content script', async () => {
     function getSettingsFromContentScript() {
-      return ([el]) => {
+      return ([el]: HTMLElement[]) => {
         const style = window.getComputedStyle(el);
         const popupWidth = Math.round(
-          style.getPropertyValue('--popup-width-factor') * window.outerWidth
+          Number(style.getPropertyValue('--popup-width-factor')) * window.outerWidth
         );
         const tabHeight = Math.round(
-          style.getPropertyValue('--tab-height-factor') * window.outerWidth
+          Number(style.getPropertyValue('--tab-height-factor')) * window.outerWidth
         );
-        const opacity = Math.round(style.getPropertyValue('--popup-opacity') * 100);
+        const opacity = Math.round(Number(style.getPropertyValue('--popup-opacity')) * 100);
         return {
           popupWidth,
           tabHeight,
@@ -184,10 +211,11 @@ describe('settings >', function TestSettings() {
     assert(isContributeSectionOpen, 'the contribute section is visible');
   });
 
-  it('controls automatic switching to a previously used tab when a current one closes', async () => {
+  it('controls automatic switching to a previously used tab when the current one closes', async () => {
     const settingsPage = await browser.newPage();
     await settingsPage.goto(settingsPageUrl);
     await settingsPage.click('#isSwitchingToPreviouslyUsedTab');
+    await settingsPage.close();
     const pageWikipedia = await helper.openPage('wikipedia.html');
     await helper.openPage('example.html');
     await helper.openPage('stackoverflow.html');
@@ -195,7 +223,7 @@ describe('settings >', function TestSettings() {
     await pageWikipedia.close();
     const activeTab = await helper.getActiveTab();
     const tabTitle = await activeTab.$eval('title', (el) => el.textContent);
-    assert(tabTitle, 'Example', 'switched to the nearest tab');
+    assert.strictEqual(tabTitle, 'Example', 'switched to the nearest tab');
   });
 
   it('controls hiding of the switcher when modifier key is released', async () => {
@@ -207,14 +235,14 @@ describe('settings >', function TestSettings() {
     await helper.switchTab();
     const activeTab = await helper.getActiveTab();
     const tabTitle = await activeTab.$eval('title', (el) => el.textContent);
-    assert(tabTitle, 'Example', 'does not leave the current tab');
+    assert.strictEqual(tabTitle, 'Example', 'does not leave the current tab');
   });
 
   it('limits the height of the popup to the height of the window and allows scrolling if there are many tabs', async () => {
     const settingsPage = await browser.newPage();
     await settingsPage.goto(settingsPageUrl);
-    await input(settingsPage, '#tabHeight', 250);
-    await input(settingsPage, '#numberOfTabsToShow', 10);
+    await input(settingsPage, '#tabHeight', '250');
+    await input(settingsPage, '#numberOfTabsToShow', '10');
     for (let i = 0; i < 10; i += 1) {
       // eslint-disable-next-line no-await-in-loop
       await helper.openPage('example.html');

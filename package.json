@@ -13,7 +13,8 @@
     "build:dev": "rm -rf build-dev && webpack --env.development",
     "start": "webpack --env.development --env.watch --watch",
     "test": "mocha --require @babel/register --require ts-node/register --bail ./src/**/*-test.js",
-    "test:e2e": "npm run build:e2e && mocha --require @babel/register --require ts-node/register --slow 6000 --bail ./e2e/*-e2e.js",
+    "test:ts": "tsc --noEmit",
+    "test:e2e": "npm run build:e2e && mocha --require @babel/register --require ts-node/register --slow 6000 --bail ./e2e/*-e2e.ts",
     "clean": "rm -rf build*",
     "lint": "eslint --ext .ts,.js ./"
   },
@@ -31,6 +32,7 @@
     "@babel/register": "^7.12.10",
     "@types/chrome": "0.0.95",
     "@types/mocha": "^7.0.1",
+    "@types/puppeteer": "^5.4.2",
     "@typescript-eslint/eslint-plugin": "^2.20.0",
     "@typescript-eslint/parser": "^2.20.0",
     "copy-webpack-plugin": "^4.6.0",
