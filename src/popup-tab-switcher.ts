@@ -230,23 +230,38 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   showOverlay() {
-    const {tabHeight, popupWidth, fontSize, iconSize, numberOfTabsToShow, opacity} = settings;
-    const popupHeight = numberOfTabsToShow * tabHeight;
-    const popupBorderRadius = 8;
-    this.style.setProperty('--popup-width-factor', `${popupWidth / window.outerWidth}`);
-    this.style.setProperty('--popup-height-factor', `${popupHeight / window.outerWidth}`);
-    this.style.setProperty(
-      '--popup-border-radius-factor',
-      `${popupBorderRadius / window.outerWidth}`
-    );
-    this.style.setProperty('--tab-height-factor', `${tabHeight / window.outerWidth}`);
-    this.style.setProperty('--font-size-factor', `${fontSize / window.outerWidth}`);
-    this.style.setProperty('--icon-size-factor', `${iconSize / window.outerWidth}`);
-    this.style.setProperty('--size-window-width', `${window.outerWidth}`);
-    this.style.setProperty('--popup-opacity', `${opacity / 100}`);
+    this.setStylePropertiesThatDependOnPageZoom();
+    this.style.setProperty('--popup-opacity', `${settings.opacity / 100}`);
     this.style.setProperty('--time-auto-switch-timeout', `${settings.autoSwitchingTimeout}ms`);
     this.style.display = 'block';
     this.isOverlayVisible = true;
+  }
+
+  private setStylePropertiesThatDependOnPageZoom() {
+    /*
+     NOTE:
+     The popup tries to look the same independent of page zoom level.
+     Unfortunately there is no way of getting zoom level reliably (https://stackoverflow.com/questions/1713771/how-to-detect-page-zoom-level-in-all-modern-browsers).
+     - Using outerWidth/innerWidth will give wrong results if a side bar is open (eg. dev tools,
+       menu in FF).
+     - The devicePixelRatio (DPR) changes on zoom but you can't rely on it on high DPI devices
+       because there is no way of getting base DPR that corresponds to zoom 100% (https://www.w3.org/community/respimg/2013/04/06/devicenormalpixelratio-proposal-for-zoom-independent-devicepixelratio-for-hd-retina-games/).
+     - Currently the 'vw' unit is used to preserve popup look on different zoom levels which has
+       the same flaws as outerWidth/innerWidth approach.
+
+     There is also Tab.getZoom() but it is extension specific API.
+    */
+    const {fontSize, numberOfTabsToShow, tabHeight, popupWidth, iconSize} = settings;
+    const {outerWidth} = window;
+    const popupHeight = numberOfTabsToShow * tabHeight;
+    const popupBorderRadius = 8;
+    this.style.setProperty('--popup-width-factor', `${popupWidth / outerWidth}`);
+    this.style.setProperty('--popup-height-factor', `${popupHeight / outerWidth}`);
+    this.style.setProperty('--popup-border-radius-factor', `${popupBorderRadius / outerWidth}`);
+    this.style.setProperty('--tab-height-factor', `${tabHeight / outerWidth}`);
+    this.style.setProperty('--font-size-factor', `${fontSize / outerWidth}`);
+    this.style.setProperty('--icon-size-factor', `${iconSize / outerWidth}`);
+    this.style.setProperty('--size-window-width', `${outerWidth}`);
   }
 
   hideOverlay() {
