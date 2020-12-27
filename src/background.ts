@@ -9,12 +9,12 @@ import {
   handleMessage,
   Message,
   selectTab,
+  updateZoomFactor,
 } from './utils/messages';
 import isCodeExecutionForbidden from './utils/is-code-execution-forbidden';
 import {isBrowserFocused} from './utils/is-browser-focused';
 
 import Tab = Tabs.Tab;
-import OnUpdatedChangeInfoType = Tabs.OnUpdatedChangeInfoType;
 
 const settings = new Settings();
 let registry: TabRegistry;
@@ -38,11 +38,12 @@ async function initTabRegistry() {
 
 function initListeners() {
   browser.commands.onCommand.addListener(handleCommand);
-  browser.tabs.onActivated.addListener(handleTabActivation);
   browser.windows.onFocusChanged.addListener(handleWindowActivation);
+  browser.tabs.onActivated.addListener(handleTabActivation);
   browser.tabs.onCreated.addListener(handleTabCreation);
   browser.tabs.onUpdated.addListener(handleTabUpdate);
   browser.tabs.onRemoved.addListener(handleTabRemove);
+  browser.tabs.onZoomChange.addListener(handleZoomChange);
   browser.runtime.onConnect.addListener(handleCommunications);
   if (PRODUCTION) {
     initForProduction();
@@ -128,7 +129,7 @@ function handleTabCreation(tab: Tab) {
   }
 }
 
-async function handleTabUpdate(tabId: number, changeInfo: OnUpdatedChangeInfoType, tab: Tab) {
+async function handleTabUpdate(tabId: number, changeInfo: Tabs.OnUpdatedChangeInfoType, tab: Tab) {
   if (changeInfo.status === 'complete') {
     registry.removeFromInitialized(tabId);
     registry.update(tab);
@@ -144,6 +145,10 @@ async function handleTabRemove(tabId: number) {
       await activateTab(currentTab);
     }
   }
+}
+
+function handleZoomChange({tabId, newZoomFactor}: Tabs.OnZoomChangeZoomChangeInfoType) {
+  browser.tabs.sendMessage(tabId, updateZoomFactor(newZoomFactor));
 }
 
 function handleCommunications(port: Runtime.Port) {

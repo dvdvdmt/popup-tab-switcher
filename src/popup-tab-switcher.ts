@@ -181,6 +181,10 @@ export default class PopupTabSwitcher extends HTMLElement {
       [Message.APPLY_NEW_SETTINGS_SILENTLY]: ({newSettings}) => {
         settings = newSettings;
       },
+      [Message.UPDATE_ZOOM_FACTOR]: ({zoomFactor}) => {
+        this.zoomFactor = zoomFactor;
+        this.setStylePropertiesThatDependOnPageZoom();
+      },
       [Message.CLOSE_POPUP]: this.hideOverlay,
       [Message.SELECT_TAB]: ({tabsData, increment, zoomFactor}) => {
         this.tabsArray = tabsData;
