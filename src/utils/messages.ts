@@ -9,6 +9,7 @@ export enum Message {
   APPLY_NEW_SETTINGS = 'APPLY_NEW_SETTINGS',
   APPLY_NEW_SETTINGS_SILENTLY = 'APPLY_NEW_SETTINGS_SILENTLY',
   UPDATE_SETTINGS = 'UPDATE_SETTINGS',
+  UPDATE_ZOOM_FACTOR = 'UPDATE_ZOOM_FACTOR',
   CLOSE_POPUP = 'CLOSE_POPUP',
   SELECT_TAB = 'SELECT_TAB',
   SWITCH_TAB = 'SWITCH_TAB',
@@ -17,6 +18,10 @@ export enum Message {
 
 export function updateSettings(newSettings: DefaultSettings) {
   return {type: Message.UPDATE_SETTINGS, newSettings} as const;
+}
+
+export function updateZoomFactor(zoomFactor: number) {
+  return {type: Message.UPDATE_ZOOM_FACTOR, zoomFactor} as const;
 }
 
 export function applyNewSettings(newSettings: DefaultSettings, tabsData: Tab[]) {
@@ -46,6 +51,7 @@ export function command(cmd: Command) {
 export interface Handlers {
   [key: string]: (message?: unknown) => void;
   [Message.UPDATE_SETTINGS]?: (message: ReturnType<typeof updateSettings>) => void;
+  [Message.UPDATE_ZOOM_FACTOR]?: (message: ReturnType<typeof updateZoomFactor>) => void;
   [Message.APPLY_NEW_SETTINGS]?: (message: ReturnType<typeof applyNewSettings>) => void;
   [Message.APPLY_NEW_SETTINGS_SILENTLY]?: (
     message: ReturnType<typeof applyNewSettingsSilently>
