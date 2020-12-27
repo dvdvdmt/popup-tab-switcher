@@ -2,14 +2,17 @@
 // this BEM naming scheme can be used in JS without quotes
 :host {
   --time-auto-switch-timeout: 500ms;
-  --size-window-width: 0;
-  --popup-height-factor: 0;
-  --popup-width-factor: 0;
-  --popup-border-radius-factor: 0;
-  --tab-height-factor: 0;
-  --font-size-factor: 0;
-  --icon-size-factor: 0;
   --popup-opacity: 1;
+
+  --popup-width: 0;
+  --popup-height: 0;
+  --popup-border-radius: 0;
+  --tab-height: 0;
+  --tab-horizontal-padding: 0;
+  --tab-text-padding: 0;
+  --tab-timeout-indicator-height: 0;
+  --font-size: 0;
+  --icon-size: 0;
 
   display: none;
   position: fixed !important;
@@ -36,18 +39,17 @@
   @include popup-theme-light();
 
   background: var(--card-background-color);
-  border-radius: calc(var(--popup-border-radius-factor) * 100vw);
-  border-left: calc(var(--popup-border-radius-factor) * 100vw) solid;
+  border-radius: var(--popup-border-radius);
+  border-left: var(--popup-border-radius) solid;
   border-left-color: var(--tab_selected-background);
-  padding-right: calc(var(--popup-border-radius-factor) * 100vw);
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2),
-  0 3px 4px rgba(0, 0, 0, 0.12),
-  0 2px 4px rgba(0, 0, 0, 0.14);
+  padding-right: var(--popup-border-radius);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.14);
   color: var(--card-color);
-  font-size: calc(var(--font-size-factor) * 100vw);
-  height: calc(var(--popup-height-factor) * 100vw);
+  font-size: var(--font-size);
+  height: var(--popup-height);
   max-height: 100%;
-  width: calc(var(--popup-width-factor) * 100vw);
+  width: var(--popup-width);
   max-width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
@@ -60,11 +62,11 @@
 .tab {
   display: flex;
   align-items: center;
-  height: calc(var(--tab-height-factor) * 100vw);
-  padding: 0 calc(10 / var(--size-window-width) * 100vw);
+  height: var(--tab-height);
+  padding: 0 var(--tab-horizontal-padding);
   position: relative;
-  border-bottom-right-radius: calc(var(--popup-border-radius-factor) * 100vw);
-  border-top-right-radius: calc(var(--popup-border-radius-factor) * 100vw);
+  border-bottom-right-radius: var(--popup-border-radius);
+  border-top-right-radius: var(--popup-border-radius);
   outline: none;
   cursor: default;
 
@@ -101,39 +103,39 @@
 
 .tab__cornerIcon {
   position: absolute;
-  width: calc(var(--popup-border-radius-factor) * 100vw);
-  height: calc(var(--popup-border-radius-factor) * 100vw);
+  width: var(--popup-border-radius);
+  height: var(--popup-border-radius);
   fill: var(--card-background-color);
   left: 0;
 
   &_bottom {
-    bottom: calc(-1 * var(--popup-border-radius-factor) * 100vw);
+    bottom: calc(-1 * var(--popup-border-radius)); // TODO: check if it can be replaced with transform
     transform: rotate(90deg);
   }
 
   &_top {
-    top: calc(-1 * var(--popup-border-radius-factor) * 100vw);
+    top: calc(-1 * var(--popup-border-radius)); // TODO: check if it can be replaced with transform
   }
 }
 
 .tab__icon {
   height: auto;
-  width: calc(var(--icon-size-factor) * 100vw);
-  min-width: calc(var(--icon-size-factor) * 100vw);
+  width: var(--icon-size);
+  min-width: var(--icon-size); // TODO: check necessity
   fill: var(--tab__icon-fill);
 
   &_noFavIcon {
-    fill: var(--tab__icon_noFavIcon-fill)
+    fill: var(--tab__icon_noFavIcon-fill);
   }
 }
 
 .tab__text {
   position: relative;
   width: 100%;
-  max-height: calc(var(--tab-height-factor) * 100vw);
+  max-height: var(--tab-height);
   white-space: nowrap;
   overflow: hidden;
-  padding-left: calc(14 / var(--size-window-width) * 100vw);
+  padding-left: var(--tab-text-padding);
 
   &::after {
     --start-color: var(--card-background-color);
@@ -141,7 +143,7 @@
     position: absolute;
     top: 0;
     right: 0;
-    width: calc(14 / var(--size-window-width) * 100vw);
+    width: var(--tab-text-padding);
     height: 100%;
     background: linear-gradient(to left, var(--start-color), transparent);
   }
@@ -150,10 +152,10 @@
 .tab__timeoutIndicator {
   position: absolute;
   width: 95%;
-  height: calc(2 / var(--size-window-width) * 100vw);
+  height: var(--tab-timeout-indicator-height);
   background: var(--tab__timeoutIndicator-background);
   bottom: 0;
-  left: calc(var(--popup-border-radius-factor) * 100vw);
+  left: var(--popup-border-radius);
   animation-name: shrunk-indicator;
   animation-duration: var(--time-auto-switch-timeout);
   animation-timing-function: linear;

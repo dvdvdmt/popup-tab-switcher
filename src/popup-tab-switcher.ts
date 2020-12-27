@@ -109,6 +109,8 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   private overlay: HTMLDivElement;
 
+  private zoomFactor = 1;
+
   constructor() {
     super();
     const shadow = this.attachShadow({mode: 'open'});
@@ -180,9 +182,15 @@ export default class PopupTabSwitcher extends HTMLElement {
         settings = newSettings;
       },
       [Message.CLOSE_POPUP]: this.hideOverlay,
-      [Message.SELECT_TAB]: ({tabsData, increment}) => {
+      [Message.SELECT_TAB]: ({tabsData, increment, zoomFactor}) => {
         this.tabsArray = tabsData;
-        this.selectNextTab(increment);
+        this.zoomFactor = zoomFactor;
+        this.selectedTabIndex = rangedIncrement(
+          this.selectedTabIndex,
+          increment,
+          this.tabsArray.length
+        );
+        this.renderTabs();
         // When the focus is on the address bar or the 'search in the page' field
         // then the extension should switch a tab at the end of a timer.
         // Because there is no way to handle key pressings when a page has no focus.
@@ -208,15 +216,6 @@ export default class PopupTabSwitcher extends HTMLElement {
     chrome.runtime.onMessage.addListener(this.messageListener);
   }
 
-  selectNextTab(increment: number) {
-    this.selectedTabIndex = rangedIncrement(
-      this.selectedTabIndex,
-      increment,
-      this.tabsArray.length
-    );
-    this.renderTabs();
-  }
-
   removeListeners() {
     this.removeEventListener('click', this.popupEventListener);
     document.removeEventListener('keyup', this.cardEventListener);
@@ -240,28 +239,43 @@ export default class PopupTabSwitcher extends HTMLElement {
   private setStylePropertiesThatDependOnPageZoom() {
     /*
      NOTE:
-     The popup tries to look the same independent of page zoom level.
+     The popup tries to look the same independent of a page zoom level.
      Unfortunately there is no way of getting zoom level reliably (https://stackoverflow.com/questions/1713771/how-to-detect-page-zoom-level-in-all-modern-browsers).
      - Using outerWidth/innerWidth will give wrong results if a side bar is open (eg. dev tools,
        menu in FF).
-     - The devicePixelRatio (DPR) changes on zoom but you can't rely on it on high DPI devices
+     - The usage of 'vw' unit has the same flaws as outerWidth/innerWidth approach.
+     - The window.devicePixelRatio (DPR) changes on zoom but you can't rely on it on high DPI devices
        because there is no way of getting base DPR that corresponds to zoom 100% (https://www.w3.org/community/respimg/2013/04/06/devicenormalpixelratio-proposal-for-zoom-independent-devicepixelratio-for-hd-retina-games/).
-     - Currently the 'vw' unit is used to preserve popup look on different zoom levels which has
-       the same flaws as outerWidth/innerWidth approach.
 
-     There is also Tab.getZoom() but it is extension specific API.
+     Currently extension specific API browser.tabs.getZoom() is used to get tab zoom factor.
+     Despite of knowing zoom factor the minimal font size on large zoom levels can't be rewritten.
     */
     const {fontSize, numberOfTabsToShow, tabHeight, popupWidth, iconSize} = settings;
-    const {outerWidth} = window;
     const popupHeight = numberOfTabsToShow * tabHeight;
     const popupBorderRadius = 8;
-    this.style.setProperty('--popup-width-factor', `${popupWidth / outerWidth}`);
-    this.style.setProperty('--popup-height-factor', `${popupHeight / outerWidth}`);
-    this.style.setProperty('--popup-border-radius-factor', `${popupBorderRadius / outerWidth}`);
-    this.style.setProperty('--tab-height-factor', `${tabHeight / outerWidth}`);
-    this.style.setProperty('--font-size-factor', `${fontSize / outerWidth}`);
-    this.style.setProperty('--icon-size-factor', `${iconSize / outerWidth}`);
-    this.style.setProperty('--size-window-width', `${outerWidth}`);
+    const tabHorizontalPadding = 10;
+    const tabTextPadding = 14;
+    const tabTimeoutIndicatorHeight = 2;
+
+    const {floor} = Math;
+    this.style.setProperty('--popup-width', `${floor(popupWidth / this.zoomFactor)}px`);
+    this.style.setProperty('--popup-height', `${floor(popupHeight / this.zoomFactor)}px`);
+    this.style.setProperty(
+      '--popup-border-radius',
+      `${floor(popupBorderRadius / this.zoomFactor)}px`
+    );
+    this.style.setProperty('--tab-height', `${floor(tabHeight / this.zoomFactor)}px`);
+    this.style.setProperty(
+      '--tab-horizontal-padding',
+      `${floor(tabHorizontalPadding / this.zoomFactor)}px`
+    );
+    this.style.setProperty('--tab-text-padding', `${floor(tabTextPadding / this.zoomFactor)}px`);
+    this.style.setProperty(
+      '--tab-timeout-indicator-height',
+      `${floor(tabTimeoutIndicatorHeight / this.zoomFactor)}px`
+    );
+    this.style.setProperty('--font-size', `${floor(fontSize / this.zoomFactor)}px`);
+    this.style.setProperty('--icon-size', `${floor(iconSize / this.zoomFactor)}px`);
   }
 
   hideOverlay() {

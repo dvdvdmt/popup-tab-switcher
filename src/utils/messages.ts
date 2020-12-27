@@ -31,8 +31,8 @@ export function switchTab(selectedTab: Tab) {
   return {type: Message.SWITCH_TAB, selectedTab} as const;
 }
 
-export function selectTab(tabsData: Tab[], increment: number) {
-  return {type: Message.SELECT_TAB, tabsData, increment} as const;
+export function selectTab(tabsData: Tab[], increment: number, zoomFactor = 1) {
+  return {type: Message.SELECT_TAB, tabsData, increment, zoomFactor} as const;
 }
 
 export function closePopup() {
