@@ -97,7 +97,11 @@ async function handleCommand(command: Command) {
   // send the command to the content script
   await browser.tabs.sendMessage(
     currentTab.id,
-    selectTab(registry.getTabsToShow(), command === Command.NEXT ? 1 : -1)
+    selectTab(
+      registry.getTabsToShow(),
+      command === Command.NEXT ? 1 : -1,
+      await browser.tabs.getZoom()
+    )
   );
 }
 
