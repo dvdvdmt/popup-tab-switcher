@@ -123,7 +123,6 @@ export default class PopupTabSwitcher extends HTMLElement {
     shadow.appendChild(style);
     this.overlay.appendChild(this.card);
     shadow.appendChild(this.overlay);
-    this.hideOverlay = this.hideOverlay.bind(this);
     this.setupListeners();
   }
 
@@ -133,7 +132,7 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   setupListeners() {
     this.popupEventListener = handleMessage({
-      click: this.hideOverlay,
+      click: () => this.hideOverlay(),
     });
     this.cardEventListener = handleMessage({
       keyup: (e: KeyboardEvent) => {
@@ -166,7 +165,7 @@ export default class PopupTabSwitcher extends HTMLElement {
       },
     });
     this.windowEventListener = handleMessage({
-      blur: this.hideOverlay,
+      blur: () => this.hideOverlay(),
     });
     this.addEventListener('click', this.popupEventListener);
     this.card.addEventListener('keyup', this.cardEventListener);
@@ -185,16 +184,11 @@ export default class PopupTabSwitcher extends HTMLElement {
         this.zoomFactor = zoomFactor;
         this.setStylePropertiesThatDependOnPageZoom();
       },
-      [Message.CLOSE_POPUP]: this.hideOverlay,
+      [Message.CLOSE_POPUP]: () => this.hideOverlay(),
       [Message.SELECT_TAB]: ({tabsData, increment, zoomFactor}) => {
         this.tabsArray = tabsData;
         this.zoomFactor = zoomFactor;
-        this.selectedTabIndex = rangedIncrement(
-          this.selectedTabIndex,
-          increment,
-          this.tabsArray.length
-        );
-        this.renderTabs();
+        this.selectNextTab(increment);
         // When the focus is on the address bar or the 'search in the page' field
         // then the extension should switch a tab at the end of a timer.
         // Because there is no way to handle key pressings when a page has no focus.
@@ -218,6 +212,15 @@ export default class PopupTabSwitcher extends HTMLElement {
       },
     });
     chrome.runtime.onMessage.addListener(this.messageListener);
+  }
+
+  selectNextTab(increment: number) {
+    this.selectedTabIndex = rangedIncrement(
+      this.selectedTabIndex,
+      increment,
+      this.tabsArray.length
+    );
+    this.renderTabs();
   }
 
   removeListeners() {
@@ -378,6 +381,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.card.innerHTML = '';
     this.card.className = ['card', settings.isDarkTheme ? 'card_dark' : ''].join(' ');
     const tabElements = this.getTabElements();
+    this.card.dataset.testId = 'pts__card';
     this.card.append(...tabElements);
     this.showOverlay();
     tabElements[this.selectedTabIndex].focus();

@@ -3,6 +3,7 @@ declare global {
     e2e: {
       isVisible(el: Element): boolean;
       queryPopup(selector: string): Element[];
+      sendMessage(message: unknown): void;
     };
   }
 }
@@ -65,5 +66,9 @@ export function registerScripts() {
     );
   }
 
-  window.e2e = {isVisible, queryPopup};
+  function sendMessage(message: unknown) {
+    window.dispatchEvent(new CustomEvent('e2e-command-to-background', {detail: message}));
+  }
+
+  window.e2e = {isVisible, queryPopup, sendMessage};
 }

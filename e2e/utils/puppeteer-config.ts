@@ -1,9 +1,10 @@
 // eslint-disable import/prefer-default-export
 import path from 'path';
+import {LaunchOptions} from 'puppeteer';
 
 const pathToExtension = path.join(__dirname, '../../build-e2e');
 
-export default {
+export const config: LaunchOptions = {
   executablePath: process.env.PUPPETEER_EXEC_PATH,
   headless: false,
   slowMo: process.env.CI ? 100 : 20,

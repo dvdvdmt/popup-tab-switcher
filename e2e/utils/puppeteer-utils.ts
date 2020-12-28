@@ -1,5 +1,5 @@
 import puppeteer, {Browser} from 'puppeteer';
-import puppeteerConfig from './puppeteer-config';
+import {config} from './puppeteer-config';
 import {PuppeteerPopupHelper} from './puppeteer-popup-helper';
 
 let browser: Browser;
@@ -9,7 +9,7 @@ export async function startPuppeteer() {
   if (browser) {
     return {browser, helper};
   }
-  browser = await puppeteer.launch(puppeteerConfig);
+  browser = await puppeteer.launch(config);
   helper = new PuppeteerPopupHelper(browser);
   return {browser, helper};
 }

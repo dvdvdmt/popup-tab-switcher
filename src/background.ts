@@ -66,6 +66,9 @@ function initForE2ETests() {
           [Message.COMMAND]: async ({command}) => {
             await handleCommand(command);
           },
+          [Message.E2E_SET_ZOOM]: ({zoomFactor}) => {
+            browser.tabs.setZoom(zoomFactor);
+          },
         })
       );
     }
