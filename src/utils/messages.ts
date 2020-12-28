@@ -14,6 +14,7 @@ export enum Message {
   SELECT_TAB = 'SELECT_TAB',
   SWITCH_TAB = 'SWITCH_TAB',
   COMMAND = 'COMMAND',
+  E2E_SET_ZOOM = 'E2E_SET_ZOOM',
 }
 
 export function updateSettings(newSettings: DefaultSettings) {
@@ -48,6 +49,10 @@ export function command(cmd: Command) {
   return {type: Message.COMMAND, command: cmd} as const;
 }
 
+export function e2eSetZoom(zoomFactor: number) {
+  return {type: Message.E2E_SET_ZOOM, zoomFactor} as const;
+}
+
 export interface Handlers {
   [key: string]: (message?: unknown) => void;
   [Message.UPDATE_SETTINGS]?: (message: ReturnType<typeof updateSettings>) => void;
@@ -60,6 +65,7 @@ export interface Handlers {
   [Message.SELECT_TAB]?: (message: ReturnType<typeof selectTab>) => void;
   [Message.CLOSE_POPUP]?: () => void;
   [Message.COMMAND]?: (message: ReturnType<typeof command>) => void;
+  [Message.E2E_SET_ZOOM]?: (message: ReturnType<typeof e2eSetZoom>) => void;
 }
 
 export function handleMessage(handlers: Handlers, typeKey = 'type') {

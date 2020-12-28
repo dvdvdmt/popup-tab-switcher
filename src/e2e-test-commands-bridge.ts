@@ -21,11 +21,8 @@ function sendCommandIfShortcutWasPressed({key, altKey, ctrlKey, metaKey, shiftKe
 
 window.addEventListener('keydown', sendCommandIfShortcutWasPressed);
 
-/*
- * Provides a way of updating extension settings from e2e tests.
- */
-// function updateSettings(e: CustomEvent<DefaultSettings>) {
-//   port.postMessage(Messages.updateSettings({newSettings: e.detail}));
-// }
-//
-// window.addEventListener('update-settings', updateSettings);
+function sendCommandToBackground(e: CustomEvent<unknown>) {
+  port.postMessage(e.detail);
+}
+
+window.addEventListener('e2e-command-to-background', sendCommandToBackground);

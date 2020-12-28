@@ -2,7 +2,7 @@ import assert from 'assert';
 import {Browser, Page} from 'puppeteer';
 import {defaultSettings, DefaultSettings} from '../src/utils/settings';
 import {closeTabs, startPuppeteer, stopPuppeteer} from './utils/puppeteer-utils';
-import {PuppeteerPopupHelper} from './utils/puppeteer-popup-helper';
+import {PuppeteerPopupHelper, settingsPageUrl} from './utils/puppeteer-popup-helper';
 
 declare global {
   interface Window {
@@ -12,7 +12,6 @@ declare global {
 
 let browser: Browser;
 let helper: PuppeteerPopupHelper;
-const settingsPageUrl = 'chrome-extension://meonejnmljcnoodabklmloagmnmcmlam/settings/index.html';
 
 async function input(page: Page, selector: string, text: string) {
   await page.evaluate((s) => {
@@ -130,13 +129,9 @@ describe('settings >', function TestSettings() {
     function getSettingsFromContentScript() {
       return ([el]: HTMLElement[]) => {
         const style = window.getComputedStyle(el);
-        const popupWidth = Math.round(
-          Number(style.getPropertyValue('--popup-width-factor')) * window.outerWidth
-        );
-        const tabHeight = Math.round(
-          Number(style.getPropertyValue('--tab-height-factor')) * window.outerWidth
-        );
-        const opacity = Math.round(Number(style.getPropertyValue('--popup-opacity')) * 100);
+        const popupWidth = Number.parseInt(style.getPropertyValue('--popup-width'), 10);
+        const tabHeight = Number.parseInt(style.getPropertyValue('--tab-height'), 10);
+        const opacity = Number.parseFloat(style.getPropertyValue('--popup-opacity')) * 100;
         return {
           popupWidth,
           tabHeight,

@@ -1,8 +1,9 @@
 import assert from 'assert';
 import {Browser, Page} from 'puppeteer';
-import {PuppeteerPopupHelper, getPagePath} from './utils/puppeteer-popup-helper';
+import {PuppeteerPopupHelper, getPagePath, HelperPage} from './utils/puppeteer-popup-helper';
 import {defaultSettings} from '../src/utils/settings';
 import {closeTabs, startPuppeteer, stopPuppeteer} from './utils/puppeteer-utils';
+import {e2eSetZoom} from '../src/utils/messages';
 
 let browser: Browser;
 let helper: PuppeteerPopupHelper;
@@ -11,6 +12,14 @@ function newPagePromise() {
   return new Promise<Page>((resolve) =>
     browser.once('targetcreated', (target) => resolve(target.page()))
   );
+}
+
+function waitFor(durationMS = 1000) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, durationMS);
+  });
 }
 
 describe('popup >', function TestPopup() {
@@ -446,6 +455,98 @@ describe('popup >', function TestPopup() {
       );
       const expectedTexts = ['Page with links', 'Example', 'Stack Overflow', 'Wikipedia'];
       assert.deepStrictEqual(elTexts, expectedTexts, 'background tabs were added');
+    });
+
+    it(`preserves look on different zoom levels and window sizes`, async () => {
+      async function getCardRect(page: HelperPage) {
+        return page.queryPopup(`[data-test-id=pts__card]`, ([el]) => {
+          const rect = el.getBoundingClientRect();
+          return {width: rect.width, height: rect.height};
+        });
+      }
+      const zoomFactor = 2;
+      const windowInitialWidth = 1000;
+      const windowInitialHeight = 800;
+      const cardInitialWidth = 436;
+      const cardInitialHeight = 280;
+      const cardZoomedWidth = cardInitialWidth / zoomFactor;
+      const cardZoomedHeight = cardInitialHeight / zoomFactor;
+      const page = await helper.openPage('example.html');
+      await helper.resizeWindow(windowInitialWidth, windowInitialHeight);
+      await helper.selectTabForward();
+      let cardRect = await getCardRect(page);
+
+      assert.strictEqual(
+        cardRect.width,
+        cardInitialWidth,
+        'Card has invalid width on initial zoom and window size'
+      );
+      assert.strictEqual(
+        cardRect.height,
+        cardInitialHeight,
+        'Card has invalid height on initial zoom and window size'
+      );
+
+      const newWidth = 600;
+      const newHeight = 600;
+      await helper.resizeWindow(newWidth, newHeight);
+      cardRect = await getCardRect(page);
+
+      assert.strictEqual(
+        cardRect.width,
+        cardInitialWidth,
+        'Card has invalid width on initial zoom and new window size'
+      );
+      assert.strictEqual(
+        cardRect.height,
+        cardInitialHeight,
+        'Card has invalid height on initial zoom and new window size'
+      );
+
+      await helper.resizeWindow(windowInitialWidth, cardInitialHeight);
+      await helper.sendMessage(e2eSetZoom(zoomFactor));
+      await waitFor(200);
+      cardRect = await getCardRect(page);
+
+      assert.strictEqual(
+        cardRect.width,
+        cardZoomedWidth,
+        'Card has invalid width on double zoom and initial window size'
+      );
+      assert.strictEqual(
+        cardRect.height,
+        cardZoomedHeight,
+        'Card has invalid height on double zoom and initial window size'
+      );
+
+      await helper.resizeWindow(windowInitialWidth, cardInitialHeight);
+      cardRect = await getCardRect(page);
+
+      assert.strictEqual(
+        cardRect.width,
+        cardZoomedWidth,
+        'Card has invalid width on double zoom and new window size'
+      );
+      assert.strictEqual(
+        cardRect.height,
+        cardZoomedHeight,
+        'Card has invalid height on double zoom and new window size'
+      );
+
+      await helper.sendMessage(e2eSetZoom(1));
+      await waitFor(200);
+      cardRect = await getCardRect(page);
+
+      assert.strictEqual(
+        cardRect.width,
+        cardInitialWidth,
+        'Card has invalid width on initial zoom and new window size'
+      );
+      assert.strictEqual(
+        cardRect.height,
+        cardInitialHeight,
+        'Card has invalid height on initial zoom and new window size'
+      );
     });
   });
 });
