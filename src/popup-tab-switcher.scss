@@ -107,21 +107,21 @@
   height: var(--popup-border-radius);
   fill: var(--card-background-color);
   left: 0;
+}
 
-  &_bottom {
-    bottom: calc(-1 * var(--popup-border-radius)); // TODO: check if it can be replaced with transform
-    transform: rotate(90deg);
-  }
+.tab__cornerIcon_bottom {
+  bottom: 0;
+  transform: translateY(100%) rotate(90deg);
+}
 
-  &_top {
-    top: calc(-1 * var(--popup-border-radius)); // TODO: check if it can be replaced with transform
-  }
+.tab__cornerIcon_top {
+  top: 0;
+  transform: translateY(-100%);
 }
 
 .tab__icon {
   height: auto;
   width: var(--icon-size);
-  min-width: var(--icon-size); // TODO: check necessity
   fill: var(--tab__icon-fill);
 
   &_noFavIcon {

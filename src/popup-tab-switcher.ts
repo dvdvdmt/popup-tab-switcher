@@ -53,6 +53,12 @@ function getIconEl(favIconUrl: string, url: string) {
     }
     return createSVGIcon(favIcons.default, 'tab__icon tab__icon_noFavIcon');
   }
+  /*
+   TODO: Sometimes favicons fail to load and ugly placeholder appears.
+   We can improve this with 'onerror' handler. When error occurs:
+    1. Show globe icon.
+    2. Download icon from 'https://www.google.com/s2/favicons?sz=64&domain_url=yahoo.com' and set src to base64 encoded image.
+  */
   iconEl = document.createElement('img');
   iconEl.src = favIconUrl;
   iconEl.className = 'tab__icon';
@@ -264,25 +270,21 @@ export default class PopupTabSwitcher extends HTMLElement {
     const tabTextPadding = 14;
     const tabTimeoutIndicatorHeight = 2;
 
-    const {floor} = Math;
-    this.style.setProperty('--popup-width', `${floor(popupWidth / this.zoomFactor)}px`);
-    this.style.setProperty('--popup-height', `${floor(popupHeight / this.zoomFactor)}px`);
-    this.style.setProperty(
-      '--popup-border-radius',
-      `${floor(popupBorderRadius / this.zoomFactor)}px`
-    );
-    this.style.setProperty('--tab-height', `${floor(tabHeight / this.zoomFactor)}px`);
+    this.style.setProperty('--popup-width', `${popupWidth / this.zoomFactor}px`);
+    this.style.setProperty('--popup-height', `${popupHeight / this.zoomFactor}px`);
+    this.style.setProperty('--popup-border-radius', `${popupBorderRadius / this.zoomFactor}px`);
+    this.style.setProperty('--tab-height', `${tabHeight / this.zoomFactor}px`);
     this.style.setProperty(
       '--tab-horizontal-padding',
-      `${floor(tabHorizontalPadding / this.zoomFactor)}px`
+      `${tabHorizontalPadding / this.zoomFactor}px`
     );
-    this.style.setProperty('--tab-text-padding', `${floor(tabTextPadding / this.zoomFactor)}px`);
+    this.style.setProperty('--tab-text-padding', `${tabTextPadding / this.zoomFactor}px`);
     this.style.setProperty(
       '--tab-timeout-indicator-height',
-      `${floor(tabTimeoutIndicatorHeight / this.zoomFactor)}px`
+      `${tabTimeoutIndicatorHeight / this.zoomFactor}px`
     );
-    this.style.setProperty('--font-size', `${floor(fontSize / this.zoomFactor)}px`);
-    this.style.setProperty('--icon-size', `${floor(iconSize / this.zoomFactor)}px`);
+    this.style.setProperty('--font-size', `${fontSize / this.zoomFactor}px`);
+    this.style.setProperty('--icon-size', `${iconSize / this.zoomFactor}px`);
   }
 
   hideOverlay() {
