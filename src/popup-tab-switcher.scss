@@ -122,6 +122,9 @@
 .tab__icon {
   height: auto;
   width: var(--icon-size);
+  // Prevents jumping of the icon after image finished loading.
+  // The width property doesn't apply to the image when it is loading.
+  max-width: var(--icon-size);
   fill: var(--tab__icon-fill);
 
   &_noFavIcon {

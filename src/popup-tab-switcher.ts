@@ -55,9 +55,15 @@ function getIconEl(favIconUrl: string, url: string) {
   }
   /*
    TODO: Sometimes favicons fail to load and ugly placeholder appears.
+   For example the icon of htmlbook.ru doesn't loading on other pages.
    We can improve this with 'onerror' handler. When error occurs:
     1. Show globe icon.
     2. Download icon from 'https://www.google.com/s2/favicons?sz=64&domain_url=yahoo.com' and set src to base64 encoded image.
+   Or this way:
+    1. Show globe icon by default for all images.
+    2. Download original icon. Then show it instead of globe icon.
+    3. If '2' fails, then try to load icon from google service, then show it instead of globe icon.
+    4. If '3' fails leave globe icon as is.
   */
   iconEl = document.createElement('img');
   iconEl.src = favIconUrl;
