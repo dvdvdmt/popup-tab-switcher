@@ -3,73 +3,17 @@ import styles from './popup-tab-switcher.scss';
 import sprite from './utils/sprite';
 import {Port} from './utils/constants';
 import tabCornerSymbol from './images/tab-corner.svg';
-import noFaviconSymbol from './images/no-favicon-icon.svg';
-import settingsSymbol from './images/settings-icon.svg';
-import downloadsSymbol from './images/downloads-icon.svg';
-import extensionsSymbol from './images/extensions-icon.svg';
-import historySymbol from './images/history-icon.svg';
-import bookmarksSymbol from './images/bookmarks-icon.svg';
 import {handleMessage, Handlers, Message, switchTab} from './utils/messages';
 import {DefaultSettings} from './utils/settings';
+import {createSVGIcon, getIconEl} from './icon';
+import {cache} from './utils/cache';
 
 import Tab = Tabs.Tab;
-
-interface FavIcons {
-  [key: string]: SvgSymbol;
-}
-const favIcons: FavIcons = {
-  default: noFaviconSymbol,
-  settings: settingsSymbol,
-  downloads: downloadsSymbol,
-  extensions: extensionsSymbol,
-  history: historySymbol,
-  bookmarks: bookmarksSymbol,
-};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let {settings}: {settings: DefaultSettings} = window as any;
 
-function createSVGIcon(symbol: SvgSymbol, className: string) {
-  const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svgEl.setAttribute('viewBox', symbol.viewBox);
-  svgEl.classList.add(...className.split(' '));
-  const useEl = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-  useEl.setAttribute('href', `#${symbol.id}`);
-  svgEl.append(useEl);
-  return svgEl;
-}
-
-function getIconEl(favIconUrl: string, url: string) {
-  let iconEl;
-  if (!favIconUrl && url) {
-    const matches = /chrome:\/\/(\w*?)\//.exec(url);
-    if (matches && matches[1] === 'newtab') {
-      iconEl = document.createElement('div');
-      iconEl.className = 'tab__icon';
-      return iconEl;
-    }
-    if (matches && matches[1] && favIcons[matches[1]]) {
-      return createSVGIcon(favIcons[matches[1]], 'tab__icon');
-    }
-    return createSVGIcon(favIcons.default, 'tab__icon tab__icon_noFavIcon');
-  }
-  /*
-   TODO: Sometimes favicons fail to load and ugly placeholder appears.
-   For example the icon of htmlbook.ru doesn't loading on other pages.
-   We can improve this with 'onerror' handler. When error occurs:
-    1. Show globe icon.
-    2. Download icon from 'https://www.google.com/s2/favicons?sz=64&domain_url=yahoo.com' and set src to base64 encoded image.
-   Or this way:
-    1. Show globe icon by default for all images.
-    2. Download original icon. Then show it instead of globe icon.
-    3. If '2' fails, then try to load icon from google service, then show it instead of globe icon.
-    4. If '3' fails leave globe icon as is.
-  */
-  iconEl = document.createElement('img');
-  iconEl.src = favIconUrl;
-  iconEl.className = 'tab__icon';
-  return iconEl;
-}
+const getIconElCached = cache(getIconEl);
 
 function restoreSelectionAndFocus(activeEl: Element) {
   if (!(activeEl instanceof HTMLElement)) {
@@ -329,7 +273,7 @@ export default class PopupTabSwitcher extends HTMLElement {
           tabEl.classList.add('tab_timeout');
         }
       }
-      const iconEl = getIconEl(tab.favIconUrl, tab.url);
+      const iconEl = getIconElCached(tab.favIconUrl, tab.url);
       const topCornerEl = createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_top');
       const bottomCornerEl = createSVGIcon(
         tabCornerSymbol,
