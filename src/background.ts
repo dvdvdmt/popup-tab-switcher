@@ -13,6 +13,7 @@ import {
 } from './utils/messages';
 import isCodeExecutionForbidden from './utils/is-code-execution-forbidden';
 import {isBrowserFocused} from './utils/is-browser-focused';
+import {checkTab, ITab} from './utils/check-tab';
 
 import Tab = Tabs.Tab;
 
@@ -25,14 +26,23 @@ initTabRegistry().then((newRegistry) => {
 
 async function initTabRegistry() {
   const windows = await browser.windows.getAll({populate: true});
-  const tabs = windows.flatMap((w) => w.tabs).sort(activeLast);
+  const tabs = windows
+    .flatMap((w) => w.tabs || [])
+    .map(checkTab)
+    .sort(activeLast);
   return new TabRegistry({
     tabs,
     numberOfTabsToShow: settings.get('numberOfTabsToShow') as number,
   });
 
   function activeLast(a: Tab, b: Tab) {
-    return a.active < b.active ? -1 : 1;
+    if (a.active < b.active) {
+      return -1;
+    }
+    if (a.active > b.active) {
+      return 1;
+    }
+    return 0;
   }
 }
 
@@ -74,7 +84,8 @@ function initForE2ETests() {
     }
   });
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'complete' && isAllowedUrl(tab.url)) {
+    const checkedTab = checkTab(tab);
+    if (changeInfo.status === 'complete' && isAllowedUrl(checkedTab.url)) {
       await browser.tabs.executeScript(tabId, {
         file: 'e2e-test-commands-bridge.js',
         allFrames: true,
@@ -83,12 +94,13 @@ function initForE2ETests() {
   });
 }
 
-async function handleCommand(command: Command) {
-  const currentTab = await getActiveTab();
-  if (!currentTab) {
+async function handleCommand(command: string) {
+  const activeTab = await getActiveTab();
+  if (!activeTab) {
     return;
   }
-  if (isCodeExecutionForbidden(currentTab)) {
+  const active = checkTab(activeTab);
+  if (isCodeExecutionForbidden(active)) {
     // If the content script can't be initialized then switch to the previous tab.
     // TODO: Create popup window on the center of a screen and show PTS in it.
     const previousTab = registry.getPreviouslyActive();
@@ -97,10 +109,10 @@ async function handleCommand(command: Command) {
     }
     return;
   }
-  await initializeContentScript(currentTab);
+  await initializeContentScript(active);
   // send the command to the content script
   await browser.tabs.sendMessage(
-    currentTab.id,
+    active.id,
     selectTab(
       registry.getTabsToShow(),
       command === Command.NEXT ? 1 : -1,
@@ -122,20 +134,20 @@ async function handleTabActivation() {
   const currentTab = await getActiveTab();
   // the tab can be instantly closed and therefore currentTab can be null
   if (currentTab) {
-    registry.push(currentTab);
+    registry.push(checkTab(currentTab));
   }
 }
 
 function handleTabCreation(tab: Tab) {
   if (!tab.active) {
-    registry.pushUnderTop(tab);
+    registry.pushUnderTop(checkTab(tab));
   }
 }
 
 async function handleTabUpdate(tabId: number, changeInfo: Tabs.OnUpdatedChangeInfoType, tab: Tab) {
   if (changeInfo.status === 'complete') {
     registry.removeFromInitialized(tabId);
-    registry.update(tab);
+    registry.update(checkTab(tab));
   }
 }
 
@@ -175,19 +187,20 @@ function handleCommunications(port: Runtime.Port) {
           if (!activeTab) {
             return;
           }
-          if (isCodeExecutionForbidden(activeTab)) {
+          const active = checkTab(activeTab);
+          if (isCodeExecutionForbidden(active)) {
             const previousNormalTab = registry.findBackward(
-              (tab: Tab) => !isCodeExecutionForbidden(tab)
+              (tab) => !isCodeExecutionForbidden(tab)
             );
             if (previousNormalTab) {
               activateTab(previousNormalTab);
             }
             return;
           }
-          await initializeContentScript(activeTab);
+          await initializeContentScript(active);
           // send a command to the content script
           await browser.tabs.sendMessage(
-            activeTab.id,
+            active.id,
             applyNewSettings(newSettings, registry.getTabsToShow())
           );
         },
@@ -198,7 +211,7 @@ function handleCommunications(port: Runtime.Port) {
   }
 }
 
-async function initializeContentScript(tab: Tab) {
+async function initializeContentScript(tab: ITab) {
   if (!registry.isInitialized(tab)) {
     const settingsString = settings.getString();
     await browser.tabs.executeScript(tab.id, {
@@ -209,7 +222,7 @@ async function initializeContentScript(tab: Tab) {
   }
 }
 
-async function getActiveTab() {
+async function getActiveTab(): Promise<Tab | undefined> {
   const [activeTab] = await browser.tabs.query({
     active: true,
     currentWindow: true,
@@ -217,7 +230,7 @@ async function getActiveTab() {
   return activeTab;
 }
 
-function activateTab({id, windowId}: Tab) {
+function activateTab({id, windowId}: ITab) {
   browser.tabs.update(id, {active: true});
   if (isBrowserFocused()) {
     browser.windows.update(windowId, {focused: true});
@@ -226,7 +239,9 @@ function activateTab({id, windowId}: Tab) {
 
 async function handlePopupScriptDisconnection() {
   const currentTab = await getActiveTab();
-  await browser.tabs.sendMessage(currentTab.id, closePopup());
+  if (currentTab) {
+    await browser.tabs.sendMessage(checkTab(currentTab).id, closePopup());
+  }
 }
 
 function handleContentScriptMessages() {

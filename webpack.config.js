@@ -31,7 +31,7 @@ const conf = {
     rules: [
       {
         test: /\.ts$/,
-        use: 'ts-loader',
+        loader: 'ts-loader',
         exclude: nodeModulesDir,
       },
       {

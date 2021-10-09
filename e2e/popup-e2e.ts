@@ -15,7 +15,7 @@ function newPagePromise() {
 }
 
 function waitFor(durationMS = 1000) {
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     setTimeout(() => {
       resolve();
     }, durationMS);
@@ -432,8 +432,8 @@ describe('popup >', function TestPopup() {
     it('works in pages with iframe', async () => {
       await helper.openPage('wikipedia.html');
       const pageWithIframe = await helper.openPage('page-with-iframe.html');
-      const frame = await pageWithIframe.$('iframe').then((handle) => handle.contentFrame());
-      await frame.focus('input');
+      const frame = await pageWithIframe.$('iframe').then((handle) => handle?.contentFrame());
+      await frame?.focus('input');
       await helper.switchTab();
       let activeTab = await helper.getActiveTab();
       let tabTitle = await activeTab.$eval('title', (el) => el.textContent);
