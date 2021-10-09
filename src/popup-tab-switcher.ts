@@ -1,14 +1,12 @@
-import {Tabs} from 'webextension-polyfill-ts';
 import styles from './popup-tab-switcher.scss';
 import sprite from './utils/sprite';
 import {Port} from './utils/constants';
 import tabCornerSymbol from './images/tab-corner.svg';
-import {handleMessage, Handlers, Message, switchTab} from './utils/messages';
+import {handleMessage, Message, switchTab} from './utils/messages';
 import {DefaultSettings} from './utils/settings';
 import {createSVGIcon, getIconEl} from './icon';
 import {cache} from './utils/cache';
-
-import Tab = Tabs.Tab;
+import {ITab} from './utils/check-tab';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let {settings}: {settings: DefaultSettings} = window as any;
@@ -43,13 +41,11 @@ function rangedIncrement(number: number, increment: number, maxInteger: number) 
 const contentScriptPort = chrome.runtime.connect({name: Port.CONTENT_SCRIPT});
 
 export default class PopupTabSwitcher extends HTMLElement {
-  private activeElement: Element;
+  private activeElement: Element | null;
 
   private timeout: number;
 
-  private popupEventListener: (message: unknown) => void;
-
-  private tabsArray: Tab[];
+  private tabsArray: ITab[];
 
   private selectedTabIndex = 0;
 
@@ -57,28 +53,30 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   private readonly card: HTMLDivElement;
 
-  private cardEventListener: (message: unknown) => void;
-
   private messageListener: (message: unknown) => void;
 
-  private windowEventListener: (message: unknown) => void;
-
-  private overlay: HTMLDivElement;
+  private readonly overlay: HTMLDivElement;
 
   private zoomFactor = 1;
 
+  private readonly root: ShadowRoot;
+
   constructor() {
     super();
-    const shadow = this.attachShadow({mode: 'open'});
-    sprite.mount(shadow);
+    this.onKeyUp = this.onKeyUp.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
+    this.onWindowBlur = this.onWindowBlur.bind(this);
+    this.onClick = this.onClick.bind(this);
+    this.root = this.attachShadow({mode: 'open'});
+    sprite.mount(this.root);
     const style = document.createElement('style');
     style.textContent = styles;
     this.overlay = document.createElement('div');
     this.overlay.classList.add('overlay');
     this.card = document.createElement('div');
-    shadow.appendChild(style);
+    this.root.appendChild(style);
     this.overlay.appendChild(this.card);
-    shadow.appendChild(this.overlay);
+    this.root.appendChild(this.overlay);
     this.setupListeners();
   }
 
@@ -87,46 +85,10 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   setupListeners() {
-    this.popupEventListener = handleMessage({
-      click: () => this.hideOverlay(),
-    });
-    this.cardEventListener = handleMessage({
-      keyup: (e: KeyboardEvent) => {
-        if (!this.isOverlayVisible) {
-          return;
-        }
-        if (!settings.isStayingOpen && ['Alt', 'Control', 'Meta'].includes(e.key)) {
-          this.switchToSelectedTab();
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      },
-      keydown: (e: KeyboardEvent) => {
-        if (!this.isOverlayVisible) {
-          return;
-        }
-        const handlers: Handlers = {
-          Escape: () => this.hideOverlay(),
-          Enter: () => this.switchToSelectedTab(),
-          ArrowUp: () => this.selectNextTab(-1),
-          ArrowDown: () => this.selectNextTab(1),
-          Tab: () => this.selectNextTab(e.shiftKey ? -1 : 1),
-        };
-        const handler = handlers[e.key];
-        if (handler) {
-          handler();
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      },
-    });
-    this.windowEventListener = handleMessage({
-      blur: () => this.hideOverlay(),
-    });
-    this.addEventListener('click', this.popupEventListener);
-    this.card.addEventListener('keyup', this.cardEventListener);
-    this.card.addEventListener('keydown', this.cardEventListener);
-    window.addEventListener('blur', this.windowEventListener);
+    this.addEventListener('click', this.onClick);
+    this.card.addEventListener('keyup', this.onKeyUp);
+    this.card.addEventListener('keydown', this.onKeyDown);
+    window.addEventListener('blur', this.onWindowBlur);
     this.messageListener = handleMessage({
       [Message.APPLY_NEW_SETTINGS]: ({tabsData, newSettings}) => {
         this.tabsArray = tabsData;
@@ -180,10 +142,10 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   removeListeners() {
-    this.removeEventListener('click', this.popupEventListener);
-    document.removeEventListener('keyup', this.cardEventListener);
-    document.removeEventListener('keydown', this.cardEventListener);
-    window.removeEventListener('blur', this.windowEventListener);
+    this.removeEventListener('click', this.onClick);
+    document.removeEventListener('keyup', this.onKeyUp);
+    document.removeEventListener('keydown', this.onKeyDown);
+    window.removeEventListener('blur', this.onWindowBlur);
     chrome.runtime.onMessage.removeListener(this.messageListener);
   }
 
@@ -251,7 +213,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.switchTo(this.nextTab);
   }
 
-  switchTo(selectedTab: Tab) {
+  switchTo(selectedTab: ITab) {
     this.hideOverlay();
     contentScriptPort.postMessage(switchTab(selectedTab));
   }
@@ -280,7 +242,7 @@ export default class PopupTabSwitcher extends HTMLElement {
         'tab__cornerIcon tab__cornerIcon_bottom'
       );
       const textEl = document.createElement('span');
-      textEl.textContent = tab.title;
+      textEl.textContent = tab.title || '';
       textEl.className = 'tab__text';
       let tabElements = [iconEl, topCornerEl, bottomCornerEl, textEl];
       if (i === 0) {
@@ -294,7 +256,7 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   scrollLongTextOfSelectedTab() {
-    const textEl: HTMLElement = this.shadowRoot.querySelector('.tab_selected .tab__text');
+    const textEl: HTMLElement = this.root.querySelector('.tab_selected .tab__text')!;
     const textIndent = textEl.scrollWidth - textEl.offsetWidth;
     if (textIndent) {
       const scrollTime = (textIndent / textEl.offsetWidth) * settings.textScrollCoefficient;
@@ -338,5 +300,43 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.showOverlay();
     tabElements[this.selectedTabIndex].focus();
     this.scrollLongTextOfSelectedTab();
+  }
+
+  onKeyUp(e: KeyboardEvent): void {
+    if (!this.isOverlayVisible) {
+      return;
+    }
+    if (!settings.isStayingOpen && ['Alt', 'Control', 'Meta'].includes(e.key)) {
+      this.switchToSelectedTab();
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
+  onKeyDown(e: KeyboardEvent): void {
+    if (!this.isOverlayVisible) {
+      return;
+    }
+    const handlers: {[key: string]: () => void} = {
+      Escape: () => this.hideOverlay(),
+      Enter: () => this.switchToSelectedTab(),
+      ArrowUp: () => this.selectNextTab(-1),
+      ArrowDown: () => this.selectNextTab(1),
+      Tab: () => this.selectNextTab(e.shiftKey ? -1 : 1),
+    };
+    const handler = handlers[e.key];
+    if (handler) {
+      handler();
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
+  onWindowBlur(): void {
+    this.hideOverlay();
+  }
+
+  onClick(): void {
+    this.hideOverlay();
   }
 }

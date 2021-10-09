@@ -1,7 +1,5 @@
-import {Tabs} from 'webextension-polyfill-ts';
+import {ITab} from './check-tab';
 
-import Tab = Tabs.Tab;
-
-export default function isCodeExecutionForbidden(tab: Tab) {
+export default function isCodeExecutionForbidden(tab: ITab) {
   return /^(chrome:|view-source:|https?:\/\/chrome.google.com)/.test(tab.url);
 }

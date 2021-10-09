@@ -2,7 +2,7 @@ import puppeteer, {Browser} from 'puppeteer';
 import {config} from './puppeteer-config';
 import {PuppeteerPopupHelper} from './puppeteer-popup-helper';
 
-let browser: Browser;
+let browser: Browser | undefined;
 let helper: PuppeteerPopupHelper;
 
 export async function startPuppeteer() {
@@ -15,6 +15,9 @@ export async function startPuppeteer() {
 }
 
 export async function closeTabs() {
+  if (!browser) {
+    return Promise.resolve([]);
+  }
   const [firstPage, ...restPages] = await browser.pages();
   await firstPage.goto('about:blank');
   const closeRestPromises = restPages.map((p) => p.close());
@@ -24,6 +27,6 @@ export async function closeTabs() {
 export async function stopPuppeteer() {
   if (browser) {
     await browser.close();
-    browser = null;
+    browser = undefined;
   }
 }

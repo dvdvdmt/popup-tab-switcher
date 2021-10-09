@@ -21,29 +21,41 @@ async function input(page: Page, selector: string, text: string) {
 }
 
 async function getSettingsFromPage(page: Page) {
+  // @ts-expect-error
   const textScrollDelay = await page.$eval('#textScrollDelay', (el: HTMLInputElement) => +el.value);
   const textScrollCoefficient = await page.$eval(
     '#textScrollCoefficient',
+    // @ts-expect-error
     (el: HTMLInputElement) => +el.value
   );
   const autoSwitchingTimeout = await page.$eval(
     '#autoSwitchingTimeout',
+    // @ts-expect-error
     (el: HTMLInputElement) => +el.value
   );
   const numberOfTabsToShow = await page.$eval(
     '#numberOfTabsToShow',
+    // @ts-expect-error
     (el: HTMLInputElement) => +el.value
   );
+  // @ts-expect-error
   const isDarkTheme = await page.$eval('#isDarkTheme', (el: HTMLInputElement) => el.checked);
+  // @ts-expect-error
   const popupWidth = await page.$eval('#popupWidth', (el: HTMLInputElement) => +el.value);
+  // @ts-expect-error
   const tabHeight = await page.$eval('#tabHeight', (el: HTMLInputElement) => +el.value);
+  // @ts-expect-error
   const fontSize = await page.$eval('#fontSize', (el: HTMLInputElement) => +el.value);
+  // @ts-expect-error
   const iconSize = await page.$eval('#iconSize', (el: HTMLInputElement) => +el.value);
+  // @ts-expect-error
   const opacity = await page.$eval('#opacity', (el: HTMLInputElement) => +el.value);
   const isSwitchingToPreviouslyUsedTab = await page.$eval(
     '#isSwitchingToPreviouslyUsedTab',
+    // @ts-expect-error
     (el: HTMLInputElement) => el.checked
   );
+  // @ts-expect-error
   const isStayingOpen = await page.$eval('#isStayingOpen', (el: HTMLInputElement) => el.checked);
   return {
     textScrollDelay,

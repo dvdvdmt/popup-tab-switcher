@@ -25,4 +25,5 @@ function sendCommandToBackground(e: CustomEvent<unknown>) {
   port.postMessage(e.detail);
 }
 
+// @ts-expect-error We can extend WindowEventMap with this and other custom events if necessary (https://github.com/microsoft/TypeScript/issues/28357#issuecomment-711415095)
 window.addEventListener('e2e-command-to-background', sendCommandToBackground);

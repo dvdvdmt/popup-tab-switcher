@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "outDir": "./dist/",
-    "noImplicitAny": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "skipLibCheck": true,
     "module": "CommonJS",
     "target": "ES2020",
     "allowJs": true,

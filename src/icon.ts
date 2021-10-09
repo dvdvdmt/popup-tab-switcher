@@ -52,8 +52,14 @@ function createEmptyIcon() {
   return iconEl;
 }
 
-export function getIconEl(favIconUrl: string, url: string) {
-  if (!favIconUrl && url) {
+export function getIconEl(
+  favIconUrl: string | undefined,
+  url: string | undefined
+): HTMLElement | SVGSVGElement {
+  if (favIconUrl) {
+    return createImageIcon(favIconUrl);
+  }
+  if (url) {
     const matches = /chrome:\/\/(\w*?)\//.exec(url);
     if (matches && matches[1] === 'newtab') {
       return createEmptyIcon();
@@ -61,7 +67,6 @@ export function getIconEl(favIconUrl: string, url: string) {
     if (matches && matches[1] && favIcons[matches[1]]) {
       return createSVGIcon(favIcons[matches[1]], 'tab__icon');
     }
-    return createSVGIcon(favIcons.default, 'tab__icon tab__icon_noFavIcon');
   }
-  return createImageIcon(favIconUrl);
+  return createSVGIcon(favIcons.default, 'tab__icon tab__icon_noFavIcon');
 }

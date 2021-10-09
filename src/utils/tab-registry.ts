@@ -1,18 +1,16 @@
-import {Tabs} from 'webextension-polyfill-ts';
-
-import Tab = Tabs.Tab;
+import {ITab} from './check-tab';
 
 interface TabRegistryOptions {
-  tabs?: Tab[];
+  tabs?: ITab[];
   numberOfTabsToShow?: number;
 }
 
 interface InitializedTabs {
-  [key: number]: Tab;
+  [key: number]: ITab;
 }
 
 export default class TabRegistry {
-  private tabs: Tab[];
+  private tabs: ITab[];
 
   private numberOfTabsToShow: number;
 
@@ -31,7 +29,7 @@ export default class TabRegistry {
     this.tabs = this.tabs.filter(({id}) => id !== tabId);
   }
 
-  addToInitialized(tab: Tab) {
+  addToInitialized(tab: ITab) {
     this.initializedTabs[tab.id] = tab;
   }
 
@@ -39,11 +37,11 @@ export default class TabRegistry {
     delete this.initializedTabs[tabId];
   }
 
-  isInitialized(tab: Tab) {
+  isInitialized(tab: ITab) {
     return this.initializedTabs[tab.id];
   }
 
-  push(current: Tab) {
+  push(current: ITab) {
     this.removeTab(current.id);
     this.tabs.push(current);
   }
@@ -53,7 +51,7 @@ export default class TabRegistry {
     this.removeFromInitialized(tabId);
   }
 
-  update(tabToUpdate: Tab) {
+  update(tabToUpdate: ITab) {
     this.tabs = this.tabs.map((t) => {
       if (t.id === tabToUpdate.id) {
         return tabToUpdate;
@@ -70,7 +68,7 @@ export default class TabRegistry {
     return Object.values(this.initializedTabs).map(({id}) => id);
   }
 
-  getTabsToShow() {
+  getTabsToShow(): ITab[] {
     return this.tabs.slice(-this.numberOfTabsToShow).reverse();
   }
 
@@ -82,7 +80,7 @@ export default class TabRegistry {
     return this.tabs[this.tabs.length - 2];
   }
 
-  findBackward(findFn: (t: Tab) => boolean) {
+  findBackward(findFn: (t: ITab) => boolean) {
     for (let i = this.tabs.length - 1; i >= 0; i -= 1) {
       if (findFn(this.tabs[i])) {
         return this.tabs[i];
@@ -91,7 +89,7 @@ export default class TabRegistry {
     return undefined;
   }
 
-  pushUnderTop(tab: Tab) {
+  pushUnderTop(tab: ITab) {
     if (this.tabs.length) {
       const top = this.getActive();
       this.tabs.push(top);

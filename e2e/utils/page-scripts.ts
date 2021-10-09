@@ -8,15 +8,21 @@ declare global {
   }
 }
 
+interface IPoint {
+  x: number;
+  y: number;
+}
+
 export function registerScripts() {
   // NOTE:
   // All helper functions that are available in opened pages must be defined inside this function.
   // This is because the registration function will be passed as string and the information about
   // external definitions will be lost.
-  function getElementFromPoint({x, y}: WebKitPoint) {
+  function getElementFromPoint({x, y}: IPoint) {
     // Penetrates shadow roots
     let el = document.elementFromPoint(x, y);
-    while (el.shadowRoot) {
+    while (el?.shadowRoot) {
+      // @ts-expect-error The ShadowRoot must have elementFromPoint method (https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot#:~:text=ShadowRoot.elementFromPoint())
       el = el.shadowRoot.elementFromPoint(x, y);
     }
     return el;
@@ -49,7 +55,7 @@ export function registerScripts() {
     ) {
       return false;
     }
-    let pointContainer: Node = getElementFromPoint(elCenter);
+    let pointContainer: Node | null = getElementFromPoint(elCenter);
     while (pointContainer) {
       if (pointContainer === el) {
         return true;
@@ -62,6 +68,7 @@ export function registerScripts() {
 
   function queryPopup(selector: string) {
     return Array.from(
+      // @ts-expect-error The #popup-tab-switcher has shadowRoot
       document.querySelector('#popup-tab-switcher').shadowRoot.querySelectorAll(selector)
     );
   }
