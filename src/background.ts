@@ -1,4 +1,4 @@
-import {browser, Runtime, Tabs} from 'webextension-polyfill-ts';
+import browser, {Runtime, Tabs} from 'webextension-polyfill';
 import TabRegistry from './utils/tab-registry';
 import Settings from './utils/settings';
 import {Command, Port, uninstallURL} from './utils/constants';
