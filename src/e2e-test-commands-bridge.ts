@@ -1,4 +1,4 @@
-import {browser} from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 import {Command, Port} from './utils/constants';
 import * as Messages from './utils/messages';
 

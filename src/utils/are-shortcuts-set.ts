@@ -1,4 +1,4 @@
-import {browser} from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 import {Command} from './constants';
 
 export default async function areShortcutsSet() {
