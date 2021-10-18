@@ -85,7 +85,7 @@ function initForE2ETests() {
   });
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     const checkedTab = checkTab(tab);
-    if (changeInfo.status === 'complete' && isAllowedUrl(checkedTab.url)) {
+    if (isAllowedUrl(checkedTab.url)) {
       await browser.tabs.executeScript(tabId, {
         file: 'e2e-test-commands-bridge.js',
         allFrames: true,
