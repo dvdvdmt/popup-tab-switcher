@@ -14,7 +14,16 @@ function newPagePromise() {
   );
 }
 
-function waitFor(durationMS = 1000) {
+const timeoutDurationMS = 30000;
+
+/**
+ * This helper function is useful when there is a need to debug some test case and figure out what is in the console.
+ * Steps:
+ * 1. Enable --auto-open-devtools-for-tabs in puppeteer-config.
+ * 2. Set timeoutDurationMS to necessary time.
+ * 3. Place `await waitFor()` in a test case.
+ * */
+function waitFor(durationMS = timeoutDurationMS) {
   return new Promise<void>((resolve) => {
     setTimeout(() => {
       resolve();
@@ -23,7 +32,7 @@ function waitFor(durationMS = 1000) {
 }
 
 describe('popup >', function TestPopup() {
-  this.timeout(30000);
+  this.timeout(timeoutDurationMS);
 
   before(() =>
     startPuppeteer().then((res) => {
