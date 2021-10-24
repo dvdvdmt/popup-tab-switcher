@@ -37,8 +37,8 @@ export default class TabRegistry {
     delete this.initializedTabs[tabId];
   }
 
-  isInitialized(tab: ITab) {
-    return this.initializedTabs[tab.id];
+  isInitialized(tabId: number) {
+    return this.initializedTabs[tabId];
   }
 
   push(current: ITab) {
