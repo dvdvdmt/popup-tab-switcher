@@ -44,7 +44,7 @@ const conf = {
           {
             loader: 'svg-sprite-loader',
             options: {
-              spriteModule: './src/utils/sprite',
+              spriteModule: '../../src/utils/sprite',
             },
           },
           {
