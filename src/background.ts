@@ -163,7 +163,9 @@ async function handleTabRemove(tabId: number) {
 }
 
 function handleZoomChange({tabId, newZoomFactor}: Tabs.OnZoomChangeZoomChangeInfoType) {
-  browser.tabs.sendMessage(tabId, updateZoomFactor(newZoomFactor));
+  if (registry.isInitialized(tabId)) {
+    browser.tabs.sendMessage(tabId, updateZoomFactor(newZoomFactor));
+  }
 }
 
 function handleCommunications(port: Runtime.Port) {
@@ -212,7 +214,7 @@ function handleCommunications(port: Runtime.Port) {
 }
 
 async function initializeContentScript(tab: ITab) {
-  if (!registry.isInitialized(tab)) {
+  if (!registry.isInitialized(tab.id)) {
     const settingsString = settings.getString();
     await browser.tabs.executeScript(tab.id, {
       code: `window.settings = ${settingsString};`,
