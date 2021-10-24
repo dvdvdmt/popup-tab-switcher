@@ -1,31 +1,32 @@
-import noFaviconSymbol from './images/no-favicon-icon.svg';
-import settingsSymbol from './images/settings-icon.svg';
-import downloadsSymbol from './images/downloads-icon.svg';
-import extensionsSymbol from './images/extensions-icon.svg';
-import historySymbol from './images/history-icon.svg';
-import bookmarksSymbol from './images/bookmarks-icon.svg';
+import noFaviconSVG from './images/no-favicon-icon.svg';
+import settingsSVG from './images/settings-icon.svg';
+import downloadsSVG from './images/downloads-icon.svg';
+import extensionsSVG from './images/extensions-icon.svg';
+import historySVG from './images/history-icon.svg';
+import bookmarksSVG from './images/bookmarks-icon.svg';
+import tabCornerSymbol from './images/tab-corner.svg';
 
-interface FavIcons {
-  [key: string]: SvgSymbol;
-}
+const parser = new DOMParser();
 
-const favIcons: FavIcons = {
-  default: noFaviconSymbol,
-  settings: settingsSymbol,
-  downloads: downloadsSymbol,
-  extensions: extensionsSymbol,
-  history: historySymbol,
-  bookmarks: bookmarksSymbol,
+const iconIdToElementMap: {[key: string]: HTMLElement} = {
+  default: parseSVGIcon(noFaviconSVG),
+  settings: parseSVGIcon(settingsSVG),
+  downloads: parseSVGIcon(downloadsSVG),
+  extensions: parseSVGIcon(extensionsSVG),
+  history: parseSVGIcon(historySVG),
+  bookmarks: parseSVGIcon(bookmarksSVG),
+  tabCorner: parseSVGIcon(tabCornerSymbol),
 };
 
-export function createSVGIcon(symbol: SvgSymbol, className: string) {
-  const svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svgEl.setAttribute('viewBox', symbol.viewBox);
-  svgEl.classList.add(...className.split(' '));
-  const useEl = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-  useEl.setAttribute('href', `#${symbol.id}`);
-  svgEl.append(useEl);
-  return svgEl;
+function parseSVGIcon(source: string): HTMLElement {
+  return parser.parseFromString(source, 'image/svg+xml').documentElement;
+}
+
+export function getSVGIcon(id: string, className: string): SVGSVGElement {
+  const icon = iconIdToElementMap[id];
+  const result = icon.cloneNode(true) as SVGSVGElement;
+  result.classList.add(...className.split(' '));
+  return result;
 }
 
 function createImageIcon(favIconUrl: string) {
@@ -64,9 +65,9 @@ export function getIconEl(
     if (matches && matches[1] === 'newtab') {
       return createEmptyIcon();
     }
-    if (matches && matches[1] && favIcons[matches[1]]) {
-      return createSVGIcon(favIcons[matches[1]], 'tab__icon');
+    if (matches && matches[1] && iconIdToElementMap[matches[1]]) {
+      return getSVGIcon(matches[1], 'tab__icon');
     }
   }
-  return createSVGIcon(favIcons.default, 'tab__icon tab__icon_noFavIcon');
+  return getSVGIcon('default', 'tab__icon tab__icon_noFavIcon');
 }
