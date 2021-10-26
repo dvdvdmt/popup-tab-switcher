@@ -31,22 +31,24 @@ const conf = {
     rules: [
       {
         test: /\.ts$/,
-        loader: 'ts-loader',
+        use: 'ts-loader',
         exclude: nodeModulesDir,
       },
       {
         test: /\.vue$/,
-        loader: 'vue-loader',
+        use: 'vue-loader',
       },
       {
         test: /\.svg$/,
+        exclude: settingsDir,
+        type: 'asset/source',
+        use: 'svgo-loader',
+      },
+      {
+        test: /\.svg$/,
+        include: settingsDir,
         use: [
-          {
-            loader: 'svg-sprite-loader',
-            options: {
-              spriteModule: '../../src/utils/sprite',
-            },
-          },
+          'svg-sprite-loader',
           {
             loader: 'svgo-loader',
             options: {
@@ -77,8 +79,8 @@ const conf = {
       {
         test: /\.scss$/,
         exclude: settingsDir,
+        type: 'asset/source',
         use: [
-          'raw-loader',
           {
             loader: 'sass-loader',
             options: {

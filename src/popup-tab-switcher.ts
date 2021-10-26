@@ -1,10 +1,8 @@
 import styles from './popup-tab-switcher.scss';
-import sprite from './utils/sprite';
 import {Port} from './utils/constants';
-import tabCornerSymbol from './images/tab-corner.svg';
 import {handleMessage, Message, switchTab} from './utils/messages';
 import {DefaultSettings} from './utils/settings';
-import {createSVGIcon, getIconEl} from './icon';
+import {getIconEl, getSVGIcon} from './icon';
 import {cache} from './utils/cache';
 import {ITab} from './utils/check-tab';
 
@@ -68,7 +66,6 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.onWindowBlur = this.onWindowBlur.bind(this);
     this.onClick = this.onClick.bind(this);
     this.root = this.attachShadow({mode: 'open'});
-    sprite.mount(this.root);
     const style = document.createElement('style');
     style.textContent = styles;
     this.overlay = document.createElement('div');
@@ -236,11 +233,8 @@ export default class PopupTabSwitcher extends HTMLElement {
         }
       }
       const iconEl = getIconElCached(tab.favIconUrl, tab.url);
-      const topCornerEl = createSVGIcon(tabCornerSymbol, 'tab__cornerIcon tab__cornerIcon_top');
-      const bottomCornerEl = createSVGIcon(
-        tabCornerSymbol,
-        'tab__cornerIcon tab__cornerIcon_bottom'
-      );
+      const topCornerEl = getSVGIcon('tabCorner', 'tab__cornerIcon tab__cornerIcon_top');
+      const bottomCornerEl = getSVGIcon('tabCorner', 'tab__cornerIcon tab__cornerIcon_bottom');
       const textEl = document.createElement('span');
       textEl.textContent = tab.title || '';
       textEl.className = 'tab__text';
