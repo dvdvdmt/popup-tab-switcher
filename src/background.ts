@@ -172,9 +172,11 @@ function handleCommunications(port: Runtime.Port) {
   if (Port.CONTENT_SCRIPT === port.name) {
     port.onMessage.addListener(handleContentScriptMessages());
   } else if (Port.POPUP_SCRIPT === port.name) {
-    // TODO: On settings opening select a tab where content script can be executed and show popup in it.
+    // TODO: On settings opening select a tab where content script can be executed
+    //  and show popup in it.
     //  Remove initial updateSettings() execution from settings.vue.
-    //  This will probably prevent a bug when extension icon is clicked twice which results in opened popup but closed settings.
+    //  This will probably prevent a bug when extension icon is clicked twice which
+    //  results in opened popup but closed settings.
     port.onMessage.addListener(
       handleMessage({
         [Message.UPDATE_SETTINGS]: async ({newSettings}) => {

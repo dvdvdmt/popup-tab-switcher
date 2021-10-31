@@ -2,7 +2,9 @@ import {Tabs} from 'webextension-polyfill';
 
 import Tab = Tabs.Tab;
 
-/** This interface guarantees the presence of potentially undefined fields in a tab object that comes from browser API.
+/**
+ * This interface guarantees the presence of potentially undefined fields in a tab object
+ * that comes from browser API.
  * We can guarantee their presence because the extension uses 'tabs' permission.
  * */
 export interface ITab extends Tab {

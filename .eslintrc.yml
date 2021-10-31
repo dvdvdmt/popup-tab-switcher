@@ -5,7 +5,6 @@ parser: '@typescript-eslint/parser'
 plugins:
   - '@typescript-eslint'
   - import
-  - prettier
   - mocha-no-only
 extends:
   - airbnb-base
@@ -13,7 +12,6 @@ extends:
   - plugin:@typescript-eslint/recommended
   - plugin:import/errors
   - plugin:import/warnings
-  - plugin:prettier/recommended
 settings:
   import/resolver:
     node:
@@ -32,10 +30,19 @@ rules:
   object-curly-spacing: [error, never]
   arrow-parens: [error, always]
   import/extensions: off
-  import/no-extraneous-dependencies: [error, {devDependencies: ["./**/*test.js", 'webpack.config.js']}]
+  import/no-extraneous-dependencies:
+    [error, {devDependencies: ['./**/*test.js', 'webpack.config.js']}]
   import/prefer-default-export: off
   react/prop-types: off
   react/display-name: off
+  comma-dangle: off
+  operator-linebreak: off
+  implicit-arrow-linebreak: off
+  function-paren-newline: off
+  quotes: off
+  object-curly-newline: off
+  indent: off
+  max-len: off
 overrides:
   - files: ['webpack.config.js']
     rules:

@@ -5,3 +5,4 @@ bracketSpacing: false
 trailingComma: es5
 arrowParens: always
 printWidth: 100
+proseWrap: always

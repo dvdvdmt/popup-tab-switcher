@@ -36,7 +36,12 @@ export function switchTab(selectedTab: ITab) {
 }
 
 export function selectTab(tabsData: ITab[], increment: number, zoomFactor = 1) {
-  return {type: Message.SELECT_TAB, tabsData, increment, zoomFactor} as const;
+  return {
+    type: Message.SELECT_TAB,
+    tabsData,
+    increment,
+    zoomFactor,
+  } as const;
 }
 
 export function closePopup() {
@@ -101,11 +106,11 @@ function isMessage(message: {type: string}): message is IMessage {
 export function handleMessage(handlers: Partial<IHandlers>) {
   return (message: unknown) => {
     if (!isTypedObject(message)) {
-      console.error(`Message must have the 'type' property of string value.`, message);
+      console.error("Message must have the 'type' property of string value.", message);
       return;
     }
     if (!isMessage(message)) {
-      console.error(`There is no message of such type in registry.`, message);
+      console.error('There is no message of such type in registry.', message);
       return;
     }
     const handler = handlers[message.type];

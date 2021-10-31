@@ -17,7 +17,8 @@ function newPagePromise() {
 const timeoutDurationMS = 30000;
 
 /**
- * This helper function is useful when there is a need to debug some test case and figure out what is in the console.
+ * This helper function is useful when there asodifjsadf is a need to debug some test case
+ * and figure out what is in the console.
  * Steps:
  * 1. Enable --auto-open-devtools-for-tabs in puppeteer-config.
  * 2. Set timeoutDurationMS to necessary time.
@@ -98,9 +99,7 @@ describe('popup >', function TestPopup() {
   });
 
   context('many pages >', () => {
-    afterEach(() => {
-      return closeTabs();
-    });
+    afterEach(() => closeTabs());
 
     it('adds visited pages to the registry in correct order', async () => {
       const expectedTexts = ['Stack Overflow', 'Example', 'Wikipedia'];
@@ -375,12 +374,8 @@ describe('popup >', function TestPopup() {
       await helper.selectTabForward();
       await pageWikipedia.keyboard.press('Escape');
       const focusedEl = await pageWikipedia.evaluate(() => {
-        const {
-          id,
-          selectionStart,
-          selectionEnd,
-          selectionDirection,
-        } = document.activeElement as HTMLInputElement;
+        const {id, selectionStart, selectionEnd, selectionDirection} =
+          document.activeElement as HTMLInputElement;
         return {
           id,
           selectionStart,

@@ -105,12 +105,12 @@ async function setSettings(page: Page) {
 describe('settings >', function TestSettings() {
   this.timeout(30000);
 
-  before(() => {
-    return startPuppeteer().then((res) => {
+  before(() =>
+    startPuppeteer().then((res) => {
       browser = res.browser;
       helper = res.helper;
-    });
-  });
+    })
+  );
 
   after(stopPuppeteer);
 
@@ -257,14 +257,14 @@ describe('settings >', function TestSettings() {
     await helper.selectTabForward();
     await helper.selectTabBackward(); // Focuses on the first tab
     const activeTab = await helper.getActiveTab();
-    const isFirstTabVisible = await activeTab.queryPopup('.tab_selected', ([el]) => {
-      return window.e2e.isVisible(el);
-    });
+    const isFirstTabVisible = await activeTab.queryPopup('.tab_selected', ([el]) =>
+      window.e2e.isVisible(el)
+    );
     assert(isFirstTabVisible, 'First tab is not visible');
     await helper.selectTabBackward();
-    const isSecondTabVisible = await activeTab.queryPopup('.tab_selected', ([el]) => {
-      return window.e2e.isVisible(el);
-    });
+    const isSecondTabVisible = await activeTab.queryPopup('.tab_selected', ([el]) =>
+      window.e2e.isVisible(el)
+    );
     assert(isSecondTabVisible, 'Second tab is not visible');
   });
 });
