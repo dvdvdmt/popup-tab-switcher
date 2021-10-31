@@ -1,16 +1,16 @@
 declare global {
   interface Window {
     e2e: {
-      isVisible(el: Element): boolean;
-      queryPopup(selector: string): Element[];
-      sendMessage(message: unknown): void;
-    };
+      isVisible(el: Element): boolean
+      queryPopup(selector: string): Element[]
+      sendMessage(message: unknown): void
+    }
   }
 }
 
 interface IPoint {
-  x: number;
-  y: number;
+  x: number
+  y: number
 }
 
 export function registerScripts() {
@@ -20,62 +20,62 @@ export function registerScripts() {
   // external definitions will be lost.
   function getElementFromPoint({x, y}: IPoint) {
     // Penetrates shadow roots
-    let el = document.elementFromPoint(x, y);
+    let el = document.elementFromPoint(x, y)
     while (el?.shadowRoot) {
       // @ts-expect-error The ShadowRoot must have elementFromPoint method (https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot#:~:text=ShadowRoot.elementFromPoint())
-      el = el.shadowRoot.elementFromPoint(x, y);
+      el = el.shadowRoot.elementFromPoint(x, y)
     }
-    return el;
+    return el
   }
 
   function isVisible(el: HTMLElement) {
-    const style = getComputedStyle(el);
+    const style = getComputedStyle(el)
     if (style.display === 'none') {
-      return false;
+      return false
     }
     if (style.visibility !== 'visible') {
-      return false;
+      return false
     }
     if (Number(style.opacity) < 0.1) {
-      return false;
+      return false
     }
-    const elRect = el.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect()
     if (elRect.height === 0 && elRect.width === 0) {
-      return false;
+      return false
     }
     const elCenter = {
       x: elRect.left + elRect.width / 2,
       y: elRect.top + elRect.height / 2,
-    };
+    }
     if (
       elCenter.x < 0 ||
       elCenter.x > document.documentElement.clientWidth ||
       elCenter.y < 0 ||
       elCenter.y > document.documentElement.clientHeight
     ) {
-      return false;
+      return false
     }
-    let pointContainer: Node | null = getElementFromPoint(elCenter);
+    let pointContainer: Node | null = getElementFromPoint(elCenter)
     while (pointContainer) {
       if (pointContainer === el) {
-        return true;
+        return true
       }
       pointContainer =
-        pointContainer instanceof ShadowRoot ? pointContainer.host : pointContainer.parentNode;
+        pointContainer instanceof ShadowRoot ? pointContainer.host : pointContainer.parentNode
     }
-    return false;
+    return false
   }
 
   function queryPopup(selector: string) {
     return Array.from(
       // @ts-expect-error The #popup-tab-switcher has shadowRoot
       document.querySelector('#popup-tab-switcher').shadowRoot.querySelectorAll(selector)
-    );
+    )
   }
 
   function sendMessage(message: unknown) {
-    window.dispatchEvent(new CustomEvent('e2e-command-to-background', {detail: message}));
+    window.dispatchEvent(new CustomEvent('e2e-command-to-background', {detail: message}))
   }
 
-  window.e2e = {isVisible, queryPopup, sendMessage};
+  window.e2e = {isVisible, queryPopup, sendMessage}
 }

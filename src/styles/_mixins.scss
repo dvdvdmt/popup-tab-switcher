@@ -3,25 +3,25 @@
 @function mdc-theme-ink-color-for-fill_($text-style, $fill-color) {
   $mdc-theme-text-colors: (
     dark: (
-      primary: rgba(black, .87),
-      secondary: rgba(black, .54),
-      hint: rgba(black, .38),
-      disabled: rgba(black, .38),
-      icon: rgba(black, .38)
+      primary: rgba(black, 0.87),
+      secondary: rgba(black, 0.54),
+      hint: rgba(black, 0.38),
+      disabled: rgba(black, 0.38),
+      icon: rgba(black, 0.38),
     ),
     light: (
       primary: white,
-      secondary: rgba(white, .7),
-      hint: rgba(white, .5),
-      disabled: rgba(white, .5),
-      icon: rgba(white, .5)
-    )
+      secondary: rgba(white, 0.7),
+      hint: rgba(white, 0.5),
+      disabled: rgba(white, 0.5),
+      icon: rgba(white, 0.5),
+    ),
   );
 
   $mdc-theme-text-emphasis: (
-    high: .87,
-    medium: .6,
-    disabled: .38,
+    high: 0.87,
+    medium: 0.6,
+    disabled: 0.38,
   );
 
   $contrast-tone: mdc-theme-contrast-tone($fill-color);
@@ -35,11 +35,11 @@
   $mdc-theme-background: map_get($base-colors, 'background');
   $mdc-theme-surface: map_get($base-colors, 'surface');
 
-  $mdc-theme-on-primary: if(mdc-theme-contrast-tone($mdc-theme-primary) == "dark", #000, #fff);
-  $mdc-theme-on-secondary: if(mdc-theme-contrast-tone($mdc-theme-secondary) == "dark", #000, #fff);
-  $mdc-theme-on-surface: if(mdc-theme-contrast-tone($mdc-theme-surface) == "dark", #000, #fff);
+  $mdc-theme-on-primary: if(mdc-theme-contrast-tone($mdc-theme-primary) == 'dark', #000, #fff);
+  $mdc-theme-on-secondary: if(mdc-theme-contrast-tone($mdc-theme-secondary) == 'dark', #000, #fff);
+  $mdc-theme-on-surface: if(mdc-theme-contrast-tone($mdc-theme-surface) == 'dark', #000, #fff);
   $mdc-theme-error: #b00020;
-  $mdc-theme-on-error: if(mdc-theme-contrast-tone($mdc-theme-error) == "dark", #000, #fff);
+  $mdc-theme-on-error: if(mdc-theme-contrast-tone($mdc-theme-error) == 'dark', #000, #fff);
 
   //
   // Primary text colors for each of the theme colors.

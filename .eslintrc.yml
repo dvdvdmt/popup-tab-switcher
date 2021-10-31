@@ -26,6 +26,7 @@ rules:
   '@typescript-eslint/interface-name-prefix': [warn, always]
   '@typescript-eslint/explicit-function-return-type': off
   '@typescript-eslint/no-unused-vars': [error, {argsIgnorePattern: '^_', varsIgnorePattern: '^_'}]
+  '@typescript-eslint/member-delimiter-style': off
   prefer-arrow-callback: off
   object-curly-spacing: [error, never]
   arrow-parens: [error, always]
@@ -43,6 +44,7 @@ rules:
   object-curly-newline: off
   indent: off
   max-len: off
+  semi: off
 overrides:
   - files: ['webpack.config.js']
     rules:

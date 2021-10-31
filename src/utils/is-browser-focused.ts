@@ -1,11 +1,11 @@
-import browser from 'webextension-polyfill';
+import browser from 'webextension-polyfill'
 
-let isFocused = false;
+let isFocused = false
 browser.windows.onFocusChanged.addListener(async () => {
-  const lastFocused = await browser.windows.getLastFocused();
-  isFocused = lastFocused.focused;
-});
+  const lastFocused = await browser.windows.getLastFocused()
+  isFocused = lastFocused.focused
+})
 
 export function isBrowserFocused() {
-  return isFocused;
+  return isFocused
 }

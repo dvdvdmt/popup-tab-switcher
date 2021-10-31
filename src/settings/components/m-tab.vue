@@ -12,7 +12,7 @@
 </template>
 
 <script>
-  export default {
-    name: 'm-tab',
-  };
+export default {
+  name: 'm-tab',
+}
 </script>

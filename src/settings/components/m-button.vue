@@ -8,62 +8,56 @@
     class="mdc-button"
     v-on="$listeners"
   >
-    <slot name="icon"/>
-    <slot/>
+    <slot name="icon" />
+    <slot />
   </a>
-  <button
-    v-else
-    :class="classes"
-    v-bind="$attrs"
-    class="mdc-button"
-    v-on="$listeners"
-  >
-    <slot name="icon"/>
-    <slot/>
+  <button v-else :class="classes" v-bind="$attrs" class="mdc-button" v-on="$listeners">
+    <slot name="icon" />
+    <slot />
   </button>
 </template>
 
 <script>
-  import { MDCRipple } from '@material/ripple/index';
+import {MDCRipple} from '@material/ripple/index'
 
-  export default {
-    name: 'm-button',
-    props: {
-      raised: {
-        type: Boolean,
-        default: false,
-      },
-      unelevated: {
-        type: Boolean,
-        default: false,
-      },
-      outlined: {
-        type: Boolean,
-        default: false,
-      },
-      href: {
-        type: String,
-        default: '',
-      },
+export default {
+  name: 'm-button',
+  props: {
+    raised: {
+      type: Boolean,
+      default: false,
     },
-    computed: {
-      classes() {
-        return {
-          'mdc-button--raised': this.raised,
-          'mdc-button--unelevated': this.unelevated,
-          'mdc-button--outlined': this.outlined,
-        };
-      },
+    unelevated: {
+      type: Boolean,
+      default: false,
     },
-    mounted() {
-      this.mdcRipple = MDCRipple.attachTo(this.$el);
+    outlined: {
+      type: Boolean,
+      default: false,
     },
-    beforeDestroy() {
-      this.mdcRipple.destroy();
+    href: {
+      type: String,
+      default: '',
     },
-  };
+  },
+  computed: {
+    classes() {
+      return {
+        'mdc-button--raised': this.raised,
+        'mdc-button--unelevated': this.unelevated,
+        'mdc-button--outlined': this.outlined,
+      }
+    },
+  },
+  mounted() {
+    this.mdcRipple = MDCRipple.attachTo(this.$el)
+  },
+  beforeDestroy() {
+    this.mdcRipple.destroy()
+  },
+}
 </script>
 
 <style lang="scss">
-  @import "~@material/button/mdc-button.scss";
+@import '~@material/button/mdc-button.scss';
 </style>

@@ -1,6 +1,6 @@
-import assert from 'assert';
-import {describe, it} from 'mocha';
-import TabRegistry from './tab-registry';
+import assert from 'assert'
+import {describe, it} from 'mocha'
+import TabRegistry from './tab-registry'
 
 describe('Tab registry', () => {
   it('Maintains the right order of recently active tabs', () => {
@@ -41,7 +41,7 @@ describe('Tab registry', () => {
         url: '3 tab url',
         favIconUrl: '3 tab favicon',
       },
-    ];
+    ]
     const resultRegistry = [
       {
         id: 3,
@@ -61,11 +61,11 @@ describe('Tab registry', () => {
         url: '4 tab url',
         favIconUrl: '4 tab favicon',
       },
-    ];
-    const registry = new TabRegistry({numberOfTabsToShow: 3});
-    tabActivations.forEach((activeTab) => registry.push(activeTab));
-    assert.deepStrictEqual(registry.getTabsToShow(), resultRegistry);
-  });
+    ]
+    const registry = new TabRegistry({numberOfTabsToShow: 3})
+    tabActivations.forEach((activeTab) => registry.push(activeTab))
+    assert.deepStrictEqual(registry.getTabsToShow(), resultRegistry)
+  })
 
   it('Removes tabs correctly', () => {
     const tabActivations = [
@@ -93,7 +93,7 @@ describe('Tab registry', () => {
         url: '1 tab url',
         favIconUrl: '1 tab favicon',
       },
-    ];
+    ]
     const resultRegistry = [
       {
         id: 7,
@@ -113,14 +113,14 @@ describe('Tab registry', () => {
         url: '2 tab url',
         favIconUrl: '2 tab favicon',
       },
-    ];
-    const registry = new TabRegistry();
-    tabActivations.forEach((activeTab) => registry.push(activeTab));
-    registry.remove(4);
-    registry.remove(3);
-    registry.push(resultRegistry[0]);
-    assert.deepStrictEqual(registry.getTabsToShow(), resultRegistry);
-  });
+    ]
+    const registry = new TabRegistry()
+    tabActivations.forEach((activeTab) => registry.push(activeTab))
+    registry.remove(4)
+    registry.remove(3)
+    registry.push(resultRegistry[0])
+    assert.deepStrictEqual(registry.getTabsToShow(), resultRegistry)
+  })
 
   it('Updates tab with new info', () => {
     const tabActivations = [
@@ -148,7 +148,7 @@ describe('Tab registry', () => {
         url: '3 tab url',
         favIconUrl: '3 tab favicon',
       },
-    ];
+    ]
     const resultRegistry = [
       {
         id: 1,
@@ -174,15 +174,15 @@ describe('Tab registry', () => {
         url: '3 tab url',
         favIconUrl: '3 tab favicon',
       },
-    ];
-    const registry = new TabRegistry();
-    tabActivations.forEach((activeTab) => registry.push(activeTab));
+    ]
+    const registry = new TabRegistry()
+    tabActivations.forEach((activeTab) => registry.push(activeTab))
     registry.update({
       id: 2,
       title: '2 tab updated',
       url: '2 tab url updated',
       favIconUrl: '2 tab favicon updated',
-    });
-    assert.deepStrictEqual(registry.getTabs(), resultRegistry);
-  });
-});
+    })
+    assert.deepStrictEqual(registry.getTabs(), resultRegistry)
+  })
+})
