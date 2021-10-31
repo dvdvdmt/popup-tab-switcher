@@ -8,15 +8,16 @@
   },
   "main": "index.js",
   "scripts": {
-    "build:prod": "rm -rf build-prod && webpack --env.production && cd build-prod/ && zip -r archive.zip .",
-    "build:e2e": "rm -rf build-e2e && webpack --env.e2e",
     "build:dev": "rm -rf build-dev && webpack --env.development",
+    "build:e2e": "rm -rf build-e2e && webpack --env.e2e",
+    "build:prod": "rm -rf build-prod && webpack --env.production && cd build-prod/ && zip -r archive.zip .",
+    "clean": "rm -rf build*",
+    "lint": "eslint --ext .ts,.js ./",
+    "prepare": "husky install",
     "start": "webpack --env.development --env.watch --watch",
     "test": "mocha --require @babel/register --require ts-node/register --bail ./src/**/*-test.js",
-    "test:ts": "tsc --noEmit",
     "test:e2e": "npm run build:e2e && mocha --require @babel/register --require ts-node/register --slow 6000 --bail ./e2e/*-e2e.ts",
-    "clean": "rm -rf build*",
-    "lint": "eslint --ext .ts,.js ./"
+    "test:ts": "tsc --noEmit"
   },
   "keywords": [
     "extension",
@@ -43,8 +44,10 @@
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-mocha-no-only": "^1.1.0",
     "eslint-plugin-prettier": "^3.1.2",
+    "husky": "^7.0.4",
+    "lint-staged": "^11.2.6",
     "mocha": "^6.2.2",
-    "prettier": "^1.19.1",
+    "prettier": "^2.4.1",
     "puppeteer": "^10.4.0",
     "sass": "^1.25.0",
     "sass-loader": "^7.3.1",
@@ -68,5 +71,9 @@
     "svg-baker-runtime": "^1.4.3",
     "vue": "^2.6.11",
     "webextension-polyfill": "^0.8.0"
+  },
+  "lint-staged": {
+    "*": "prettier --ignore-unknown --write",
+    "*.{ts,js}": "eslint --cache --fix"
   }
 }
