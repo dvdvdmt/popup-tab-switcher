@@ -1,16 +1,16 @@
 // colors
-$color-gray-athens: #E4E7EA;
-$color-gray-athens-light: #F1F2F5;
-$color-gray-abbey: #4D5055;
-$color-gray-outer-space: #35393C;
+$color-gray-athens: #e4e7ea;
+$color-gray-athens-light: #f1f2f5;
+$color-gray-abbey: #4d5055;
+$color-gray-outer-space: #35393c;
 $color-gray-outer-space-light: lighten($color-gray-outer-space, 20%);
-$color-gray-porcelain: #E9EBEC;
+$color-gray-porcelain: #e9ebec;
 $color-gray-shark: #252629;
-$color-gray-shark-light: #2E3133;
-$color-blue-dodger: #448AFF;
-$color-blue-royal: #2376E5;
-$color-blue-mariner: #366AD3;
-$color-blue-mariner-light: #2274E1;
+$color-gray-shark-light: #2e3133;
+$color-blue-dodger: #448aff;
+$color-blue-royal: #2376e5;
+$color-blue-mariner: #366ad3;
+$color-blue-mariner-light: #2274e1;
 
 // light theme
 @mixin popup-theme-light() {

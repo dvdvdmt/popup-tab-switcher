@@ -19,9 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-@import "~@material/theme/mixins";
-@import "~@material/theme/variables";
-@import "./variables";
+@import '~@material/theme/mixins';
+@import '~@material/theme/variables';
+@import './variables';
 
 @mixin mdc-banner-base {
   min-height: $mdc-banner-height;

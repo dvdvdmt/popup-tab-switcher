@@ -10,4 +10,4 @@ export enum Command {
 }
 
 export const uninstallURL =
-  'https://docs.google.com/forms/d/e/1FAIpQLSe9vHJwxa-2XygNm_bRTVharJ8eZSHsbk1QVvgMASf72lwc8w/viewform';
+  'https://docs.google.com/forms/d/e/1FAIpQLSe9vHJwxa-2XygNm_bRTVharJ8eZSHsbk1QVvgMASf72lwc8w/viewform'
