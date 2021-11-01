@@ -15,7 +15,7 @@ function restoreSelectionAndFocus(activeEl: Element) {
   if (!(activeEl instanceof HTMLElement)) {
     return
   }
-  activeEl.focus()
+  activeEl.focus({preventScroll: true})
   if (activeEl instanceof HTMLInputElement || activeEl instanceof HTMLTextAreaElement) {
     const {selectionStart, selectionEnd, selectionDirection} = activeEl
     try {
