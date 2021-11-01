@@ -11,24 +11,6 @@ let {settings}: {settings: DefaultSettings} = window as any
 
 const getIconElCached = cache(getIconEl)
 
-function restoreSelectionAndFocus(activeEl: Element) {
-  if (!(activeEl instanceof HTMLElement)) {
-    return
-  }
-  activeEl.focus({preventScroll: true})
-  if (activeEl instanceof HTMLInputElement || activeEl instanceof HTMLTextAreaElement) {
-    const {selectionStart, selectionEnd, selectionDirection} = activeEl
-    try {
-      activeEl.setSelectionRange(
-        selectionStart,
-        selectionEnd,
-        selectionDirection as 'forward' | 'backward' | 'none'
-      )
-      // eslint-disable-next-line no-empty
-    } catch (e) {}
-  }
-}
-
 /**
  * Restricts result of a number increment between [0, maxInteger - 1]
  */
@@ -39,7 +21,7 @@ function rangedIncrement(number: number, increment: number, maxInteger: number) 
 const contentScriptPort = chrome.runtime.connect({name: Port.CONTENT_SCRIPT})
 
 export default class PopupTabSwitcher extends HTMLElement {
-  private activeElement: Element | null
+  private activeEl: Element | null
 
   private timeout: number
 
@@ -196,10 +178,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.style.display = 'none'
     this.isOverlayVisible = false
     this.selectedTabIndex = 0
-    if (this.activeElement) {
-      restoreSelectionAndFocus(this.activeElement)
-    }
-    this.activeElement = null
+    this.restoreSelectionAndFocus()
   }
 
   switchToSelectedTab() {
@@ -281,7 +260,7 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   renderTabs() {
     // remember active element to restore focus and selection when switcher hides
-    this.activeElement = this.activeElement || document.activeElement
+    this.activeEl = this.activeEl || document.activeElement
     this.card.innerHTML = ''
     this.card.className = ['card', settings.isDarkTheme ? 'card_dark' : ''].join(' ')
     const tabElements = this.getTabElements()
@@ -328,5 +307,26 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   onClick(): void {
     this.hideOverlay()
+  }
+
+  restoreSelectionAndFocus() {
+    if (this.activeEl) {
+      const activeEl = this.activeEl
+      this.activeEl = null
+      if (activeEl instanceof HTMLElement) {
+        activeEl.focus({preventScroll: true})
+      }
+      if (activeEl instanceof HTMLInputElement || activeEl instanceof HTMLTextAreaElement) {
+        const {selectionStart, selectionEnd, selectionDirection} = activeEl
+        try {
+          activeEl.setSelectionRange(
+            selectionStart,
+            selectionEnd,
+            selectionDirection as 'forward' | 'backward' | 'none'
+          )
+          // eslint-disable-next-line no-empty
+        } catch (e) {}
+      }
+    }
   }
 }
