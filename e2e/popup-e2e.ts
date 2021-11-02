@@ -415,6 +415,19 @@ describe('popup >', function TestPopup() {
       }
     })
 
+    it(`prevents scrolling on focus restoration`, async () => {
+      const page = await helper.openPage('stackoverflow.html')
+      const scrollY = await page.evaluate(() => {
+        document.querySelector<HTMLElement>('#stack-exchange-link')!.focus()
+        window.scrollBy(0, document.body.scrollHeight)
+        return window.scrollY
+      })
+      await helper.selectTabForward()
+      await page.keyboard.press('Escape')
+      const scrollYNew = await page.evaluate(() => window.scrollY)
+      assert.strictEqual(scrollY, scrollYNew, 'The page was scrolled back')
+    })
+
     it('switches on any modifier (Alt, Control, Command) keyup event', async () => {
       await helper.openPage('wikipedia.html')
       await helper.openPage('example.html')
