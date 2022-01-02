@@ -4,11 +4,11 @@ import Settings from './utils/settings'
 import {Command, Port, uninstallURL} from './utils/constants'
 import {
   applyNewSettings,
-  applyNewSettingsSilently,
   closePopup,
   handleMessage,
   Message,
   selectTab,
+  updateSettings,
   updateZoomFactor,
 } from './utils/messages'
 import isCodeExecutionForbidden from './utils/is-code-execution-forbidden'
@@ -111,7 +111,7 @@ async function handleCommand(command: string) {
   }
   await initializeContentScript(active)
   // send the command to the content script
-  await browser.tabs.sendMessage(
+  browser.tabs.sendMessage(
     active.id,
     selectTab(
       registry.getTabsToShow(),
@@ -170,7 +170,7 @@ function handleZoomChange({tabId, newZoomFactor}: Tabs.OnZoomChangeZoomChangeInf
 
 function handleCommunications(port: Runtime.Port) {
   if (Port.CONTENT_SCRIPT === port.name) {
-    port.onMessage.addListener(handleContentScriptMessages())
+    port.onMessage.addListener(handleContentScriptMessages(checkTab(port.sender?.tab!)))
   } else if (Port.POPUP_SCRIPT === port.name) {
     // TODO: On settings opening select a tab where content script can be executed
     //  and show popup in it.
@@ -185,7 +185,7 @@ function handleCommunications(port: Runtime.Port) {
           await Promise.all(
             registry
               .getInitializedTabsIds()
-              .map((id) => browser.tabs.sendMessage(id, applyNewSettingsSilently(newSettings)))
+              .map((id) => browser.tabs.sendMessage(id, updateSettings(newSettings)))
           )
           const activeTab = await getActiveTab()
           if (!activeTab) {
@@ -213,15 +213,17 @@ function handleCommunications(port: Runtime.Port) {
   }
 }
 
-async function initializeContentScript(tab: ITab) {
+async function initializeContentScript(tab: ITab): Promise<void> {
   if (!registry.isInitialized(tab.id)) {
-    const settingsString = settings.getString()
-    await browser.tabs.executeScript(tab.id, {
-      code: `window.settings = ${settingsString};`,
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        reject(new Error('Initialization took too much time'))
+      }, 100)
+      registry.tabInitialized = resolve
+      browser.tabs.executeScript(tab.id, {file: 'content.js'})
     })
-    await browser.tabs.executeScript(tab.id, {file: 'content.js'})
-    registry.addToInitialized(tab)
   }
+  return Promise.resolve()
 }
 
 async function getActiveTab(): Promise<Tab | undefined> {
@@ -246,10 +248,14 @@ async function handlePopupScriptDisconnection() {
   }
 }
 
-function handleContentScriptMessages() {
+function handleContentScriptMessages(tab: ITab) {
   return handleMessage({
     [Message.SWITCH_TAB]: ({selectedTab}) => {
       activateTab(selectedTab)
+    },
+    [Message.INITIALIZED]: () => {
+      browser.tabs.sendMessage(tab.id, updateSettings(settings.getObject()))
+      registry.addToInitialized(tab)
     },
   })
 }

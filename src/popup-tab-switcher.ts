@@ -1,13 +1,10 @@
 import styles from './popup-tab-switcher.scss'
 import {Port} from './utils/constants'
-import {handleMessage, Message, switchTab} from './utils/messages'
+import {handleMessage, initialized, Message, switchTab} from './utils/messages'
 import {DefaultSettings} from './utils/settings'
 import {getIconEl, getSVGIcon} from './icon'
 import {cache} from './utils/cache'
 import {ITab} from './utils/check-tab'
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let {settings}: {settings: DefaultSettings} = window as any
 
 const getIconElCached = cache(getIconEl)
 
@@ -41,6 +38,8 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   private readonly root: ShadowRoot
 
+  private settings: DefaultSettings
+
   constructor() {
     super()
     this.onKeyUp = this.onKeyUp.bind(this)
@@ -57,6 +56,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.overlay.appendChild(this.card)
     this.root.appendChild(this.overlay)
     this.setupListeners()
+    contentScriptPort.postMessage(initialized())
   }
 
   get nextTab() {
@@ -71,11 +71,11 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.messageListener = handleMessage({
       [Message.APPLY_NEW_SETTINGS]: ({tabsData, newSettings}) => {
         this.tabsArray = tabsData
-        settings = newSettings
+        this.settings = newSettings
         this.renderTabs()
       },
-      [Message.APPLY_NEW_SETTINGS_SILENTLY]: ({newSettings}) => {
-        settings = newSettings
+      [Message.UPDATE_SETTINGS]: ({newSettings}) => {
+        this.settings = newSettings
       },
       [Message.UPDATE_ZOOM_FACTOR]: ({zoomFactor}) => {
         this.zoomFactor = zoomFactor
@@ -103,7 +103,7 @@ export default class PopupTabSwitcher extends HTMLElement {
           clearTimeout(this.timeout)
           this.timeout = window.setTimeout(
             this.switchToSelectedTab.bind(this),
-            settings.autoSwitchingTimeout
+            this.settings.autoSwitchingTimeout
           )
         }
       },
@@ -130,8 +130,8 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   showOverlay() {
     this.setStylePropertiesThatDependOnPageZoom()
-    this.style.setProperty('--popup-opacity', `${settings.opacity / 100}`)
-    this.style.setProperty('--time-auto-switch-timeout', `${settings.autoSwitchingTimeout}ms`)
+    this.style.setProperty('--popup-opacity', `${this.settings.opacity / 100}`)
+    this.style.setProperty('--time-auto-switch-timeout', `${this.settings.autoSwitchingTimeout}ms`)
     this.style.display = 'block'
     this.isOverlayVisible = true
   }
@@ -150,7 +150,7 @@ export default class PopupTabSwitcher extends HTMLElement {
      Currently extension specific API browser.tabs.getZoom() is used to get tab zoom factor.
      Despite of knowing zoom factor the minimal font size on large zoom levels can't be rewritten.
     */
-    const {fontSize, numberOfTabsToShow, tabHeight, popupWidth, iconSize} = settings
+    const {fontSize, numberOfTabsToShow, tabHeight, popupWidth, iconSize} = this.settings
     const popupHeight = numberOfTabsToShow * tabHeight
     const popupBorderRadius = 8
     const tabHorizontalPadding = 10
@@ -227,10 +227,10 @@ export default class PopupTabSwitcher extends HTMLElement {
   scrollLongTextOfSelectedTab() {
     const textEl: HTMLElement = this.root.querySelector('.tab_selected .tab__text')!
     const textIndent = textEl.scrollWidth - textEl.offsetWidth
-    if (textIndent) {
-      const scrollTime = (textIndent / textEl.offsetWidth) * settings.textScrollCoefficient
-      const totalTime = 2 * settings.textScrollDelay + scrollTime
-      const startDelayOffset = settings.textScrollDelay / totalTime
+    if (textIndent > 0) {
+      const scrollTime = (textIndent / textEl.offsetWidth) * this.settings.textScrollCoefficient
+      const duration = scrollTime + 2 * this.settings.textScrollDelay
+      const startDelayOffset = this.settings.textScrollDelay / duration
       const endDelayOffset = 1 - startDelayOffset
       textEl.style.setProperty('text-overflow', 'initial')
       textEl.animate(
@@ -251,7 +251,7 @@ export default class PopupTabSwitcher extends HTMLElement {
           },
         ],
         {
-          duration: scrollTime + 2 * settings.textScrollDelay,
+          duration,
           iterations: Infinity,
         }
       )
@@ -262,7 +262,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     // remember active element to restore focus and selection when switcher hides
     this.activeEl = this.activeEl || document.activeElement
     this.card.innerHTML = ''
-    this.card.className = ['card', settings.isDarkTheme ? 'card_dark' : ''].join(' ')
+    this.card.className = ['card', this.settings.isDarkTheme ? 'card_dark' : ''].join(' ')
     const tabElements = this.getTabElements()
     this.card.dataset.testId = 'pts__card'
     this.card.append(...tabElements)
@@ -275,7 +275,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     if (!this.isOverlayVisible) {
       return
     }
-    if (!settings.isStayingOpen && ['Alt', 'Control', 'Meta'].includes(e.key)) {
+    if (!this.settings.isStayingOpen && ['Alt', 'Control', 'Meta'].includes(e.key)) {
       this.switchToSelectedTab()
       e.preventDefault()
       e.stopPropagation()

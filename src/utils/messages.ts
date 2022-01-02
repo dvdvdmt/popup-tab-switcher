@@ -5,7 +5,6 @@ import {ITab} from './check-tab'
 
 export enum Message {
   APPLY_NEW_SETTINGS = 'APPLY_NEW_SETTINGS',
-  APPLY_NEW_SETTINGS_SILENTLY = 'APPLY_NEW_SETTINGS_SILENTLY',
   UPDATE_SETTINGS = 'UPDATE_SETTINGS',
   UPDATE_ZOOM_FACTOR = 'UPDATE_ZOOM_FACTOR',
   CLOSE_POPUP = 'CLOSE_POPUP',
@@ -13,6 +12,7 @@ export enum Message {
   SWITCH_TAB = 'SWITCH_TAB',
   COMMAND = 'COMMAND',
   E2E_SET_ZOOM = 'E2E_SET_ZOOM',
+  INITIALIZED = 'INITIALIZED',
 }
 
 export function updateSettings(newSettings: DefaultSettings) {
@@ -25,10 +25,6 @@ export function updateZoomFactor(zoomFactor: number) {
 
 export function applyNewSettings(newSettings: DefaultSettings, tabsData: ITab[]) {
   return {type: Message.APPLY_NEW_SETTINGS, newSettings, tabsData} as const
-}
-
-export function applyNewSettingsSilently(newSettings: DefaultSettings) {
-  return {type: Message.APPLY_NEW_SETTINGS_SILENTLY, newSettings} as const
 }
 
 export function switchTab(selectedTab: ITab) {
@@ -56,32 +52,27 @@ export function e2eSetZoom(zoomFactor: number) {
   return {type: Message.E2E_SET_ZOOM, zoomFactor} as const
 }
 
+export function initialized() {
+  return {type: Message.INITIALIZED} as const
+}
+
 interface IMessageTypeToObjectMap {
   [Message.UPDATE_SETTINGS]: ReturnType<typeof updateSettings>
   [Message.UPDATE_ZOOM_FACTOR]: ReturnType<typeof updateZoomFactor>
   [Message.APPLY_NEW_SETTINGS]: ReturnType<typeof applyNewSettings>
-  [Message.APPLY_NEW_SETTINGS_SILENTLY]: ReturnType<typeof applyNewSettingsSilently>
   [Message.SWITCH_TAB]: ReturnType<typeof switchTab>
   [Message.SELECT_TAB]: ReturnType<typeof selectTab>
   [Message.CLOSE_POPUP]: ReturnType<typeof closePopup>
   [Message.COMMAND]: ReturnType<typeof command>
   [Message.E2E_SET_ZOOM]: ReturnType<typeof e2eSetZoom>
+  [Message.INITIALIZED]: ReturnType<typeof e2eSetZoom>
 }
 
 export type IHandlers = {
   [key in Message]: (message: IMessageTypeToObjectMap[key]) => void
 }
 
-type IMessage =
-  | ReturnType<typeof updateSettings>
-  | ReturnType<typeof updateZoomFactor>
-  | ReturnType<typeof applyNewSettings>
-  | ReturnType<typeof applyNewSettingsSilently>
-  | ReturnType<typeof switchTab>
-  | ReturnType<typeof selectTab>
-  | ReturnType<typeof closePopup>
-  | ReturnType<typeof command>
-  | ReturnType<typeof e2eSetZoom>
+type IMessage = IMessageTypeToObjectMap[keyof IMessageTypeToObjectMap]
 
 function hasOwnProperty<X extends {}, Y extends PropertyKey>(
   obj: X,
