@@ -55,6 +55,18 @@ function initListeners() {
   browser.tabs.onRemoved.addListener(handleTabRemove)
   browser.tabs.onZoomChange.addListener(handleZoomChange)
   browser.runtime.onConnect.addListener(handleCommunications)
+  browser.runtime.onMessage.addListener(
+    handleMessage({
+      [Message.INITIALIZED]: (_m, sender) => {
+        const tab = checkTab(sender.tab!)
+        browser.tabs.sendMessage(tab.id, updateSettings(settings.getObject()))
+        registry.addToInitialized(tab)
+      },
+      [Message.SWITCH_TAB]: ({selectedTab}) => {
+        activateTab(selectedTab)
+      },
+    })
+  )
   if (PRODUCTION) {
     initForProduction()
   }
@@ -169,9 +181,7 @@ function handleZoomChange({tabId, newZoomFactor}: Tabs.OnZoomChangeZoomChangeInf
 }
 
 function handleCommunications(port: Runtime.Port) {
-  if (Port.CONTENT_SCRIPT === port.name) {
-    port.onMessage.addListener(handleContentScriptMessages(checkTab(port.sender?.tab!)))
-  } else if (Port.POPUP_SCRIPT === port.name) {
+  if (Port.POPUP_SCRIPT === port.name) {
     // TODO: On settings opening select a tab where content script can be executed
     //  and show popup in it.
     //  Remove initial updateSettings() execution from settings.vue.
@@ -246,16 +256,4 @@ async function handlePopupScriptDisconnection() {
   if (currentTab) {
     await browser.tabs.sendMessage(checkTab(currentTab).id, closePopup())
   }
-}
-
-function handleContentScriptMessages(tab: ITab) {
-  return handleMessage({
-    [Message.SWITCH_TAB]: ({selectedTab}) => {
-      activateTab(selectedTab)
-    },
-    [Message.INITIALIZED]: () => {
-      browser.tabs.sendMessage(tab.id, updateSettings(settings.getObject()))
-      registry.addToInitialized(tab)
-    },
-  })
 }

@@ -1,5 +1,5 @@
+import browser from 'webextension-polyfill'
 import styles from './popup-tab-switcher.scss'
-import {Port} from './utils/constants'
 import {handleMessage, initialized, Message, switchTab} from './utils/messages'
 import {DefaultSettings} from './utils/settings'
 import {getIconEl, getSVGIcon} from './icon'
@@ -15,8 +15,6 @@ function rangedIncrement(number: number, increment: number, maxInteger: number) 
   return (number + (increment % maxInteger) + maxInteger) % maxInteger
 }
 
-const contentScriptPort = chrome.runtime.connect({name: Port.CONTENT_SCRIPT})
-
 export default class PopupTabSwitcher extends HTMLElement {
   private activeEl: Element | null
 
@@ -30,7 +28,7 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   private readonly card: HTMLDivElement
 
-  private messageListener: (message: unknown) => void
+  private messageListener: ReturnType<typeof handleMessage>
 
   private readonly overlay: HTMLDivElement
 
@@ -56,7 +54,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.overlay.appendChild(this.card)
     this.root.appendChild(this.overlay)
     this.setupListeners()
-    contentScriptPort.postMessage(initialized())
+    browser.runtime.sendMessage(initialized())
   }
 
   get nextTab() {
@@ -68,6 +66,11 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.card.addEventListener('keyup', this.onKeyUp)
     this.card.addEventListener('keydown', this.onKeyDown)
     window.addEventListener('blur', this.onWindowBlur)
+    // TODO:
+    //  Now the data is pushed from background to content scripts.
+    //  If each script would have requested all the data itself before rendering it could:
+    //    - Optimize setting changes, because the background can skip notification of each registered script.
+    //    - Simplify messaging because messages will not need to pass tabs, settings and zoom.
     this.messageListener = handleMessage({
       [Message.APPLY_NEW_SETTINGS]: ({tabsData, newSettings}) => {
         this.tabsArray = tabsData
@@ -108,7 +111,7 @@ export default class PopupTabSwitcher extends HTMLElement {
         }
       },
     })
-    chrome.runtime.onMessage.addListener(this.messageListener)
+    browser.runtime.onMessage.addListener(this.messageListener)
   }
 
   selectNextTab(increment: number) {
@@ -121,7 +124,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     document.removeEventListener('keyup', this.onKeyUp)
     document.removeEventListener('keydown', this.onKeyDown)
     window.removeEventListener('blur', this.onWindowBlur)
-    chrome.runtime.onMessage.removeListener(this.messageListener)
+    browser.runtime.onMessage.removeListener(this.messageListener)
   }
 
   disconnectedCallback() {
@@ -187,7 +190,7 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   switchTo(selectedTab: ITab) {
     this.hideOverlay()
-    contentScriptPort.postMessage(switchTab(selectedTab))
+    browser.runtime.sendMessage(switchTab(selectedTab))
   }
 
   getTabElements() {

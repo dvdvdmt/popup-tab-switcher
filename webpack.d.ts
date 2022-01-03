@@ -1,5 +1,6 @@
-declare const E2E: boolean;
-declare const PRODUCTION: boolean;
+declare const E2E: boolean
+declare const DEVELOPMENT: boolean
+declare const PRODUCTION: boolean
 
 // TODO: How to specify the result of an imported a module only in settings?
 // interface SvgSymbol {
@@ -12,11 +13,11 @@ declare const PRODUCTION: boolean;
 // }
 
 declare module '*.svg' {
-  const content: string;
-  export default content;
+  const content: string
+  export default content
 }
 
 declare module '*popup-tab-switcher.scss' {
-  const content: string;
-  export default content;
+  const content: string
+  export default content
 }
