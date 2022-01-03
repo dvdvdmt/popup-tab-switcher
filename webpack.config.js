@@ -163,7 +163,7 @@ module.exports = (env) => {
         E2E: 'false',
         PRODUCTION: 'false',
       }),
-      env.watch
+      env.WEBPACK_WATCH
         ? new ChromeExtensionReloader({
             entries: {
               contentScript: 'content',
