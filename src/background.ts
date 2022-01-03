@@ -182,11 +182,10 @@ function handleZoomChange({tabId, newZoomFactor}: Tabs.OnZoomChangeZoomChangeInf
 
 function handleCommunications(port: Runtime.Port) {
   if (Port.POPUP_SCRIPT === port.name) {
-    // TODO: On settings opening select a tab where content script can be executed
-    //  and show popup in it.
-    //  Remove initial updateSettings() execution from settings.vue.
-    //  This will probably prevent a bug when extension icon is clicked twice which
-    //  results in opened popup but closed settings.
+    // FIXME:
+    //  Double clicks on settings icon sometimes results in hidden switcher.
+    //  This happens because switcher reacts on window blur event.
+    //  When settings are open window blur handler should be disabled.
     port.onMessage.addListener(
       handleMessage({
         [Message.UPDATE_SETTINGS]: async ({newSettings}) => {
