@@ -3,12 +3,13 @@ import {Runtime} from 'webextension-polyfill'
 import {DefaultSettings} from './settings'
 import {Command} from './constants'
 import {ITab} from './check-tab'
+import {IModel} from '../popup-tab-switcher'
 
 import MessageSender = Runtime.MessageSender
 import Port = Runtime.Port
 
 export enum Message {
-  APPLY_NEW_SETTINGS = 'APPLY_NEW_SETTINGS',
+  DEMO_SETTINGS = 'DEMO_SETTINGS',
   UPDATE_SETTINGS = 'UPDATE_SETTINGS',
   UPDATE_ZOOM_FACTOR = 'UPDATE_ZOOM_FACTOR',
   CLOSE_POPUP = 'CLOSE_POPUP',
@@ -17,6 +18,7 @@ export enum Message {
   COMMAND = 'COMMAND',
   E2E_SET_ZOOM = 'E2E_SET_ZOOM',
   INITIALIZED = 'INITIALIZED',
+  GET_MODEL = 'GET_MODEL',
 }
 
 export function updateSettings(newSettings: DefaultSettings) {
@@ -27,20 +29,18 @@ export function updateZoomFactor(zoomFactor: number) {
   return {type: Message.UPDATE_ZOOM_FACTOR, zoomFactor} as const
 }
 
-export function applyNewSettings(newSettings: DefaultSettings, tabsData: ITab[]) {
-  return {type: Message.APPLY_NEW_SETTINGS, newSettings, tabsData} as const
+export function demoSettings() {
+  return {type: Message.DEMO_SETTINGS} as const
 }
 
 export function switchTab(selectedTab: ITab) {
   return {type: Message.SWITCH_TAB, selectedTab} as const
 }
 
-export function selectTab(tabsData: ITab[], increment: number, zoomFactor = 1) {
+export function selectTab(increment: number) {
   return {
     type: Message.SELECT_TAB,
-    tabsData,
     increment,
-    zoomFactor,
   } as const
 }
 
@@ -60,16 +60,21 @@ export function initialized() {
   return {type: Message.INITIALIZED} as const
 }
 
+export function getModel() {
+  return {type: Message.GET_MODEL} as const
+}
+
 interface IMessageTypeToObjectMap {
   [Message.UPDATE_SETTINGS]: {message: ReturnType<typeof updateSettings>; response: void}
   [Message.UPDATE_ZOOM_FACTOR]: {message: ReturnType<typeof updateZoomFactor>; response: void}
-  [Message.APPLY_NEW_SETTINGS]: {message: ReturnType<typeof applyNewSettings>; response: void}
+  [Message.DEMO_SETTINGS]: {message: ReturnType<typeof demoSettings>; response: void}
   [Message.SWITCH_TAB]: {message: ReturnType<typeof switchTab>; response: void}
   [Message.SELECT_TAB]: {message: ReturnType<typeof selectTab>; response: void}
   [Message.CLOSE_POPUP]: {message: ReturnType<typeof closePopup>; response: void}
   [Message.COMMAND]: {message: ReturnType<typeof command>; response: void}
   [Message.E2E_SET_ZOOM]: {message: ReturnType<typeof e2eSetZoom>; response: void}
   [Message.INITIALIZED]: {message: ReturnType<typeof e2eSetZoom>; response: void}
+  [Message.GET_MODEL]: {message: ReturnType<typeof getModel>; response: Promise<IModel>}
 }
 
 export type IHandlers = {
@@ -129,6 +134,6 @@ export function handleMessage(handlers: Partial<IHandlers>) {
     }
     // @ts-expect-error
     // TODO: How to guarantee correspondence of a message and handler types?
-    handler(message, getSender(sender))
+    return handler(message, getSender(sender))
   }
 }

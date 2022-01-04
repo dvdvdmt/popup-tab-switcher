@@ -45,6 +45,7 @@ rules:
   indent: off
   max-len: off
   semi: off
+  consistent-return: off
 overrides:
   - files: ['webpack.config.js']
     rules:

@@ -1,10 +1,16 @@
 import browser from 'webextension-polyfill'
 import styles from './popup-tab-switcher.scss'
-import {handleMessage, initialized, Message, switchTab} from './utils/messages'
+import {getModel, handleMessage, initialized, Message, switchTab} from './utils/messages'
 import {DefaultSettings} from './utils/settings'
 import {getIconEl, getSVGIcon} from './icon'
 import {cache} from './utils/cache'
 import {ITab} from './utils/check-tab'
+
+export interface IModel {
+  settings: DefaultSettings
+  tabs: ITab[]
+  zoomFactor: number
+}
 
 const getIconElCached = cache(getIconEl)
 
@@ -65,14 +71,15 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.card.addEventListener('keydown', this.onKeyDown)
     window.addEventListener('blur', this.onWindowBlur)
     // TODO:
-    //  Now the data is pushed from background to content scripts.
-    //  If each script would have requested all the data itself before rendering it could:
-    //    - Optimize setting changes, because the background can skip notification of each registered script.
-    //    - Simplify messaging because messages will not need to pass tabs, settings and zoom.
+    //  Zoom events are listened in background script and passed to the content scripts in active tabs.
+    //  It is better to listen to resize event and request data about zoomFactor from background script when necessary.
+    // window.addEventListener('resize', (e) => {
+    //   console.log(`[ resize]`, e)
+    // })
+
     this.messageListener = handleMessage({
-      [Message.APPLY_NEW_SETTINGS]: ({tabsData, newSettings}) => {
-        this.tabsArray = tabsData
-        this.settings = newSettings
+      [Message.DEMO_SETTINGS]: async () => {
+        await this.updateModel()
         this.isSettingsDemo = true
         this.renderTabs()
         setTimeout(() => {
@@ -82,17 +89,13 @@ export default class PopupTabSwitcher extends HTMLElement {
           this.isSettingsDemo = false
         })
       },
-      [Message.UPDATE_SETTINGS]: ({newSettings}) => {
-        this.settings = newSettings
-      },
       [Message.UPDATE_ZOOM_FACTOR]: ({zoomFactor}) => {
         this.zoomFactor = zoomFactor
         this.setStylePropertiesThatDependOnPageZoom()
       },
       [Message.CLOSE_POPUP]: () => this.hideOverlay(),
-      [Message.SELECT_TAB]: ({tabsData, increment, zoomFactor}) => {
-        this.tabsArray = tabsData
-        this.zoomFactor = zoomFactor
+      [Message.SELECT_TAB]: async ({increment}) => {
+        await this.updateModel()
         this.selectNextTab(increment)
         // When the focus is on the address bar or the 'search in the page' field
         // then the extension should switch a tab at the end of a timer.
@@ -117,6 +120,13 @@ export default class PopupTabSwitcher extends HTMLElement {
       },
     })
     browser.runtime.onMessage.addListener(this.messageListener)
+  }
+
+  async updateModel() {
+    const model: IModel = await browser.runtime.sendMessage(getModel())
+    this.tabsArray = model.tabs
+    this.zoomFactor = model.zoomFactor
+    this.settings = model.settings
   }
 
   selectNextTab(increment: number) {

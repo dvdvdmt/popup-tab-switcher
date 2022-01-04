@@ -3,12 +3,11 @@ import TabRegistry from './utils/tab-registry'
 import Settings from './utils/settings'
 import {Command, Port, uninstallURL} from './utils/constants'
 import {
-  applyNewSettings,
   closePopup,
+  demoSettings,
   handleMessage,
   Message,
   selectTab,
-  updateSettings,
   updateZoomFactor,
 } from './utils/messages'
 import isCodeExecutionForbidden from './utils/is-code-execution-forbidden'
@@ -112,14 +111,7 @@ async function handleCommand(command: string) {
   }
   await initializeContentScript(active)
   // send the command to the content script
-  browser.tabs.sendMessage(
-    active.id,
-    selectTab(
-      registry.getTabsToShow(),
-      command === Command.NEXT ? 1 : -1,
-      await browser.tabs.getZoom()
-    )
-  )
+  browser.tabs.sendMessage(active.id, selectTab(command === Command.NEXT ? 1 : -1))
 }
 
 async function handleWindowActivation(windowId: number) {
@@ -172,9 +164,7 @@ function handleZoomChange({tabId, newZoomFactor}: Tabs.OnZoomChangeZoomChangeInf
 function createMessageHandler() {
   return handleMessage({
     [Message.INITIALIZED]: (_m, sender) => {
-      const tab = checkTab(sender.tab!)
-      browser.tabs.sendMessage(tab.id, updateSettings(settings.getObject()))
-      registry.addToInitialized(tab)
+      registry.addToInitialized(checkTab(sender.tab!))
     },
     [Message.SWITCH_TAB]: ({selectedTab}) => {
       activateTab(selectedTab)
@@ -182,11 +172,6 @@ function createMessageHandler() {
     [Message.UPDATE_SETTINGS]: async ({newSettings}) => {
       settings.update(newSettings)
       registry.setNumberOfTabsToShow(newSettings.numberOfTabsToShow)
-      await Promise.all(
-        registry
-          .getInitializedTabsIds()
-          .map((id) => browser.tabs.sendMessage(id, updateSettings(newSettings)))
-      )
       const activeTab = await getActiveTab()
       if (!activeTab) {
         return
@@ -201,11 +186,13 @@ function createMessageHandler() {
       }
       await initializeContentScript(active)
       // send a command to the content script
-      await browser.tabs.sendMessage(
-        active.id,
-        applyNewSettings(newSettings, registry.getTabsToShow())
-      )
+      await browser.tabs.sendMessage(active.id, demoSettings())
     },
+    [Message.GET_MODEL]: async () => ({
+      tabs: registry.getTabsToShow(),
+      settings: settings.getObject(),
+      zoomFactor: await browser.tabs.getZoom(),
+    }),
   })
 }
 
