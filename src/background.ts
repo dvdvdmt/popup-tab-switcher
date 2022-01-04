@@ -170,10 +170,6 @@ function handleZoomChange({tabId, newZoomFactor}: Tabs.OnZoomChangeZoomChangeInf
 }
 
 function createMessageHandler() {
-  // FIXME:
-  //  Double clicks on settings icon sometimes results in hidden switcher.
-  //  This happens because switcher reacts on window blur event.
-  //  When settings are open window blur handler should be disabled.
   return handleMessage({
     [Message.INITIALIZED]: (_m, sender) => {
       const tab = checkTab(sender.tab!)

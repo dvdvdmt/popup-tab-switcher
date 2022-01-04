@@ -38,12 +38,10 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   private settings: DefaultSettings
 
+  private isSettingsDemo = false
+
   constructor() {
     super()
-    this.onKeyUp = this.onKeyUp.bind(this)
-    this.onKeyDown = this.onKeyDown.bind(this)
-    this.onWindowBlur = this.onWindowBlur.bind(this)
-    this.onClick = this.onClick.bind(this)
     this.root = this.attachShadow({mode: 'open'})
     const style = document.createElement('style')
     style.textContent = styles
@@ -75,7 +73,14 @@ export default class PopupTabSwitcher extends HTMLElement {
       [Message.APPLY_NEW_SETTINGS]: ({tabsData, newSettings}) => {
         this.tabsArray = tabsData
         this.settings = newSettings
+        this.isSettingsDemo = true
         this.renderTabs()
+        setTimeout(() => {
+          //  Double clicks on settings icon can result in hidden switcher.
+          //  This happens because switcher reacts on window blur event.
+          //  When settings are open blur handler should be disabled.
+          this.isSettingsDemo = false
+        })
       },
       [Message.UPDATE_SETTINGS]: ({newSettings}) => {
         this.settings = newSettings
@@ -274,7 +279,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.scrollLongTextOfSelectedTab()
   }
 
-  onKeyUp(e: KeyboardEvent): void {
+  onKeyUp = (e: KeyboardEvent): void => {
     if (!this.isOverlayVisible) {
       return
     }
@@ -285,7 +290,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     }
   }
 
-  onKeyDown(e: KeyboardEvent): void {
+  onKeyDown = (e: KeyboardEvent): void => {
     if (!this.isOverlayVisible) {
       return
     }
@@ -304,11 +309,14 @@ export default class PopupTabSwitcher extends HTMLElement {
     }
   }
 
-  onWindowBlur(): void {
+  onWindowBlur = (): void => {
+    if (this.isSettingsDemo) {
+      return
+    }
     this.hideOverlay()
   }
 
-  onClick(): void {
+  onClick = (): void => {
     this.hideOverlay()
   }
 
