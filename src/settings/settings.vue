@@ -21,6 +21,7 @@ import Contribute from './components/contribute.vue'
 import {updateSettings} from '../utils/messages'
 
 const settingsService = new Settings()
+// The connection is necessary for tracking settings popup closing (https://stackoverflow.com/q/15798516/3167855)
 const port = browser.runtime.connect({name: Port.POPUP_SCRIPT})
 
 export default {
@@ -43,7 +44,7 @@ export default {
   },
   methods: {
     updateSettings(newSettings) {
-      port.postMessage(updateSettings(newSettings))
+      browser.runtime.sendMessage(updateSettings(newSettings))
     },
     setDefaults() {
       settingsService.setDefaults()

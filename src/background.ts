@@ -54,19 +54,8 @@ function initListeners() {
   browser.tabs.onUpdated.addListener(handleTabUpdate)
   browser.tabs.onRemoved.addListener(handleTabRemove)
   browser.tabs.onZoomChange.addListener(handleZoomChange)
-  browser.runtime.onConnect.addListener(handleCommunications)
-  browser.runtime.onMessage.addListener(
-    handleMessage({
-      [Message.INITIALIZED]: (_m, sender) => {
-        const tab = checkTab(sender.tab!)
-        browser.tabs.sendMessage(tab.id, updateSettings(settings.getObject()))
-        registry.addToInitialized(tab)
-      },
-      [Message.SWITCH_TAB]: ({selectedTab}) => {
-        activateTab(selectedTab)
-      },
-    })
-  )
+  browser.runtime.onConnect.addListener(handleConnection)
+  browser.runtime.onMessage.addListener(createMessageHandler())
   if (PRODUCTION) {
     initForProduction()
   }
@@ -180,46 +169,48 @@ function handleZoomChange({tabId, newZoomFactor}: Tabs.OnZoomChangeZoomChangeInf
   }
 }
 
-function handleCommunications(port: Runtime.Port) {
-  if (Port.POPUP_SCRIPT === port.name) {
-    // FIXME:
-    //  Double clicks on settings icon sometimes results in hidden switcher.
-    //  This happens because switcher reacts on window blur event.
-    //  When settings are open window blur handler should be disabled.
-    port.onMessage.addListener(
-      handleMessage({
-        [Message.UPDATE_SETTINGS]: async ({newSettings}) => {
-          settings.update(newSettings)
-          registry.setNumberOfTabsToShow(newSettings.numberOfTabsToShow)
-          await Promise.all(
-            registry
-              .getInitializedTabsIds()
-              .map((id) => browser.tabs.sendMessage(id, updateSettings(newSettings)))
-          )
-          const activeTab = await getActiveTab()
-          if (!activeTab) {
-            return
-          }
-          const active = checkTab(activeTab)
-          if (isCodeExecutionForbidden(active)) {
-            const previousNormalTab = registry.findBackward((tab) => !isCodeExecutionForbidden(tab))
-            if (previousNormalTab) {
-              activateTab(previousNormalTab)
-            }
-            return
-          }
-          await initializeContentScript(active)
-          // send a command to the content script
-          await browser.tabs.sendMessage(
-            active.id,
-            applyNewSettings(newSettings, registry.getTabsToShow())
-          )
-        },
-      })
-    )
-    // notify a tab when the settings popup closes
-    port.onDisconnect.addListener(handlePopupScriptDisconnection)
-  }
+function createMessageHandler() {
+  // FIXME:
+  //  Double clicks on settings icon sometimes results in hidden switcher.
+  //  This happens because switcher reacts on window blur event.
+  //  When settings are open window blur handler should be disabled.
+  return handleMessage({
+    [Message.INITIALIZED]: (_m, sender) => {
+      const tab = checkTab(sender.tab!)
+      browser.tabs.sendMessage(tab.id, updateSettings(settings.getObject()))
+      registry.addToInitialized(tab)
+    },
+    [Message.SWITCH_TAB]: ({selectedTab}) => {
+      activateTab(selectedTab)
+    },
+    [Message.UPDATE_SETTINGS]: async ({newSettings}) => {
+      settings.update(newSettings)
+      registry.setNumberOfTabsToShow(newSettings.numberOfTabsToShow)
+      await Promise.all(
+        registry
+          .getInitializedTabsIds()
+          .map((id) => browser.tabs.sendMessage(id, updateSettings(newSettings)))
+      )
+      const activeTab = await getActiveTab()
+      if (!activeTab) {
+        return
+      }
+      const active = checkTab(activeTab)
+      if (isCodeExecutionForbidden(active)) {
+        const previousNormalTab = registry.findBackward((tab) => !isCodeExecutionForbidden(tab))
+        if (previousNormalTab) {
+          activateTab(previousNormalTab)
+        }
+        return
+      }
+      await initializeContentScript(active)
+      // send a command to the content script
+      await browser.tabs.sendMessage(
+        active.id,
+        applyNewSettings(newSettings, registry.getTabsToShow())
+      )
+    },
+  })
 }
 
 async function initializeContentScript(tab: ITab): Promise<void> {
@@ -250,7 +241,13 @@ function activateTab({id, windowId}: ITab) {
   }
 }
 
-async function handlePopupScriptDisconnection() {
+function handleConnection(port: Runtime.Port) {
+  if (Port.POPUP_SCRIPT === port.name) {
+    port.onDisconnect.addListener(closeSwitcherInActiveTab)
+  }
+}
+
+async function closeSwitcherInActiveTab() {
   const currentTab = await getActiveTab()
   if (currentTab) {
     await browser.tabs.sendMessage(checkTab(currentTab).id, closePopup())
