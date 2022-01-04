@@ -30,8 +30,6 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   private selectedTabIndex = 0
 
-  private isOverlayVisible = false
-
   private readonly card: HTMLDivElement
 
   private messageListener: ReturnType<typeof handleMessage>
@@ -65,17 +63,16 @@ export default class PopupTabSwitcher extends HTMLElement {
     return this.tabsArray[this.selectedTabIndex]
   }
 
+  get isOverlayVisible(): boolean {
+    return this.style.display === 'block'
+  }
+
   setupListeners() {
     this.addEventListener('click', this.onClick)
     this.card.addEventListener('keyup', this.onKeyUp)
     this.card.addEventListener('keydown', this.onKeyDown)
     window.addEventListener('blur', this.onWindowBlur)
-    // TODO:
-    //  Zoom events are listened in background script and passed to the content scripts in active tabs.
-    //  It is better to listen to resize event and request data about zoomFactor from background script when necessary.
-    // window.addEventListener('resize', (e) => {
-    //   console.log(`[ resize]`, e)
-    // })
+    window.addEventListener('resize', this.onWindowResize)
 
     this.messageListener = handleMessage({
       [Message.DEMO_SETTINGS]: async () => {
@@ -88,10 +85,6 @@ export default class PopupTabSwitcher extends HTMLElement {
           //  When settings are open blur handler should be disabled.
           this.isSettingsDemo = false
         })
-      },
-      [Message.UPDATE_ZOOM_FACTOR]: ({zoomFactor}) => {
-        this.zoomFactor = zoomFactor
-        this.setStylePropertiesThatDependOnPageZoom()
       },
       [Message.CLOSE_POPUP]: () => this.hideOverlay(),
       [Message.SELECT_TAB]: async ({increment}) => {
@@ -139,6 +132,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     document.removeEventListener('keyup', this.onKeyUp)
     document.removeEventListener('keydown', this.onKeyDown)
     window.removeEventListener('blur', this.onWindowBlur)
+    window.removeEventListener('resize', this.onWindowResize)
     browser.runtime.onMessage.removeListener(this.messageListener)
   }
 
@@ -151,50 +145,10 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.style.setProperty('--popup-opacity', `${this.settings.opacity / 100}`)
     this.style.setProperty('--time-auto-switch-timeout', `${this.settings.autoSwitchingTimeout}ms`)
     this.style.display = 'block'
-    this.isOverlayVisible = true
-  }
-
-  private setStylePropertiesThatDependOnPageZoom() {
-    /*
-     NOTE:
-     The popup tries to look the same independent of a page zoom level.
-     Unfortunately there is no way of getting zoom level reliably (https://stackoverflow.com/questions/1713771/how-to-detect-page-zoom-level-in-all-modern-browsers).
-     - Using outerWidth/innerWidth will give wrong results if a side bar is open (eg. dev tools,
-       menu in FF).
-     - The usage of 'vw' unit has the same flaws as outerWidth/innerWidth approach.
-     - The window.devicePixelRatio (DPR) changes on zoom but you can't rely on it on high DPI devices
-       because there is no way of getting base DPR that corresponds to zoom 100% (https://www.w3.org/community/respimg/2013/04/06/devicenormalpixelratio-proposal-for-zoom-independent-devicepixelratio-for-hd-retina-games/).
-
-     Currently extension specific API browser.tabs.getZoom() is used to get tab zoom factor.
-     Despite of knowing zoom factor the minimal font size on large zoom levels can't be rewritten.
-    */
-    const {fontSize, numberOfTabsToShow, tabHeight, popupWidth, iconSize} = this.settings
-    const popupHeight = numberOfTabsToShow * tabHeight
-    const popupBorderRadius = 8
-    const tabHorizontalPadding = 10
-    const tabTextPadding = 14
-    const tabTimeoutIndicatorHeight = 2
-
-    this.style.setProperty('--popup-width', `${popupWidth / this.zoomFactor}px`)
-    this.style.setProperty('--popup-height', `${popupHeight / this.zoomFactor}px`)
-    this.style.setProperty('--popup-border-radius', `${popupBorderRadius / this.zoomFactor}px`)
-    this.style.setProperty('--tab-height', `${tabHeight / this.zoomFactor}px`)
-    this.style.setProperty(
-      '--tab-horizontal-padding',
-      `${tabHorizontalPadding / this.zoomFactor}px`
-    )
-    this.style.setProperty('--tab-text-padding', `${tabTextPadding / this.zoomFactor}px`)
-    this.style.setProperty(
-      '--tab-timeout-indicator-height',
-      `${tabTimeoutIndicatorHeight / this.zoomFactor}px`
-    )
-    this.style.setProperty('--font-size', `${fontSize / this.zoomFactor}px`)
-    this.style.setProperty('--icon-size', `${iconSize / this.zoomFactor}px`)
   }
 
   hideOverlay() {
     this.style.display = 'none'
-    this.isOverlayVisible = false
     this.selectedTabIndex = 0
     this.restoreSelectionAndFocus()
   }
@@ -348,6 +302,51 @@ export default class PopupTabSwitcher extends HTMLElement {
           // eslint-disable-next-line no-empty
         } catch (e) {}
       }
+    }
+  }
+
+  private setStylePropertiesThatDependOnPageZoom() {
+    /*
+     NOTE:
+     The popup tries to look the same independent of a page zoom level.
+     Unfortunately there is no way of getting zoom level reliably (https://stackoverflow.com/questions/1713771/how-to-detect-page-zoom-level-in-all-modern-browsers).
+     - Using outerWidth/innerWidth will give wrong results if a side bar is open (eg. dev tools,
+       menu in FF).
+     - The usage of 'vw' unit has the same flaws as outerWidth/innerWidth approach.
+     - The window.devicePixelRatio (DPR) changes on zoom but you can't rely on it on high DPI devices
+       because there is no way of getting base DPR that corresponds to zoom 100% (https://www.w3.org/community/respimg/2013/04/06/devicenormalpixelratio-proposal-for-zoom-independent-devicepixelratio-for-hd-retina-games/).
+
+     Currently extension specific API browser.tabs.getZoom() is used to get tab zoom factor.
+     Despite of knowing zoom factor the minimal font size on large zoom levels can't be rewritten.
+    */
+    const {fontSize, numberOfTabsToShow, tabHeight, popupWidth, iconSize} = this.settings
+    const popupHeight = numberOfTabsToShow * tabHeight
+    const popupBorderRadius = 8
+    const tabHorizontalPadding = 10
+    const tabTextPadding = 14
+    const tabTimeoutIndicatorHeight = 2
+
+    this.style.setProperty('--popup-width', `${popupWidth / this.zoomFactor}px`)
+    this.style.setProperty('--popup-height', `${popupHeight / this.zoomFactor}px`)
+    this.style.setProperty('--popup-border-radius', `${popupBorderRadius / this.zoomFactor}px`)
+    this.style.setProperty('--tab-height', `${tabHeight / this.zoomFactor}px`)
+    this.style.setProperty(
+      '--tab-horizontal-padding',
+      `${tabHorizontalPadding / this.zoomFactor}px`
+    )
+    this.style.setProperty('--tab-text-padding', `${tabTextPadding / this.zoomFactor}px`)
+    this.style.setProperty(
+      '--tab-timeout-indicator-height',
+      `${tabTimeoutIndicatorHeight / this.zoomFactor}px`
+    )
+    this.style.setProperty('--font-size', `${fontSize / this.zoomFactor}px`)
+    this.style.setProperty('--icon-size', `${iconSize / this.zoomFactor}px`)
+  }
+
+  private onWindowResize = async () => {
+    if (this.isOverlayVisible) {
+      await this.updateModel()
+      this.setStylePropertiesThatDependOnPageZoom()
     }
   }
 }

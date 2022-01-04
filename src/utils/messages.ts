@@ -11,7 +11,6 @@ import Port = Runtime.Port
 export enum Message {
   DEMO_SETTINGS = 'DEMO_SETTINGS',
   UPDATE_SETTINGS = 'UPDATE_SETTINGS',
-  UPDATE_ZOOM_FACTOR = 'UPDATE_ZOOM_FACTOR',
   CLOSE_POPUP = 'CLOSE_POPUP',
   SELECT_TAB = 'SELECT_TAB',
   SWITCH_TAB = 'SWITCH_TAB',
@@ -23,10 +22,6 @@ export enum Message {
 
 export function updateSettings(newSettings: DefaultSettings) {
   return {type: Message.UPDATE_SETTINGS, newSettings} as const
-}
-
-export function updateZoomFactor(zoomFactor: number) {
-  return {type: Message.UPDATE_ZOOM_FACTOR, zoomFactor} as const
 }
 
 export function demoSettings() {
@@ -66,7 +61,6 @@ export function getModel() {
 
 interface IMessageTypeToObjectMap {
   [Message.UPDATE_SETTINGS]: {message: ReturnType<typeof updateSettings>; response: void}
-  [Message.UPDATE_ZOOM_FACTOR]: {message: ReturnType<typeof updateZoomFactor>; response: void}
   [Message.DEMO_SETTINGS]: {message: ReturnType<typeof demoSettings>; response: void}
   [Message.SWITCH_TAB]: {message: ReturnType<typeof switchTab>; response: void}
   [Message.SELECT_TAB]: {message: ReturnType<typeof selectTab>; response: void}

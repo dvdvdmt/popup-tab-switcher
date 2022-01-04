@@ -2,14 +2,7 @@ import browser, {Runtime, Tabs} from 'webextension-polyfill'
 import TabRegistry from './utils/tab-registry'
 import Settings from './utils/settings'
 import {Command, Port, uninstallURL} from './utils/constants'
-import {
-  closePopup,
-  demoSettings,
-  handleMessage,
-  Message,
-  selectTab,
-  updateZoomFactor,
-} from './utils/messages'
+import {closePopup, demoSettings, handleMessage, Message, selectTab} from './utils/messages'
 import isCodeExecutionForbidden from './utils/is-code-execution-forbidden'
 import {isBrowserFocused} from './utils/is-browser-focused'
 import {checkTab, ITab} from './utils/check-tab'
@@ -52,7 +45,6 @@ function initListeners() {
   browser.tabs.onCreated.addListener(handleTabCreation)
   browser.tabs.onUpdated.addListener(handleTabUpdate)
   browser.tabs.onRemoved.addListener(handleTabRemove)
-  browser.tabs.onZoomChange.addListener(handleZoomChange)
   browser.runtime.onConnect.addListener(handleConnection)
   browser.runtime.onMessage.addListener(createMessageHandler())
   if (PRODUCTION) {
@@ -152,12 +144,6 @@ async function handleTabRemove(tabId: number) {
     if (currentTab) {
       await activateTab(currentTab)
     }
-  }
-}
-
-function handleZoomChange({tabId, newZoomFactor}: Tabs.OnZoomChangeZoomChangeInfoType) {
-  if (registry.isInitialized(tabId)) {
-    browser.tabs.sendMessage(tabId, updateZoomFactor(newZoomFactor))
   }
 }
 
