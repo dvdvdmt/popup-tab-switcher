@@ -21,6 +21,9 @@ export default class TabRegistry {
     this.numberOfTabsToShow = numberOfTabsToShow
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  tabInitialized = () => {}
+
   setNumberOfTabsToShow(n: number) {
     this.numberOfTabsToShow = n
   }
@@ -31,6 +34,7 @@ export default class TabRegistry {
 
   addToInitialized(tab: ITab) {
     this.initializedTabs[tab.id] = tab
+    this.tabInitialized()
   }
 
   removeFromInitialized(tabId: number) {

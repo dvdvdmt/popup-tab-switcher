@@ -1,46 +1,41 @@
 /* eslint-disable no-console */
+import {Runtime} from 'webextension-polyfill'
 import {DefaultSettings} from './settings'
 import {Command} from './constants'
 import {ITab} from './check-tab'
+import {IModel} from '../popup-tab-switcher'
+
+import MessageSender = Runtime.MessageSender
+import Port = Runtime.Port
 
 export enum Message {
-  APPLY_NEW_SETTINGS = 'APPLY_NEW_SETTINGS',
-  APPLY_NEW_SETTINGS_SILENTLY = 'APPLY_NEW_SETTINGS_SILENTLY',
+  DEMO_SETTINGS = 'DEMO_SETTINGS',
   UPDATE_SETTINGS = 'UPDATE_SETTINGS',
-  UPDATE_ZOOM_FACTOR = 'UPDATE_ZOOM_FACTOR',
   CLOSE_POPUP = 'CLOSE_POPUP',
   SELECT_TAB = 'SELECT_TAB',
   SWITCH_TAB = 'SWITCH_TAB',
   COMMAND = 'COMMAND',
   E2E_SET_ZOOM = 'E2E_SET_ZOOM',
+  INITIALIZED = 'INITIALIZED',
+  GET_MODEL = 'GET_MODEL',
 }
 
 export function updateSettings(newSettings: DefaultSettings) {
   return {type: Message.UPDATE_SETTINGS, newSettings} as const
 }
 
-export function updateZoomFactor(zoomFactor: number) {
-  return {type: Message.UPDATE_ZOOM_FACTOR, zoomFactor} as const
-}
-
-export function applyNewSettings(newSettings: DefaultSettings, tabsData: ITab[]) {
-  return {type: Message.APPLY_NEW_SETTINGS, newSettings, tabsData} as const
-}
-
-export function applyNewSettingsSilently(newSettings: DefaultSettings) {
-  return {type: Message.APPLY_NEW_SETTINGS_SILENTLY, newSettings} as const
+export function demoSettings() {
+  return {type: Message.DEMO_SETTINGS} as const
 }
 
 export function switchTab(selectedTab: ITab) {
   return {type: Message.SWITCH_TAB, selectedTab} as const
 }
 
-export function selectTab(tabsData: ITab[], increment: number, zoomFactor = 1) {
+export function selectTab(increment: number) {
   return {
     type: Message.SELECT_TAB,
-    tabsData,
     increment,
-    zoomFactor,
   } as const
 }
 
@@ -56,32 +51,34 @@ export function e2eSetZoom(zoomFactor: number) {
   return {type: Message.E2E_SET_ZOOM, zoomFactor} as const
 }
 
+export function initialized() {
+  return {type: Message.INITIALIZED} as const
+}
+
+export function getModel() {
+  return {type: Message.GET_MODEL} as const
+}
+
 interface IMessageTypeToObjectMap {
-  [Message.UPDATE_SETTINGS]: ReturnType<typeof updateSettings>
-  [Message.UPDATE_ZOOM_FACTOR]: ReturnType<typeof updateZoomFactor>
-  [Message.APPLY_NEW_SETTINGS]: ReturnType<typeof applyNewSettings>
-  [Message.APPLY_NEW_SETTINGS_SILENTLY]: ReturnType<typeof applyNewSettingsSilently>
-  [Message.SWITCH_TAB]: ReturnType<typeof switchTab>
-  [Message.SELECT_TAB]: ReturnType<typeof selectTab>
-  [Message.CLOSE_POPUP]: ReturnType<typeof closePopup>
-  [Message.COMMAND]: ReturnType<typeof command>
-  [Message.E2E_SET_ZOOM]: ReturnType<typeof e2eSetZoom>
+  [Message.UPDATE_SETTINGS]: {message: ReturnType<typeof updateSettings>; response: void}
+  [Message.DEMO_SETTINGS]: {message: ReturnType<typeof demoSettings>; response: void}
+  [Message.SWITCH_TAB]: {message: ReturnType<typeof switchTab>; response: void}
+  [Message.SELECT_TAB]: {message: ReturnType<typeof selectTab>; response: void}
+  [Message.CLOSE_POPUP]: {message: ReturnType<typeof closePopup>; response: void}
+  [Message.COMMAND]: {message: ReturnType<typeof command>; response: void}
+  [Message.E2E_SET_ZOOM]: {message: ReturnType<typeof e2eSetZoom>; response: void}
+  [Message.INITIALIZED]: {message: ReturnType<typeof e2eSetZoom>; response: void}
+  [Message.GET_MODEL]: {message: ReturnType<typeof getModel>; response: Promise<IModel>}
 }
 
 export type IHandlers = {
-  [key in Message]: (message: IMessageTypeToObjectMap[key]) => void
+  [key in Message]: (
+    message: IMessageTypeToObjectMap[key]['message'],
+    sender: MessageSender
+  ) => IMessageTypeToObjectMap[key]['response']
 }
 
-type IMessage =
-  | ReturnType<typeof updateSettings>
-  | ReturnType<typeof updateZoomFactor>
-  | ReturnType<typeof applyNewSettings>
-  | ReturnType<typeof applyNewSettingsSilently>
-  | ReturnType<typeof switchTab>
-  | ReturnType<typeof selectTab>
-  | ReturnType<typeof closePopup>
-  | ReturnType<typeof command>
-  | ReturnType<typeof e2eSetZoom>
+type IMessage = IMessageTypeToObjectMap[keyof IMessageTypeToObjectMap]['message']
 
 function hasOwnProperty<X extends {}, Y extends PropertyKey>(
   obj: X,
@@ -103,13 +100,24 @@ function isMessage(message: {type: string}): message is IMessage {
   return message.type in Message
 }
 
+function getSender(senderOrPort: MessageSender | Port): MessageSender {
+  if (hasOwnProperty(senderOrPort, 'sender')) {
+    return senderOrPort.sender as MessageSender
+  }
+  return senderOrPort as MessageSender
+}
+
 export function handleMessage(handlers: Partial<IHandlers>) {
-  return (message: unknown) => {
+  return (message: unknown, sender: MessageSender | Port) => {
     if (!isTypedObject(message)) {
       console.error("Message must have the 'type' property of string value.", message)
       return
     }
     if (!isMessage(message)) {
+      if (DEVELOPMENT && message.type.startsWith('SIGN')) {
+        // Ignore messages that came from webpack-chrome-extension-reloader
+        return
+      }
       console.error('There is no message of such type in registry.', message)
       return
     }
@@ -120,6 +128,6 @@ export function handleMessage(handlers: Partial<IHandlers>) {
     }
     // @ts-expect-error
     // TODO: How to guarantee correspondence of a message and handler types?
-    handler(message)
+    return handler(message, getSender(sender))
   }
 }

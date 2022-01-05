@@ -2,15 +2,7 @@ import browser, {Runtime, Tabs} from 'webextension-polyfill'
 import TabRegistry from './utils/tab-registry'
 import Settings from './utils/settings'
 import {Command, Port, uninstallURL} from './utils/constants'
-import {
-  applyNewSettings,
-  applyNewSettingsSilently,
-  closePopup,
-  handleMessage,
-  Message,
-  selectTab,
-  updateZoomFactor,
-} from './utils/messages'
+import {closePopup, demoSettings, handleMessage, Message, selectTab} from './utils/messages'
 import isCodeExecutionForbidden from './utils/is-code-execution-forbidden'
 import {isBrowserFocused} from './utils/is-browser-focused'
 import {checkTab, ITab} from './utils/check-tab'
@@ -53,8 +45,8 @@ function initListeners() {
   browser.tabs.onCreated.addListener(handleTabCreation)
   browser.tabs.onUpdated.addListener(handleTabUpdate)
   browser.tabs.onRemoved.addListener(handleTabRemove)
-  browser.tabs.onZoomChange.addListener(handleZoomChange)
-  browser.runtime.onConnect.addListener(handleCommunications)
+  browser.runtime.onConnect.addListener(handleConnection)
+  browser.runtime.onMessage.addListener(createMessageHandler())
   if (PRODUCTION) {
     initForProduction()
   }
@@ -111,14 +103,7 @@ async function handleCommand(command: string) {
   }
   await initializeContentScript(active)
   // send the command to the content script
-  await browser.tabs.sendMessage(
-    active.id,
-    selectTab(
-      registry.getTabsToShow(),
-      command === Command.NEXT ? 1 : -1,
-      await browser.tabs.getZoom()
-    )
-  )
+  browser.tabs.sendMessage(active.id, selectTab(command === Command.NEXT ? 1 : -1))
 }
 
 async function handleWindowActivation(windowId: number) {
@@ -162,66 +147,52 @@ async function handleTabRemove(tabId: number) {
   }
 }
 
-function handleZoomChange({tabId, newZoomFactor}: Tabs.OnZoomChangeZoomChangeInfoType) {
-  if (registry.isInitialized(tabId)) {
-    browser.tabs.sendMessage(tabId, updateZoomFactor(newZoomFactor))
-  }
+function createMessageHandler() {
+  return handleMessage({
+    [Message.INITIALIZED]: (_m, sender) => {
+      registry.addToInitialized(checkTab(sender.tab!))
+    },
+    [Message.SWITCH_TAB]: ({selectedTab}) => {
+      activateTab(selectedTab)
+    },
+    [Message.UPDATE_SETTINGS]: async ({newSettings}) => {
+      settings.update(newSettings)
+      registry.setNumberOfTabsToShow(newSettings.numberOfTabsToShow)
+      const activeTab = await getActiveTab()
+      if (!activeTab) {
+        return
+      }
+      const active = checkTab(activeTab)
+      if (isCodeExecutionForbidden(active)) {
+        const previousNormalTab = registry.findBackward((tab) => !isCodeExecutionForbidden(tab))
+        if (previousNormalTab) {
+          activateTab(previousNormalTab)
+        }
+        return
+      }
+      await initializeContentScript(active)
+      // send a command to the content script
+      await browser.tabs.sendMessage(active.id, demoSettings())
+    },
+    [Message.GET_MODEL]: async () => ({
+      tabs: registry.getTabsToShow(),
+      settings: settings.getObject(),
+      zoomFactor: await browser.tabs.getZoom(),
+    }),
+  })
 }
 
-function handleCommunications(port: Runtime.Port) {
-  if (Port.CONTENT_SCRIPT === port.name) {
-    port.onMessage.addListener(handleContentScriptMessages())
-  } else if (Port.POPUP_SCRIPT === port.name) {
-    // TODO: On settings opening select a tab where content script can be executed
-    //  and show popup in it.
-    //  Remove initial updateSettings() execution from settings.vue.
-    //  This will probably prevent a bug when extension icon is clicked twice which
-    //  results in opened popup but closed settings.
-    port.onMessage.addListener(
-      handleMessage({
-        [Message.UPDATE_SETTINGS]: async ({newSettings}) => {
-          settings.update(newSettings)
-          registry.setNumberOfTabsToShow(newSettings.numberOfTabsToShow)
-          await Promise.all(
-            registry
-              .getInitializedTabsIds()
-              .map((id) => browser.tabs.sendMessage(id, applyNewSettingsSilently(newSettings)))
-          )
-          const activeTab = await getActiveTab()
-          if (!activeTab) {
-            return
-          }
-          const active = checkTab(activeTab)
-          if (isCodeExecutionForbidden(active)) {
-            const previousNormalTab = registry.findBackward((tab) => !isCodeExecutionForbidden(tab))
-            if (previousNormalTab) {
-              activateTab(previousNormalTab)
-            }
-            return
-          }
-          await initializeContentScript(active)
-          // send a command to the content script
-          await browser.tabs.sendMessage(
-            active.id,
-            applyNewSettings(newSettings, registry.getTabsToShow())
-          )
-        },
-      })
-    )
-    // notify a tab when the settings popup closes
-    port.onDisconnect.addListener(handlePopupScriptDisconnection)
-  }
-}
-
-async function initializeContentScript(tab: ITab) {
+async function initializeContentScript(tab: ITab): Promise<void> {
   if (!registry.isInitialized(tab.id)) {
-    const settingsString = settings.getString()
-    await browser.tabs.executeScript(tab.id, {
-      code: `window.settings = ${settingsString};`,
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        reject(new Error('Initialization took too much time'))
+      }, 100)
+      registry.tabInitialized = resolve
+      browser.tabs.executeScript(tab.id, {file: 'content.js'})
     })
-    await browser.tabs.executeScript(tab.id, {file: 'content.js'})
-    registry.addToInitialized(tab)
   }
+  return Promise.resolve()
 }
 
 async function getActiveTab(): Promise<Tab | undefined> {
@@ -239,17 +210,15 @@ function activateTab({id, windowId}: ITab) {
   }
 }
 
-async function handlePopupScriptDisconnection() {
+function handleConnection(port: Runtime.Port) {
+  if (Port.POPUP_SCRIPT === port.name) {
+    port.onDisconnect.addListener(closeSwitcherInActiveTab)
+  }
+}
+
+async function closeSwitcherInActiveTab() {
   const currentTab = await getActiveTab()
   if (currentTab) {
     await browser.tabs.sendMessage(checkTab(currentTab).id, closePopup())
   }
-}
-
-function handleContentScriptMessages() {
-  return handleMessage({
-    [Message.SWITCH_TAB]: ({selectedTab}) => {
-      activateTab(selectedTab)
-    },
-  })
 }

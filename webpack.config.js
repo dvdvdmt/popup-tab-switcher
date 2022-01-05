@@ -153,6 +153,7 @@ module.exports = (env) => {
       new webpack.DefinePlugin({
         E2E: 'false',
         PRODUCTION: 'true',
+        DEVELOPMENT: 'false',
       }),
       new VueLoaderPlugin(),
     ]
@@ -162,8 +163,9 @@ module.exports = (env) => {
       new webpack.DefinePlugin({
         E2E: 'false',
         PRODUCTION: 'false',
+        DEVELOPMENT: 'true',
       }),
-      env.watch
+      env.WEBPACK_WATCH
         ? new ChromeExtensionReloader({
             entries: {
               contentScript: 'content',
@@ -183,6 +185,7 @@ module.exports = (env) => {
       new webpack.DefinePlugin({
         E2E: 'true',
         PRODUCTION: 'false',
+        DEVELOPMENT: 'false',
       }),
       new VueLoaderPlugin(),
     ]
