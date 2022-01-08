@@ -2,7 +2,7 @@ const path = require('path')
 const webpack = require('webpack')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const ChromeExtensionReloader = require('webpack-chrome-extension-reloader')
+// const ChromeExtensionReloader = require('webpack-chrome-extension-reloader')
 const deepmerge = require('deepmerge')
 
 const buildProdDir = path.join(__dirname, 'build-prod')
@@ -93,7 +93,7 @@ const conf = {
     ],
   },
 
-  devtool: 'eval-source-map',
+  devtool: 'inline-source-map',
 
   resolve: {
     extensions: ['.ts', '.js'],
@@ -108,9 +108,9 @@ module.exports = (env) => {
         const original = JSON.parse(content.toString())
         // generates the manifest file using the package.json information
         const developmentProps = {
-          content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'",
+          // content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'",
           key: 'popuptabswitcher', // id: meonejnmljcnoodabklmloagmnmcmlam
-          browser_action: {
+          action: {
             default_icon: 'images/icon-48-gray.png',
           },
           icons: {48: 'images/icon-48-gray.png'},
@@ -165,14 +165,14 @@ module.exports = (env) => {
         PRODUCTION: 'false',
         DEVELOPMENT: 'true',
       }),
-      env.WEBPACK_WATCH
-        ? new ChromeExtensionReloader({
-            entries: {
-              contentScript: 'content',
-              background: 'background',
-            },
-          })
-        : () => {},
+      // env.WEBPACK_WATCH
+      //   ? new ChromeExtensionReloader({
+      //       entries: {
+      //         contentScript: 'content',
+      //         background: 'background',
+      //       },
+      //     })
+      //   : () => {},
       new VueLoaderPlugin(),
     ]
   } else if (env.e2e) {

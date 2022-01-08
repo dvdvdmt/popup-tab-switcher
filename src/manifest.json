@@ -1,13 +1,14 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "version": "1.7.11",
   "name": "Popup Tab Switcher",
   "description": "Makes switching between tabs more convenient.",
-  "permissions": ["tabs", "activeTab", "file:///"],
+  "permissions": ["tabs", "activeTab", "storage", "scripting"],
+  "host_permissions": ["file:///*"],
   "background": {
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   },
-  "browser_action": {
+  "action": {
     "default_icon": {
       "16": "images/icon-16.png",
       "24": "images/icon-24.png",

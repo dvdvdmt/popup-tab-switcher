@@ -15,13 +15,13 @@ export interface ITab extends Tab {
 
 export function checkTab(tab: Tab): ITab {
   if (!tab.id) {
-    console.error('The tab.id is empty', tab)
+    console.warn('The tab.id is empty', tab)
   }
   if (!tab.windowId) {
-    console.error('The tab.windowId is empty', tab)
+    console.warn('The tab.windowId is empty', tab)
   }
   if (!tab.url) {
-    console.error('The tab.url is empty', tab)
+    console.warn('The tab.url is empty', tab)
   }
 
   return tab as ITab

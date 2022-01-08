@@ -1,6 +1,6 @@
 import browser, {Runtime, Tabs} from 'webextension-polyfill'
-import TabRegistry from './utils/tab-registry'
-import Settings from './utils/settings'
+import TabRegistry, {getTabRegistry} from './utils/tab-registry'
+import {getSettings, ISettings} from './utils/settings'
 import {Command, Port, uninstallURL} from './utils/constants'
 import {closePopup, demoSettings, handleMessage, Message, selectTab} from './utils/messages'
 import isCodeExecutionForbidden from './utils/is-code-execution-forbidden'
@@ -9,34 +9,18 @@ import {checkTab, ITab} from './utils/check-tab'
 
 import Tab = Tabs.Tab
 
-const settings = new Settings()
+let settings: ISettings
 let registry: TabRegistry
-initTabRegistry().then((newRegistry) => {
-  registry = newRegistry
-  initListeners()
-})
-
-async function initTabRegistry() {
-  const windows = await browser.windows.getAll({populate: true})
-  const tabs = windows
-    .flatMap((w) => w.tabs || [])
-    .map(checkTab)
-    .sort(activeLast)
-  return new TabRegistry({
-    tabs,
-    numberOfTabsToShow: settings.get('numberOfTabsToShow') as number,
+getSettings(browser.storage.local)
+  .then((newSettings) => {
+    console.log(`[ settings initialized]`)
+    settings = newSettings
+    return getTabRegistry(settings.numberOfTabsToShow)
   })
-
-  function activeLast(a: Tab, b: Tab) {
-    if (a.active < b.active) {
-      return -1
-    }
-    if (a.active > b.active) {
-      return 1
-    }
-    return 0
-  }
-}
+  .then((newRegistry) => {
+    registry = newRegistry
+    initListeners()
+  })
 
 function initListeners() {
   browser.commands.onCommand.addListener(handleCommand)
@@ -78,9 +62,9 @@ function initForE2ETests() {
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     const checkedTab = checkTab(tab)
     if (isAllowedUrl(checkedTab.url)) {
-      await browser.tabs.executeScript(tabId, {
-        file: 'e2e-test-commands-bridge.js',
-        allFrames: true,
+      await browser.scripting.executeScript({
+        target: {tabId, allFrames: true},
+        files: ['e2e-test-commands-bridge.js'],
       })
     }
   })
@@ -138,7 +122,7 @@ async function handleTabUpdate(tabId: number, changeInfo: Tabs.OnUpdatedChangeIn
 
 async function handleTabRemove(tabId: number) {
   registry.remove(tabId)
-  const isSwitchingNeeded = settings.get('isSwitchingToPreviouslyUsedTab')
+  const isSwitchingNeeded = settings.isSwitchingToPreviouslyUsedTab
   if (isSwitchingNeeded) {
     const currentTab = registry.getActive()
     if (currentTab) {
@@ -176,7 +160,7 @@ function createMessageHandler() {
     },
     [Message.GET_MODEL]: async () => ({
       tabs: registry.getTabsToShow(),
-      settings: settings.getObject(),
+      settings,
       zoomFactor: await browser.tabs.getZoom(),
     }),
   })
@@ -189,7 +173,10 @@ async function initializeContentScript(tab: ITab): Promise<void> {
         reject(new Error('Initialization took too much time'))
       }, 100)
       registry.tabInitialized = resolve
-      browser.tabs.executeScript(tab.id, {file: 'content.js'})
+      browser.scripting.executeScript({
+        target: {tabId: tab.id, allFrames: true},
+        files: ['content.js'],
+      })
     })
   }
   return Promise.resolve()
