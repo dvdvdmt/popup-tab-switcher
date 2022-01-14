@@ -62,7 +62,8 @@ export default {
     },
   },
   mounted() {
-    getSettings().then((settings) => {
+    getSettings(browser.storage.local).then((settings) => {
+      console.log(`[ settings]`, settings);
       this.settings = settings
     })
   },

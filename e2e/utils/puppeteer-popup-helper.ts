@@ -1,14 +1,19 @@
 import path from 'path'
 import {Browser, JSONObject, Page} from 'puppeteer'
-import {registerScripts} from './page-scripts'
-
-const webPagesDir = path.resolve(__dirname, '..', 'web-pages')
-export function getPagePath(pageFileName: string) {
-  return `file:${path.resolve(webPagesDir, pageFileName)}`
-}
+import * as fs from 'fs'
 
 export const settingsPageUrl =
   'chrome-extension://meonejnmljcnoodabklmloagmnmcmlam/settings/index.html'
+const webPagesDir = path.resolve(__dirname, '..', 'web-pages')
+const e2ePageScriptsPath = path.resolve(__dirname, '..', '..', 'build-e2e', 'e2e-page-scripts.js')
+const e2ePageScripts = fs.readFileSync(e2ePageScriptsPath, 'utf-8')
+
+export function getPagePath(pageFileName: string) {
+  if (pageFileName === 'settings') {
+    return settingsPageUrl
+  }
+  return `file:${path.resolve(webPagesDir, pageFileName)}`
+}
 
 const pageMixin = {
   async queryPopup<T>(
@@ -80,7 +85,7 @@ export class PuppeteerPopupHelper {
         page = await this.browser.newPage()
       }
     }
-    await page.evaluateOnNewDocument(registerScripts)
+    await page.evaluateOnNewDocument(e2ePageScripts)
     await page.goto(getPagePath(pageFileName))
     await page.bringToFront()
     return Object.assign(page, pageMixin)

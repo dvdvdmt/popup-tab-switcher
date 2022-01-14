@@ -77,7 +77,7 @@ export default class TabRegistry {
     return this.tabs.slice(-this.numberOfTabsToShow).reverse()
   }
 
-  getActive() {
+  getActive(): ITab | undefined {
     return this.tabs[this.tabs.length - 1]
   }
 
@@ -95,13 +95,24 @@ export default class TabRegistry {
   }
 
   pushUnderTop(tab: ITab) {
-    if (this.tabs.length) {
-      const top = this.getActive()
+    const top = this.getActive()
+    if (top) {
       this.tabs.push(top)
       this.tabs[this.tabs.length - 2] = tab
     } else {
       this.tabs.push(tab)
     }
+  }
+
+  /**
+   * [0,1,2,3,4] -(active 2)-> [0,1,3,4,2]
+   * */
+  setActive(tabId: number) {
+    this.tabs.sort((_a, b) => (b.id === tabId ? -1 : 0))
+  }
+
+  titles() {
+    return this.tabs.map((tab) => `${tab.id}-${tab.title}`).join(' ')
   }
 }
 

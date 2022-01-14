@@ -1,8 +1,14 @@
 import assert from 'assert'
 import {Browser, Page} from 'puppeteer'
-import {PuppeteerPopupHelper, getPagePath, HelperPage} from './utils/puppeteer-popup-helper'
+import {getPagePath, HelperPage, PuppeteerPopupHelper} from './utils/puppeteer-popup-helper'
 import {defaultSettings} from '../src/utils/settings'
-import {closeTabs, startPuppeteer, stopPuppeteer} from './utils/puppeteer-utils'
+import {
+  closeTabs,
+  startPuppeteer,
+  stopPuppeteer,
+  timeoutDurationMS,
+  waitFor,
+} from './utils/puppeteer-utils'
 import {e2eSetZoom} from '../src/utils/messages'
 
 let browser: Browser
@@ -12,24 +18,6 @@ function newPagePromise() {
   return new Promise<Page>((resolve) =>
     browser.once('targetcreated', (target) => resolve(target.page()))
   )
-}
-
-const timeoutDurationMS = 30000
-
-/**
- * This helper function is useful when there asodifjsadf is a need to debug some test case
- * and figure out what is in the console.
- * Steps:
- * 1. Enable --auto-open-devtools-for-tabs in puppeteer-config.
- * 2. Set timeoutDurationMS to necessary time.
- * 3. Place `await waitFor()` in a test case.
- * */
-function waitFor(durationMS = timeoutDurationMS) {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => {
-      resolve()
-    }, durationMS)
-  })
 }
 
 describe('popup >', function TestPopup() {
@@ -179,19 +167,36 @@ describe('popup >', function TestPopup() {
       const pageExample = await helper.openPage('example.html')
       await helper.openPage('stackoverflow.html')
       await pageWikipedia.bringToFront()
+      // TODO:
+      //  Need to react on handleTabActivation data.tabId than use getActive() because at the time
+      //  of handleTabActivation execution the activeTab is already set to 'example.html'
       await pageWikipedia.close()
+      await waitFor(100)
       let activeTab = await helper.getActiveTab()
       let elText = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual(elText, 'Stack Overflow')
       await helper.openPage('wikipedia.html')
       await pageExample.bringToFront()
       await pageExample.close()
+      await waitFor(100)
       activeTab = await helper.getActiveTab()
       elText = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual(elText, 'Wikipedia')
     })
 
     it('focuses previously active window on a tab closing', async () => {
+      /*
+      opens Wikipedia in first window
+      opens Example in second window
+      opens Stack in third window
+      opens File in first window
+      closes File
+      Stack is focused
+      closes Stack
+      Example is focused
+      closes Example
+      Wikipedia is focused
+      */
       const pageWikipedia = await helper.openPage('wikipedia.html')
       await pageWikipedia.evaluate((url) => {
         window.open(url, '_blank', 'width=500,height=500')
@@ -203,12 +208,15 @@ describe('popup >', function TestPopup() {
       const pageStOverflow = await newPagePromise()
       const pageFile = await helper.openPage('file.js')
       await pageFile.close()
+      await waitFor(100)
       const isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus())
       assert(isStOverflowFocused, 'Switched to a tab in previous window (StackOverflow)')
       await pageStOverflow.close()
+      await waitFor(100)
       const isExampleFocused = await pageExample.evaluate(() => document.hasFocus())
       assert(isExampleFocused, 'Switched to a tab in previous window (Example)')
       await pageExample.close()
+      await waitFor(100)
       const isWikipediaFocused = await pageWikipedia.evaluate(() => document.hasFocus())
       assert(isWikipediaFocused, 'Switched to a tab in previous window (Wikipedia)')
     })

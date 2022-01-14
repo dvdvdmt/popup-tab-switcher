@@ -12,9 +12,11 @@ const srcDir = path.join(__dirname, 'src')
 const settingsDir = path.join(srcDir, 'settings')
 const stylesDir = path.join(srcDir, 'styles')
 const nodeModulesDir = path.join(__dirname, 'node_modules')
+const e2eDir = path.join(__dirname, 'e2e')
 const sassGlobals = '@import "variables";'
 const conf = {
   mode: 'development',
+  devtool: false,
 
   entry: {
     background: './src/background.ts',
@@ -93,8 +95,6 @@ const conf = {
     ],
   },
 
-  devtool: 'inline-source-map',
-
   resolve: {
     extensions: ['.ts', '.js'],
   },
@@ -145,8 +145,6 @@ module.exports = (env) => {
     },
   ]
   if (env.production) {
-    conf.mode = 'production'
-    conf.devtool = 'source-map'
     conf.output.path = buildProdDir
     conf.plugins = [
       new CopyWebpackPlugin(copyWebpackPluginOptions),
@@ -176,10 +174,9 @@ module.exports = (env) => {
       new VueLoaderPlugin(),
     ]
   } else if (env.e2e) {
-    conf.mode = 'production'
-    conf.devtool = 'source-map'
-    conf.entry['e2e-test-commands-bridge'] = path.resolve(srcDir, 'e2e-test-commands-bridge.ts')
     conf.output.path = buildE2eDir
+    conf.entry['e2e-page-scripts'] = path.join(e2eDir, 'utils', 'page-scripts', 'index.ts')
+    conf.entry['e2e-content-script'] = path.join(e2eDir, 'utils', 'e2e-content-script.ts')
     conf.plugins = [
       new CopyWebpackPlugin(copyWebpackPluginOptions),
       new webpack.DefinePlugin({

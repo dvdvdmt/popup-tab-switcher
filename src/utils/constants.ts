@@ -1,7 +1,6 @@
 export enum Port {
   POPUP_SCRIPT = 'POPUP_SCRIPT',
   COMMANDS_BRIDGE = 'COMMANDS_BRIDGE',
-  CONTENT_SCRIPT = 'CONTENT_SCRIPT',
 }
 
 export enum Command {
