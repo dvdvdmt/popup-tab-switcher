@@ -1,7 +1,7 @@
 import {isVisible} from './is-visible'
 import {sendCommandOnShortcut} from './send-command-on-shortcut'
 import {queryPopup} from './query-popup'
-import {sendMessage} from './send-message'
+import {initMessageListener, sendMessage} from './send-message'
 
 declare global {
   interface Window {
@@ -13,6 +13,9 @@ declare global {
   }
 }
 
-window.e2e = {isVisible, queryPopup, sendMessage}
-
-window.addEventListener('keydown', sendCommandOnShortcut)
+if (!window.e2e) {
+  console.log(`[PageScripts registered]`)
+  window.addEventListener('keydown', sendCommandOnShortcut)
+  initMessageListener()
+  window.e2e = {isVisible, queryPopup, sendMessage}
+}

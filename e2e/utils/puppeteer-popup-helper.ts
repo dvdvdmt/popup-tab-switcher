@@ -85,9 +85,20 @@ export class PuppeteerPopupHelper {
         page = await this.browser.newPage()
       }
     }
-    await page.evaluateOnNewDocument(e2ePageScripts)
     await page.goto(getPagePath(pageFileName))
+    const frames = await page.frames()
+    await Promise.all(frames.map((frame) => frame.evaluate(e2ePageScripts)))
     await page.bringToFront()
+    return Object.assign(page, pageMixin)
+  }
+
+  async openPageAsPopup(pageName: string): Promise<HelperPage> {
+    const activeTab = await this.getActiveTab()
+    await activeTab.evaluate((url) => {
+      window.open(url, '_blank', 'width=500,height=500')
+    }, getPagePath(pageName))
+    const page = await this.newPagePromise()
+    await page.evaluate(e2ePageScripts) // evaluateOnNewDocument doesn't work for popups
     return Object.assign(page, pageMixin)
   }
 
@@ -112,5 +123,11 @@ export class PuppeteerPopupHelper {
       bounds: {height, width},
       windowId,
     })
+  }
+
+  newPagePromise() {
+    return new Promise<Page>((resolve) =>
+      this.browser.once('targetcreated', (target) => resolve(target.page()))
+    )
   }
 }

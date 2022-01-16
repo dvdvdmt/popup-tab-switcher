@@ -14,10 +14,12 @@ export function sendMessage<Message extends IMessage>(
   })
 }
 
-window.addEventListener('message', (e: MessageEvent<IMessageResponse<IMessage>>) => {
-  const isMessageFromContentScript = !e.data || (e.data && !('type' in e.data))
-  if (isMessageFromContentScript) {
-    console.log(`[ received message from content script]`, e.data)
-    promiseResolver(e.data)
-  }
-})
+export function initMessageListener() {
+  window.addEventListener('message', (e: MessageEvent<IMessageResponse<IMessage>>) => {
+    const isMessageFromContentScript = !e.data || (e.data && !('type' in e.data))
+    if (isMessageFromContentScript) {
+      console.log(`[PageScript: received a message from content script]`, e.data)
+      promiseResolver(e.data)
+    }
+  })
+}

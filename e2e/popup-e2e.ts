@@ -11,21 +11,13 @@ import {
 } from './utils/puppeteer-utils'
 import {e2eSetZoom} from '../src/utils/messages'
 
-let browser: Browser
 let helper: PuppeteerPopupHelper
-
-function newPagePromise() {
-  return new Promise<Page>((resolve) =>
-    browser.once('targetcreated', (target) => resolve(target.page()))
-  )
-}
 
 describe('popup >', function TestPopup() {
   this.timeout(timeoutDurationMS)
 
   before(() =>
     startPuppeteer().then((res) => {
-      browser = res.browser
       helper = res.helper
     })
   )
@@ -201,11 +193,11 @@ describe('popup >', function TestPopup() {
       await pageWikipedia.evaluate((url) => {
         window.open(url, '_blank', 'width=500,height=500')
       }, getPagePath('example.html'))
-      const pageExample = await newPagePromise()
+      const pageExample = await helper.newPagePromise()
       await pageWikipedia.evaluate((url) => {
         window.open(url, '_blank', 'width=500,height=500')
       }, getPagePath('stackoverflow.html'))
-      const pageStOverflow = await newPagePromise()
+      const pageStOverflow = await helper.newPagePromise()
       const pageFile = await helper.openPage('file.js')
       await pageFile.close()
       await waitFor(100)
@@ -256,7 +248,7 @@ describe('popup >', function TestPopup() {
     it('switches between windows', async () => {
       const pageWikipedia = await helper.openPage('wikipedia.html')
       const pageExample = await helper.openPage('example.html')
-      const pageStOverflow = await openPageInAPopup(pageExample, 'stackoverflow.html')
+      const pageStOverflow = await helper.openPageAsPopup('stackoverflow.html')
 
       await pageStOverflow.keyboard.down('Alt')
       await pageStOverflow.keyboard.press('KeyY')
@@ -276,13 +268,6 @@ describe('popup >', function TestPopup() {
       await pageStOverflow.keyboard.up('Alt')
       const isWikipediaFocused = await pageWikipedia.evaluate(() => document.hasFocus())
       assert(isWikipediaFocused, 'Wikipedia page is focused')
-
-      async function openPageInAPopup(existingPage: Page, pageFileName: string) {
-        await existingPage.evaluate((url) => {
-          window.open(url, '_blank', 'width=500,height=500')
-        }, getPagePath(pageFileName))
-        return newPagePromise()
-      }
     })
 
     it('stores unlimited number of opened tabs in history', async () => {
