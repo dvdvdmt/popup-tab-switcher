@@ -1,5 +1,17 @@
 import {IMessage, IMessageResponse} from '../../../src/utils/messages'
 
+interface IMessageFromPageScript {
+  sender: 'pageScript'
+  message: IMessage
+}
+
+interface IMessageFromContentScript {
+  sender: 'contentScript'
+  message: IMessageResponse<IMessage>
+}
+
+export type IMessagePackage = IMessageFromPageScript | IMessageFromContentScript
+
 let promiseResolver: (message: IMessageResponse<IMessage>) => void = () => {}
 
 /**
@@ -10,16 +22,15 @@ export function sendMessage<Message extends IMessage>(
 ): Promise<IMessageResponse<Message>> {
   return new Promise<IMessageResponse<Message>>((resolve) => {
     promiseResolver = resolve as typeof promiseResolver
-    window.postMessage(message, '*')
+    window.postMessage({sender: 'pageScript', message}, '*')
   })
 }
 
 export function initMessageListener() {
-  window.addEventListener('message', (e: MessageEvent<IMessageResponse<IMessage>>) => {
-    const isMessageFromContentScript = !e.data || (e.data && !('type' in e.data))
-    if (isMessageFromContentScript) {
-      console.log(`[PageScript: received a message from content script]`, e.data)
-      promiseResolver(e.data)
+  window.addEventListener('message', (e: MessageEvent<IMessagePackage>) => {
+    if (e.data.sender === 'contentScript') {
+      console.log(`[PageScript: received a message from ContentScript]`, e.data.message)
+      promiseResolver(e.data.message)
     }
   })
 }

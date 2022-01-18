@@ -1,5 +1,5 @@
 import assert from 'assert'
-import {Browser, Page} from 'puppeteer'
+import {Page} from 'puppeteer'
 import {getPagePath, HelperPage, PuppeteerPopupHelper} from './utils/puppeteer-popup-helper'
 import {defaultSettings} from '../src/utils/settings'
 import {
