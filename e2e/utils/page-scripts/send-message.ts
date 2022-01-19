@@ -1,11 +1,11 @@
 import {IMessage, IMessageResponse} from '../../../src/utils/messages'
 
-interface IMessageFromPageScript {
+export interface IMessageFromPageScript {
   sender: 'pageScript'
   message: IMessage
 }
 
-interface IMessageFromContentScript {
+export interface IMessageFromContentScript {
   sender: 'contentScript'
   message: IMessageResponse<IMessage>
 }
@@ -22,7 +22,8 @@ export function sendMessage<Message extends IMessage>(
 ): Promise<IMessageResponse<Message>> {
   return new Promise<IMessageResponse<Message>>((resolve) => {
     promiseResolver = resolve as typeof promiseResolver
-    window.postMessage({sender: 'pageScript', message}, '*')
+    const messageFrom: IMessageFromPageScript = {sender: 'pageScript', message}
+    window.postMessage(messageFrom, '*')
   })
 }
 

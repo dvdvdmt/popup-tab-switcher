@@ -32,6 +32,7 @@ describe('popup >', function TestPopup() {
       const isVisible = await page.$eval('#popup-tab-switcher', (popup) =>
         window.e2e.isVisible(popup)
       )
+      await waitFor()
       assert(isVisible, 'Popup is not visible')
     }
 
@@ -42,7 +43,7 @@ describe('popup >', function TestPopup() {
       await popupOpens(await helper.openPage('wikipedia.html', page))
     })
 
-    it('opens on "Alt+Y" even if the page has popup-tab-switcher element', async () => {
+    it.only('opens on "Alt+Y" even if the page has popup-tab-switcher element', async () => {
       const page = await helper.openPage('page-with-popup-tab-switcher.html')
       await popupOpens(page)
     })

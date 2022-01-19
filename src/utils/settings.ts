@@ -38,7 +38,7 @@ export interface ISettings extends DefaultSettings {
 }
 
 export async function getSettings(storage: LocalStorageArea): Promise<ISettings> {
-  const stored = await storage.get('settings')
+  const {settings: stored} = await storage.get('settings')
   return {
     ...defaultSettings,
     ...stored,

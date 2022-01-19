@@ -21,7 +21,7 @@ const conf = {
   entry: {
     background: './src/background.ts',
     content: './src/content.ts',
-    'settings/index': './src/settings/index.js',
+    settings: {import: './src/settings/index.js', filename: 'settings/index.js'},
   },
 
   output: {

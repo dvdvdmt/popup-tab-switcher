@@ -108,7 +108,7 @@ async function setSettings(page: Page) {
   await input(page, '#opacity', `${newSettings.opacity}`)
 }
 
-describe.skip('settings >', function TestSettings() {
+describe('settings >', function TestSettings() {
   this.timeout(timeoutDurationMS)
 
   before(() =>
@@ -132,12 +132,10 @@ describe.skip('settings >', function TestSettings() {
 
   it('modifies and resets', async () => {
     const settingsPage = await helper.openPage('settings')
-    await waitFor()
     await setSettings(settingsPage)
     let actual = await getSettingsFromPage(settingsPage)
     assert.deepStrictEqual(actual, newSettings, 'settings in form are different')
-    // actual = await settingsPage.evaluate(() => window.e2e.getSettings())
-    await waitFor()
+    actual = await settingsPage.evaluate(() => window.e2e.getSettings())
     assert.deepStrictEqual(actual, newSettings, 'settings were not updated in storage')
     await settingsPage.click('#setDefaults')
     actual = await getSettingsFromPage(settingsPage)

@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import {IMessagePackage} from './page-scripts/send-message'
+import {IMessageFromContentScript, IMessagePackage} from './page-scripts/send-message'
 
 declare global {
   interface Window {
@@ -12,8 +12,10 @@ if (!window.isE2EContentScriptRegistered) {
     if (e.data.sender === 'pageScript') {
       console.log(`[ContentScript: received a message from PageScript]`, e.data)
       const response = await browser.runtime.sendMessage(e.data.message)
-      window.postMessage({sender: 'contentScript', response}, '*')
+      const messageFrom: IMessageFromContentScript = {sender: 'contentScript', message: response}
+      window.postMessage(messageFrom, '*')
     }
   })
   window.isE2EContentScriptRegistered = true
+  console.log(`[ContentScript registered]`)
 }

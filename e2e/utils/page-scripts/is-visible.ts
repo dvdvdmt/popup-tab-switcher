@@ -13,7 +13,7 @@ function getElementFromPoint({x, y}: IPoint) {
   return el
 }
 
-export function isVisible(el: HTMLElement) {
+export function isVisible(el: Element) {
   const style = getComputedStyle(el)
   if (style.display === 'none') {
     return false
