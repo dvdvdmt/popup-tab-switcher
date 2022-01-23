@@ -13,7 +13,7 @@ function getElementFromPoint({x, y}: IPoint) {
   return el
 }
 
-export function isVisible(el: Element) {
+function isElementVisible(el: Element) {
   const style = getComputedStyle(el)
   if (style.display === 'none') {
     return false
@@ -49,4 +49,36 @@ export function isVisible(el: Element) {
       pointContainer instanceof ShadowRoot ? pointContainer.host : pointContainer.parentNode
   }
   return false
+}
+
+export function isVisible(selector: string | Element): Promise<true> {
+  function testAgain(
+    element: Element,
+    attempt: number,
+    resolve: (value: true) => void,
+    reject: (reason: string) => void
+  ) {
+    setTimeout(() => {
+      if (attempt >= 5) {
+        reject(`Element '${selector}' is not visible`)
+      } else if (isElementVisible(element)) {
+        resolve(true)
+      } else {
+        testAgain(element, attempt + 1, resolve, reject)
+      }
+    })
+  }
+
+  const element = typeof selector === 'string' ? document.querySelector(selector) : selector
+  if (!element) {
+    return Promise.reject(new Error(`Element '${selector}' is not found in DOM`))
+  }
+
+  return new Promise((resolve, reject) => {
+    if (isElementVisible(element)) {
+      resolve(true)
+    } else {
+      testAgain(element, 1, resolve, reject)
+    }
+  })
 }

@@ -21,12 +21,13 @@ let registry: TabRegistry
 let isTabActivationInProcess = false
 getSettings(browser.storage.local)
   .then((newSettings) => {
-    console.log(`[ settings initialized]`)
+    console.log(`[ settings initialized]`, newSettings)
     settings = newSettings
     return getTabRegistry(settings.numberOfTabsToShow)
   })
   .then((newRegistry) => {
     registry = newRegistry
+    console.log(`[ registry initialized]`, registry.titles())
     initListeners()
   })
 
@@ -92,7 +93,7 @@ async function handleCommand(command: string) {
     // TODO: Create popup window on the center of a screen and show PTS in it.
     const previousTab = registry.getPreviouslyActive()
     if (previousTab) {
-      activateTab(previousTab)
+      await activateTab(previousTab)
     }
     return
   }
@@ -102,6 +103,7 @@ async function handleCommand(command: string) {
 }
 
 async function handleWindowActivation(windowId: number) {
+  console.log(`[handleWindowActivation]`, windowId)
   // Do not react on windows without ids.
   // This happens on each window activation in some Linux window managers.
   if (windowId === browser.windows.WINDOW_ID_NONE) {
@@ -112,7 +114,11 @@ async function handleWindowActivation(windowId: number) {
 
 async function handleTabActivation(info?: Tabs.OnActivatedActiveInfoType) {
   if (isTabActivationInProcess) {
-    console.log(`[handleTabActivation in process]`, info?.tabId, registry.titles())
+    console.log(
+      `[handleTabActivation is skipped because previous tab activation is in process]`,
+      info?.tabId,
+      registry.titles()
+    )
     return
   }
   const active = await getActiveTab()
@@ -125,31 +131,35 @@ async function handleTabActivation(info?: Tabs.OnActivatedActiveInfoType) {
       registry.push(checkTab(active))
     }
   }
-  console.log(`[handleTabActivation]`, info?.tabId, active?.id, registry.titles())
+  console.log(`[handleTabActivation end]`, info?.tabId, active?.id, registry.titles())
 }
 
 function handleTabCreation(tab: Tab) {
-  if (!tab.active) {
+  if (tab.active) {
+    registry.push(checkTab(tab))
+  } else {
     registry.pushUnderTop(checkTab(tab))
   }
-  console.log(`[handleTabCreation]`, tab.id, registry.titles())
+  console.log(`[handleTabCreation end]`, tab.id, registry.titles())
 }
 
 function handleTabUpdate(tabId: number, changeInfo: Tabs.OnUpdatedChangeInfoType, tab: Tab) {
   if (changeInfo.status === 'complete') {
+    console.log(`[handleTabUpdate tabId]`, tabId, tab.title)
     registry.removeFromInitialized(tabId)
     registry.update(checkTab(tab))
   }
 }
 
-function handleTabRemove(tabId: number) {
+async function handleTabRemove(tabId: number) {
   console.log(`[handleTabRemove start]`, tabId, registry.titles())
   registry.remove(tabId)
   const isSwitchingNeeded = settings.isSwitchingToPreviouslyUsedTab
   if (isSwitchingNeeded) {
     const currentTab = registry.getActive()
     if (currentTab) {
-      activateTab(currentTab)
+      console.log(`[handleTabRemove will activate tab]`, currentTab.id, currentTab.title)
+      await activateTab(currentTab)
     }
   }
 }
@@ -159,11 +169,11 @@ function messageHandlers(): Partial<IHandlers> {
     [Message.INITIALIZED]: (_m, sender) => {
       registry.addToInitialized(checkTab(sender.tab!))
     },
-    [Message.SWITCH_TAB]: ({selectedTab}) => {
-      activateTab(selectedTab)
+    [Message.SWITCH_TAB]: async ({selectedTab}) => {
+      await activateTab(selectedTab)
     },
     [Message.UPDATE_SETTINGS]: async ({newSettings}) => {
-      settings.update(newSettings)
+      await settings.update(newSettings)
       registry.setNumberOfTabsToShow(newSettings.numberOfTabsToShow)
       const activeTab = await getActiveTab()
       if (!activeTab) {
@@ -173,7 +183,7 @@ function messageHandlers(): Partial<IHandlers> {
       if (isCodeExecutionForbidden(active)) {
         const previousNormalTab = registry.findBackward((tab) => !isCodeExecutionForbidden(tab))
         if (previousNormalTab) {
-          activateTab(previousNormalTab)
+          await activateTab(previousNormalTab)
         }
         return
       }
@@ -220,11 +230,18 @@ async function getActiveTab(): Promise<Tab | undefined> {
 
 async function activateTab({id, windowId}: ITab) {
   isTabActivationInProcess = true
-  await browser.tabs.update(id, {active: true})
-  if (isBrowserFocused()) {
-    await browser.windows.update(windowId, {focused: true})
+  try {
+    // The tab can already be removed from the browser, for example when a user quickly closes multiple tabs.
+    // To handle this situation without an error we can use debounce technique.
+    await browser.tabs.update(id, {active: true})
+    if (isBrowserFocused()) {
+      await browser.windows.update(windowId, {focused: true})
+    }
+  } catch (e) {
+    console.error(`Can not activate the tab id: ${id}, windowId: ${windowId}`, e)
+  } finally {
+    isTabActivationInProcess = false
   }
-  isTabActivationInProcess = false
 }
 
 function handleConnection(port: Runtime.Port) {
