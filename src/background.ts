@@ -1,5 +1,5 @@
 import browser, {Runtime, Tabs} from 'webextension-polyfill'
-import TabRegistry, {getTabRegistry} from './utils/tab-registry'
+import TabRegistry from './utils/tab-registry'
 import {getSettings, ISettings} from './utils/settings'
 import {Command, Port, uninstallURL} from './utils/constants'
 import {
@@ -13,6 +13,7 @@ import {
 import isCodeExecutionForbidden from './utils/is-code-execution-forbidden'
 import {isBrowserFocused} from './utils/is-browser-focused'
 import {checkTab, ITab} from './utils/check-tab'
+import {getTabRegistry} from './utils/tab-registry-factory'
 
 import Tab = Tabs.Tab
 

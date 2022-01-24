@@ -1,5 +1,4 @@
-import browser from 'webextension-polyfill'
-import {checkTab, ITab} from './check-tab'
+import {ITab} from './check-tab'
 
 interface TabRegistryOptions {
   tabs?: ITab[]
@@ -113,27 +112,5 @@ export default class TabRegistry {
 
   titles() {
     return this.tabs.map((tab) => `${tab.id}-${tab.title}`).join(' ')
-  }
-}
-
-export async function getTabRegistry(numberOfTabsToShow: number) {
-  const windows = await browser.windows.getAll({populate: true})
-  const tabs = windows
-    .flatMap((w) => w.tabs || [])
-    .map(checkTab)
-    .sort(activeLast)
-  return new TabRegistry({
-    tabs,
-    numberOfTabsToShow,
-  })
-
-  function activeLast(a: ITab, b: ITab) {
-    if (a.active < b.active) {
-      return -1
-    }
-    if (a.active > b.active) {
-      return 1
-    }
-    return 0
   }
 }
