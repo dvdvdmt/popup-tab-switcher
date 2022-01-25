@@ -214,8 +214,8 @@ describe('settings >', function TestSettings() {
 
   it('controls automatic switching to a previously used tab when the current one closes', async () => {
     const settingsPage = await helper.openPage('settings')
-    await settingsPage.click('#isSwitchingToPreviouslyUsedTab')
-    await settingsPage.close()
+    await settingsPage.click('#setDefaults')
+    await settingsPage.click('#isSwitchingToPreviouslyUsedTab') // Turns off the setting
     const pageWikipedia = await helper.openPage('wikipedia.html')
     await helper.openPage('example.html')
     await helper.openPage('stackoverflow.html')
