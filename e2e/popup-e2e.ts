@@ -75,7 +75,7 @@ describe('popup >', function TestPopup() {
   })
 
   context('many pages >', () => {
-    afterEach(() => closeTabs())
+    afterEach(closeTabs)
 
     it('adds visited pages to the registry in correct order', async () => {
       const expectedTexts = ['Stack Overflow', 'Example', 'Wikipedia']

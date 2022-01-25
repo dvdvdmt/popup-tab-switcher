@@ -18,8 +18,9 @@ export async function closeTabs() {
   if (!browser) {
     return Promise.resolve([])
   }
-  const pages = await browser.pages()
-  const closeRestPromises = pages.map((p) => p.close())
+  const [firstPage, ...restPages] = await browser.pages()
+  await firstPage.goto('about:blank')
+  const closeRestPromises = restPages.map((p) => p.close())
   return Promise.all(closeRestPromises)
 }
 
