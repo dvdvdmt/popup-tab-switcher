@@ -49,10 +49,12 @@ export class PuppeteerPopupHelper {
 
   async getActivePage(): Promise<HelperPage> {
     const pages = await this.browser.pages()
-    const promises = pages.map((p, i) =>
-      p.evaluate((index) => document.visibilityState === 'visible' && index, `${i}`)
-    )
-    const firstActivePage = pages[(await Promise.all(promises)).find((i) => i)]
+    const promises = pages.map((p) => p.evaluate(() => document.visibilityState === 'visible'))
+    const activePageIndex = (await Promise.all(promises)).findIndex((isVisible) => isVisible)
+    if (activePageIndex === -1) {
+      throw new Error('No active page is found')
+    }
+    const firstActivePage = pages[activePageIndex]
     return Object.assign(firstActivePage, pageMixin)
   }
 
