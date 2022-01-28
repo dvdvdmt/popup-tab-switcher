@@ -6,7 +6,7 @@ const pathToExtension = path.join(__dirname, '../../build-e2e')
 export const config: Parameters<typeof puppeteer.launch>[0] = {
   executablePath: process.env.PUPPETEER_EXEC_PATH,
   headless: false,
-  slowMo: process.env.CI ? 120 : 20,
+  slowMo: process.env.CI ? 100 : 20,
   defaultViewport: null,
   args: [
     `--disable-extensions-except=${pathToExtension}`,

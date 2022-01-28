@@ -51,34 +51,67 @@ function isElementVisible(el: Element) {
   return false
 }
 
-export function isVisible(selector: string | Element): Promise<true> {
+function getIsElementInDocumentPromise(selector: string): Promise<true> {
+  return new Promise((resolve, reject) => {
+    if (isElementInDocument()) {
+      resolve(true)
+    } else {
+      testAgain(1, resolve, reject)
+    }
+  })
+
+  function isElementInDocument(): boolean {
+    return !!document.querySelector(selector)
+  }
+
   function testAgain(
-    element: Element,
     attempt: number,
     resolve: (value: true) => void,
     reject: (reason: string) => void
   ) {
     setTimeout(() => {
-      if (attempt >= 5) {
-        reject(`Element '${selector}' is not visible`)
-      } else if (isElementVisible(element)) {
+      if (attempt >= 50) {
+        reject(`Element '${selector}' is not found in document`)
+      } else if (isElementInDocument()) {
         resolve(true)
       } else {
-        testAgain(element, attempt + 1, resolve, reject)
+        testAgain(attempt + 1, resolve, reject)
       }
     })
   }
+}
 
-  const element = typeof selector === 'string' ? document.querySelector(selector) : selector
-  if (!element) {
-    return Promise.reject(new Error(`Element '${selector}' is not found in DOM`))
-  }
-
+function getIsElementVisiblePromise(element: Element): Promise<true> {
   return new Promise((resolve, reject) => {
     if (isElementVisible(element)) {
       resolve(true)
     } else {
-      testAgain(element, 1, resolve, reject)
+      testAgain(1, resolve, reject)
     }
   })
+
+  function testAgain(
+    attempt: number,
+    resolve: (value: true) => void,
+    reject: (reason: string) => void
+  ) {
+    setTimeout(() => {
+      if (attempt >= 50) {
+        reject(`Element '#${element.id}.${element.className}' is not visible`)
+      } else if (isElementVisible(element)) {
+        resolve(true)
+      } else {
+        testAgain(attempt + 1, resolve, reject)
+      }
+    })
+  }
+}
+
+export function isVisible(selector: string | Element): Promise<true> {
+  if (typeof selector === 'string') {
+    return getIsElementInDocumentPromise(selector).then(() =>
+      getIsElementVisiblePromise(document.querySelector(selector)!)
+    )
+  }
+  return getIsElementVisiblePromise(selector)
 }

@@ -1,8 +1,12 @@
 import {isVisible} from './is-visible'
-import {sendCommandOnShortcut} from './send-command-on-shortcut'
+import {
+  sendCommandOnShortcut,
+  waitUntilCommandReachesTheBackgroundScript,
+} from './send-command-on-shortcut'
 import {queryPopup} from './query-popup'
 import {initMessageListener, sendMessage} from './send-message'
 import {getSettings} from './get-settings'
+import {resolveWhenPageBecomesVisible} from './resolve-when-page-becomes-visible'
 
 declare global {
   interface Window {
@@ -11,6 +15,8 @@ declare global {
       sendMessage: typeof sendMessage
       isVisible: typeof isVisible
       getSettings: typeof getSettings
+      resolveWhenPageBecomesVisible: typeof resolveWhenPageBecomesVisible
+      waitUntilCommandReachesTheBackgroundScript: typeof waitUntilCommandReachesTheBackgroundScript
     }
   }
 }
@@ -18,6 +24,13 @@ declare global {
 if (!window.e2e) {
   window.addEventListener('keydown', sendCommandOnShortcut)
   initMessageListener()
-  window.e2e = {isVisible, queryPopup, sendMessage, getSettings}
+  window.e2e = {
+    isVisible,
+    queryPopup,
+    sendMessage,
+    getSettings,
+    resolveWhenPageBecomesVisible,
+    waitUntilCommandReachesTheBackgroundScript,
+  }
   console.log(`[PageScripts registered]`)
 }

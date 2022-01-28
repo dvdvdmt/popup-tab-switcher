@@ -27,6 +27,16 @@ const pageMixin = {
   async isVisible(this: Page, selector: string): Promise<true> {
     return this.evaluate((sel) => window.e2e.isVisible(sel), selector)
   },
+
+  async isNotVisible(this: Page, selector: string): Promise<boolean> {
+    return this.evaluate(async (sel) => {
+      try {
+        return await window.e2e.isVisible(sel)
+      } catch (e) {
+        return true
+      }
+    }, selector)
+  },
 }
 
 function isBlank(page: Page) {
@@ -62,6 +72,7 @@ export class PuppeteerPopupHelper {
     const page = await this.getActivePage()
     await page.keyboard.down('Alt')
     await page.keyboard.press('KeyY')
+    await page.evaluate(() => window.e2e.waitUntilCommandReachesTheBackgroundScript())
   }
 
   async selectTabBackward() {
@@ -69,12 +80,14 @@ export class PuppeteerPopupHelper {
     await page.keyboard.down('Alt')
     await page.keyboard.down('Shift')
     await page.keyboard.press('KeyY')
+    await page.evaluate(() => window.e2e.waitUntilCommandReachesTheBackgroundScript())
   }
 
   async switchToSelectedTab() {
     const page = await this.getActivePage()
     await page.keyboard.up('Alt')
     await page.keyboard.up('Shift')
+    await page.evaluate(() => window.e2e.waitUntilCommandReachesTheBackgroundScript())
   }
 
   async switchTab(times = 1) {

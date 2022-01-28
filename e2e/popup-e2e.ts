@@ -109,10 +109,10 @@ describe('popup >', function TestPopup() {
       await helper.selectTabForward()
       let elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent)
       assert.strictEqual(elText, 'Example')
-      await pageStOverflow.keyboard.press('KeyY')
+      await helper.selectTabForward()
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent)
       assert.strictEqual(elText, 'Wikipedia')
-      await pageStOverflow.keyboard.press('KeyY')
+      await helper.selectTabForward()
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent)
       assert.strictEqual(elText, 'Stack Overflow')
       await helper.switchToSelectedTab()
@@ -221,10 +221,7 @@ describe('popup >', function TestPopup() {
       const pageStOverflow = await helper.openPage('stackoverflow.html')
       await helper.selectTabForward()
       await pageStOverflow.keyboard.press('Escape')
-      const isPopupClosed = await pageStOverflow.$eval(
-        '#popup-tab-switcher',
-        (el) => getComputedStyle(el).display === 'none'
-      )
+      const isPopupClosed = await pageStOverflow.isNotVisible('#popup-tab-switcher')
       assert(isPopupClosed, 'hides on pressing Esc button')
       await pageStOverflow.keyboard.up('Alt')
       const activeTab = await helper.getActivePage()

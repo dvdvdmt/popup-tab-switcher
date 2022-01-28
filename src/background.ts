@@ -74,6 +74,7 @@ function initForE2ETests(handlers: Partial<IHandlers>) {
   if (E2E) {
     // eslint-disable-next-line no-param-reassign
     handlers[Message.COMMAND] = async ({command}) => {
+      console.log(`[Command received]`, command)
       await handleCommand(command)
     }
     // eslint-disable-next-line no-param-reassign
@@ -88,6 +89,7 @@ async function handleCommand(command: string) {
   if (!activeTab) {
     return
   }
+  console.log(`[handleCommand]`, activeTab.id, activeTab.title)
   const active = checkTab(activeTab)
   if (isCodeExecutionForbidden(active)) {
     // If the content script can't be initialized then switch to the previous tab.
