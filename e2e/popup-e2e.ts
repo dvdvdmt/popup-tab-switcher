@@ -382,6 +382,12 @@ describe('popup >', function TestPopup() {
       assert.strictEqual(focusedEl.selectionDirection, 'backward')
     })
 
+    it(`stays open on mouse cursor movements`, async () => {
+      //  open the popup
+      //  move mouse somewhere
+      //  the popup stays open
+    })
+
     it('restores focus without breaking switching', async () => {
       const errors: Error[] = []
       await helper.openPage('example.html')
