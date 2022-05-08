@@ -8,6 +8,7 @@ import {initMessageListener, sendMessage} from './send-message'
 import {getSettings} from './get-settings'
 import {resolveWhenPageBecomesVisible} from './resolve-when-page-becomes-visible'
 import {isPageFocused} from './is-page-focused'
+import {log} from '../../../src/utils/logger'
 
 declare global {
   interface Window {
@@ -35,5 +36,5 @@ if (!window.e2e) {
     sendMessage,
     waitUntilCommandReachesTheBackgroundScript,
   }
-  console.log(`[PageScripts registered]`)
+  log(`[PageScripts registered]`)
 }

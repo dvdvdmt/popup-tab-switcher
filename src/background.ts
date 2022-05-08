@@ -14,6 +14,7 @@ import isCodeExecutionForbidden from './utils/is-code-execution-forbidden'
 import {isBrowserFocused} from './utils/is-browser-focused'
 import {checkTab, ITab} from './utils/check-tab'
 import {getTabRegistry} from './utils/tab-registry-factory'
+import {log} from './utils/logger'
 
 import Tab = Tabs.Tab
 
@@ -37,7 +38,7 @@ function saveTabs(tabs: ITab[]): void {
 
 Promise.all([getSettings(browser.storage.local), getOpenTabs(), getSavedTabs()])
   .then(([newSettings, openTabs, savedTabs]) => {
-    console.log(`[ settings initialized]`, newSettings)
+    log(`[ settings initialized]`, newSettings)
     settings = newSettings
     return getTabRegistry({
       numberOfTabsToShow: settings.numberOfTabsToShow,
@@ -48,7 +49,7 @@ Promise.all([getSettings(browser.storage.local), getOpenTabs(), getSavedTabs()])
   })
   .then((newRegistry) => {
     registry = newRegistry
-    console.log(`[ registry initialized]`, registry.titles())
+    log(`[ registry initialized]`, registry.titles())
     initListeners()
   })
 
@@ -100,7 +101,7 @@ async function initForE2ETests(handlers: Partial<IHandlers>) {
 
   // eslint-disable-next-line no-param-reassign
   handlers[Message.COMMAND] = async ({command}) => {
-    console.log(`[Command received]`, command)
+    log(`[Command received]`, command)
     await handleCommand(command)
   }
   // eslint-disable-next-line no-param-reassign
@@ -118,7 +119,7 @@ async function handleCommand(command: string) {
   if (!activeTab) {
     return
   }
-  console.log(`[handleCommand]`, activeTab.id, activeTab.title)
+  log(`[handleCommand]`, activeTab.id, activeTab.title)
   const active = checkTab(activeTab)
   if (isCodeExecutionForbidden(active)) {
     // If the content script can't be initialized then switch to the previous tab.
@@ -135,7 +136,7 @@ async function handleCommand(command: string) {
 }
 
 async function handleWindowActivation(windowId: number) {
-  console.log(`[handleWindowActivation]`, windowId)
+  log(`[handleWindowActivation]`, windowId)
   // Do not react on windows without ids.
   // This happens on each window activation in some Linux window managers.
   if (windowId === browser.windows.WINDOW_ID_NONE) {
@@ -146,7 +147,7 @@ async function handleWindowActivation(windowId: number) {
 
 async function handleTabActivation(info?: Tabs.OnActivatedActiveInfoType) {
   if (isTabActivationInProcess) {
-    console.log(
+    log(
       `[handleTabActivation is skipped because previous tab activation is in process]`,
       info?.tabId,
       registry.titles()
@@ -163,7 +164,7 @@ async function handleTabActivation(info?: Tabs.OnActivatedActiveInfoType) {
       registry.push(checkTab(active))
     }
   }
-  console.log(`[handleTabActivation end]`, info?.tabId, active?.id, registry.titles())
+  log(`[handleTabActivation end]`, info?.tabId, active?.id, registry.titles())
 }
 
 function handleTabCreation(tab: Tab) {
@@ -172,25 +173,25 @@ function handleTabCreation(tab: Tab) {
   } else {
     registry.pushUnderTop(checkTab(tab))
   }
-  console.log(`[handleTabCreation end]`, tab.id, registry.titles())
+  log(`[handleTabCreation end]`, tab.id, registry.titles())
 }
 
 function handleTabUpdate(tabId: number, changeInfo: Tabs.OnUpdatedChangeInfoType, tab: Tab) {
   if (changeInfo.status === 'complete') {
-    console.log(`[handleTabUpdate tabId]`, tabId, tab.title)
+    log(`[handleTabUpdate tabId]`, tabId, tab.title)
     registry.removeFromInitialized(tabId)
     registry.update(checkTab(tab))
   }
 }
 
 async function handleTabRemove(tabId: number) {
-  console.log(`[handleTabRemove start]`, tabId, registry.titles())
+  log(`[handleTabRemove start]`, tabId, registry.titles())
   registry.remove(tabId)
   const isSwitchingNeeded = settings.isSwitchingToPreviouslyUsedTab
   if (isSwitchingNeeded) {
     const currentTab = registry.getActive()
     if (currentTab) {
-      console.log(`[handleTabRemove will activate tab]`, currentTab.id, currentTab.title)
+      log(`[handleTabRemove will activate tab]`, currentTab.id, currentTab.title)
       await activateTab(currentTab)
     }
   }
@@ -238,7 +239,7 @@ async function initializeContentScript(tab: ITab): Promise<void> {
         reject(new Error('Initialization took too much time'))
       }, 100)
       registry.tabInitialized = (initedTab) => {
-        console.log(`[tabInitialized]`, initedTab)
+        log(`[tabInitialized]`, initedTab)
         resolve()
       }
       browser.scripting

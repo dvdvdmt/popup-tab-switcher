@@ -1,6 +1,7 @@
 import {command} from '../../../src/utils/messages'
 import {Command} from '../../../src/utils/constants'
 import {sendMessage} from './send-message'
+import {log} from '../../../src/utils/logger'
 
 let lastCommandPromise: Promise<void> = Promise.resolve()
 
@@ -10,7 +11,7 @@ let lastCommandPromise: Promise<void> = Promise.resolve()
  * to simulate the work of extension's shortcuts that are defined in chrome://extensions/shortcuts.
  */
 export function sendCommandOnShortcut({key, altKey, ctrlKey, metaKey, shiftKey}: KeyboardEvent) {
-  console.log(
+  log(
     `[sendCommandOnShortcut key, altKey, ctrlKey, metaKey, shiftKey]`,
     key,
     altKey,

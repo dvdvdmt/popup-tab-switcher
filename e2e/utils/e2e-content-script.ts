@@ -5,6 +5,7 @@ import {
   IMessagePackage,
 } from './page-scripts/send-message'
 import {IMessage, IMessageResponse, Message} from '../../src/utils/messages'
+import {log} from '../../src/utils/logger'
 
 declare global {
   interface Window {
@@ -32,7 +33,7 @@ async function sendMessageToBackground(e: MessageEvent<IMessagePackage>): Promis
 
 async function messageHandler(e: MessageEvent<IMessagePackage>) {
   if (e.data.sender === 'pageScript') {
-    console.log(`[ContentScript: received a message from PageScript]`, e.data)
+    log(`[ContentScript: received a message from PageScript]`, e.data)
     let response
     if (e.data.message.type === Message.E2E_RELOAD_EXTENSION) {
       // After the extension reloads this content script can't continue to work with the old context.
@@ -54,7 +55,7 @@ async function waitForTheNewContentScriptRegistration(): Promise<void> {
         window.removeEventListener('message', messageHandler)
         window.removeEventListener('message', cleanupHandler)
         resolve()
-        console.log(`[ContentScript unregistered]`)
+        log(`[ContentScript unregistered]`)
       }
     }
     window.addEventListener('message', cleanupHandler)
@@ -65,5 +66,5 @@ if (!window.isE2EContentScriptRegistered) {
   window.postMessage(messageFromNewMe(), '*')
   window.addEventListener('message', messageHandler)
   window.isE2EContentScriptRegistered = true
-  console.log(`[ContentScript registered]`)
+  log(`[ContentScript registered]`)
 }

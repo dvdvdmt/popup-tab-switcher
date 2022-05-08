@@ -1,4 +1,5 @@
 import {IMessage, IMessageResponse} from '../../../src/utils/messages'
+import {log} from '../../../src/utils/logger'
 
 export interface IMessageFromPageScript {
   sender: 'pageScript'
@@ -38,7 +39,7 @@ export function sendMessage<Message extends IMessage>(
 export function initMessageListener() {
   window.addEventListener('message', (e: MessageEvent<IMessagePackage>) => {
     if (e.data.sender === 'contentScript') {
-      console.log(`[PageScript: received a message from ContentScript]`, e.data.message)
+      log(`[PageScript: received a message from ContentScript]`, e.data.message)
       promiseResolver(e.data.message)
     }
   })

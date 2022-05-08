@@ -20,6 +20,7 @@ import SettingsForm from './components/settings-form.vue'
 import MTabBar from './components/m-tab-bar.vue'
 import Contribute from './components/contribute.vue'
 import {updateSettings} from '../utils/messages'
+import {log} from '../utils/logger'
 
 // The connection is necessary for tracking settings popup closing (https://stackoverflow.com/q/15798516/3167855)
 const port = browser.runtime.connect({name: Port.POPUP_SCRIPT})
@@ -63,7 +64,7 @@ export default {
   },
   mounted() {
     getSettings(browser.storage.local).then((settings) => {
-      console.log(`[ settings]`, settings);
+      log(`[ settings]`, settings)
       this.settings = settings
     })
   },
