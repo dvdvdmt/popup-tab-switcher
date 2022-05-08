@@ -134,7 +134,7 @@ export class PuppeteerPopupHelper {
 
   async sendMessage(message: JSONObject) {
     const page = await this.getActivePage()
-    page.evaluate((m) => window.e2e.sendMessage(m), message)
+    await page.evaluate((m) => window.e2e.sendMessage(m), message)
   }
 
   async resizeWindow(width: number, height: number) {

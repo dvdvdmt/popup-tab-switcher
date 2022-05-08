@@ -20,11 +20,31 @@ import Tab = Tabs.Tab
 let settings: ISettings
 let registry: TabRegistry
 let isTabActivationInProcess = false
-getSettings(browser.storage.local)
-  .then((newSettings) => {
+
+async function getOpenTabs(): Promise<ITab[]> {
+  const windows = await browser.windows.getAll({populate: true})
+  return windows.flatMap((w) => w.tabs || []).map(checkTab)
+}
+
+async function getSavedTabs(): Promise<ITab[]> {
+  const {tabs} = await browser.storage.local.get('tabs')
+  return tabs || []
+}
+
+function saveTabs(tabs: ITab[]): void {
+  browser.storage.local.set({tabs})
+}
+
+Promise.all([getSettings(browser.storage.local), getOpenTabs(), getSavedTabs()])
+  .then(([newSettings, openTabs, savedTabs]) => {
     console.log(`[ settings initialized]`, newSettings)
     settings = newSettings
-    return getTabRegistry(settings.numberOfTabsToShow)
+    return getTabRegistry({
+      numberOfTabsToShow: settings.numberOfTabsToShow,
+      openTabs,
+      savedTabs,
+      onTabsUpdate: saveTabs,
+    })
   })
   .then((newRegistry) => {
     registry = newRegistry
@@ -60,27 +80,36 @@ function initForProduction() {
   browser.runtime.setUninstallURL(uninstallURL)
 }
 
-function initForE2ETests(handlers: Partial<IHandlers>) {
+async function initForE2ETests(handlers: Partial<IHandlers>) {
   const isAllowedUrl = (url: string) => url !== 'about:blank' && !url.startsWith('chrome')
-  browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    const checkedTab = checkTab(tab)
-    if (isAllowedUrl(checkedTab.url)) {
+  async function executeContentScript(tab: ITab) {
+    if (isAllowedUrl(tab.url)) {
       await browser.scripting.executeScript({
-        target: {tabId, allFrames: true},
+        target: {tabId: tab.id, allFrames: true},
         files: ['e2e-content-script.js'],
       })
     }
+  }
+  browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    await executeContentScript(checkTab(tab))
   })
-  if (E2E) {
-    // eslint-disable-next-line no-param-reassign
-    handlers[Message.COMMAND] = async ({command}) => {
-      console.log(`[Command received]`, command)
-      await handleCommand(command)
-    }
-    // eslint-disable-next-line no-param-reassign
-    handlers[Message.E2E_SET_ZOOM] = ({zoomFactor}) => {
-      browser.tabs.setZoom(zoomFactor)
-    }
+  const active = await getActiveTab()
+  if (active) {
+    await executeContentScript(checkTab(active))
+  }
+
+  // eslint-disable-next-line no-param-reassign
+  handlers[Message.COMMAND] = async ({command}) => {
+    console.log(`[Command received]`, command)
+    await handleCommand(command)
+  }
+  // eslint-disable-next-line no-param-reassign
+  handlers[Message.E2E_SET_ZOOM] = ({zoomFactor}) => {
+    browser.tabs.setZoom(zoomFactor)
+  }
+  // eslint-disable-next-line no-param-reassign
+  handlers[Message.E2E_RELOAD_EXTENSION] = async () => {
+    await browser.runtime.reload()
   }
 }
 
@@ -208,10 +237,13 @@ async function initializeContentScript(tab: ITab): Promise<void> {
       const timeoutId = setTimeout(() => {
         reject(new Error('Initialization took too much time'))
       }, 100)
-      registry.tabInitialized = resolve
+      registry.tabInitialized = (initedTab) => {
+        console.log(`[tabInitialized]`, initedTab)
+        resolve()
+      }
       browser.scripting
         .executeScript({
-          target: {tabId: tab.id, allFrames: true},
+          target: {tabId: tab.id, allFrames: false},
           files: ['content.js'],
         })
         .catch((e) => {

@@ -1,11 +1,12 @@
 import {ITab} from './check-tab'
 
-interface TabRegistryOptions {
-  tabs?: ITab[]
-  numberOfTabsToShow?: number
+interface ITabRegistryOptions {
+  tabs: ITab[]
+  numberOfTabsToShow: number
+  onUpdate: (tabs: ITab[]) => void
 }
 
-interface InitializedTabs {
+interface IInitializedTabs {
   [key: number]: ITab
 }
 
@@ -14,27 +15,31 @@ export default class TabRegistry {
 
   private numberOfTabsToShow: number
 
-  private initializedTabs: InitializedTabs = {}
+  private initializedTabs: IInitializedTabs
 
-  constructor({tabs = [], numberOfTabsToShow = 7}: TabRegistryOptions = {}) {
+  private onUpdate: (tabs: ITab[]) => void
+
+  constructor({
+    tabs = [],
+    numberOfTabsToShow = 7,
+    onUpdate = () => {},
+  }: Partial<ITabRegistryOptions> = {}) {
+    this.initializedTabs = {}
     this.tabs = tabs
     this.numberOfTabsToShow = numberOfTabsToShow
+    this.onUpdate = onUpdate
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  tabInitialized = () => {}
+  tabInitialized: (tab: ITab) => void = () => {}
 
   setNumberOfTabsToShow(n: number) {
     this.numberOfTabsToShow = n
   }
 
-  removeTab(tabId: number) {
-    this.tabs = this.tabs.filter(({id}) => id !== tabId)
-  }
-
   addToInitialized(tab: ITab) {
     this.initializedTabs[tab.id] = tab
-    this.tabInitialized()
+    this.tabInitialized(tab)
   }
 
   removeFromInitialized(tabId: number) {
@@ -46,13 +51,15 @@ export default class TabRegistry {
   }
 
   push(current: ITab) {
-    this.removeTab(current.id)
+    this.tabs = this.removeTab(current.id)
     this.tabs.push(current)
+    this.onUpdate(this.tabs)
   }
 
   remove(tabId: number) {
-    this.removeTab(tabId)
+    this.tabs = this.removeTab(tabId)
     this.removeFromInitialized(tabId)
+    this.onUpdate(this.tabs)
   }
 
   update(tabToUpdate: ITab) {
@@ -62,6 +69,7 @@ export default class TabRegistry {
       }
       return t
     })
+    this.onUpdate(this.tabs)
   }
 
   getTabs() {
@@ -101,6 +109,7 @@ export default class TabRegistry {
     } else {
       this.tabs.push(tab)
     }
+    this.onUpdate(this.tabs)
   }
 
   /**
@@ -108,9 +117,14 @@ export default class TabRegistry {
    * */
   setActive(tabId: number) {
     this.tabs.sort((_a, b) => (b.id === tabId ? -1 : 0))
+    this.onUpdate(this.tabs)
   }
 
   titles() {
-    return this.tabs.map((tab) => `${tab.id}-${tab.title}`).join(' ')
+    return this.tabs.map((tab) => `#${tab.id} ${tab.title}`).join(', ')
+  }
+
+  private removeTab(tabId: number): ITab[] {
+    return this.tabs.filter(({id}) => id !== tabId)
   }
 }

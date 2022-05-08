@@ -10,6 +10,14 @@ let lastCommandPromise: Promise<void> = Promise.resolve()
  * to simulate the work of extension's shortcuts that are defined in chrome://extensions/shortcuts.
  */
 export function sendCommandOnShortcut({key, altKey, ctrlKey, metaKey, shiftKey}: KeyboardEvent) {
+  console.log(
+    `[sendCommandOnShortcut key, altKey, ctrlKey, metaKey, shiftKey]`,
+    key,
+    altKey,
+    ctrlKey,
+    metaKey,
+    shiftKey
+  )
   const keyLower = key.toLowerCase()
   const isModifier = altKey || ctrlKey || metaKey
   if (shiftKey && isModifier && keyLower === 'y') {

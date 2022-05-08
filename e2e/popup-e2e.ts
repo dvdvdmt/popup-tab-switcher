@@ -8,7 +8,7 @@ import {
   timeoutDurationMS,
   waitFor,
 } from './utils/puppeteer-utils'
-import {e2eSetZoom} from '../src/utils/messages'
+import {e2eReloadExtension, e2eSetZoom} from '../src/utils/messages'
 
 let helper: PuppeteerPopupHelper
 
@@ -87,6 +87,27 @@ describe('popup >', function TestPopup() {
         els.map((el) => el.textContent)
       )
       assert.deepStrictEqual(elTexts, expectedTexts, '3 tabs were added')
+    })
+
+    it(`restores visited pages order after the background worker restart`, async () => {
+      // Open multiple tabs.
+      await helper.openPage('wikipedia.html')
+      const pageExample = await helper.openPage('example.html')
+      const pageStOverflow = await helper.openPage('stackoverflow.html')
+      await helper.openPage('links.html')
+      // Send command to reload the extension to simulate web worker shut down.
+      await pageExample.bringToFront()
+      await pageStOverflow.bringToFront()
+      await helper.sendMessage(e2eReloadExtension())
+      await helper.selectTabForward()
+      const elTexts = await pageStOverflow.queryPopup('.tab', (els) =>
+        els.map((el) => el.textContent)
+      )
+      assert.deepStrictEqual(
+        elTexts,
+        ['Stack Overflow', 'Example', 'Links', 'Wikipedia'],
+        'The history of visited pages is not preserved after the extension reload.'
+      )
     })
 
     it('updates tab list on closing open tabs', async () => {
@@ -187,17 +208,11 @@ describe('popup >', function TestPopup() {
       const pageStOverflow = await helper.openPageAsPopup('stackoverflow.html')
       const pageFile = await helper.openPage('file.js')
       await pageFile.close()
-      await waitFor(100)
-      const isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus())
-      assert(isStOverflowFocused, 'Switched to a tab in previous window (StackOverflow)')
+      await pageStOverflow.evaluate(() => window.e2e.isPageFocused())
       await pageStOverflow.close()
-      await waitFor(100)
-      const isExampleFocused = await pageExample.evaluate(() => document.hasFocus())
-      assert(isExampleFocused, 'Switched to a tab in previous window (Example)')
+      await pageExample.evaluate(() => window.e2e.isPageFocused())
       await pageExample.close()
-      await waitFor(100)
-      const isWikipediaFocused = await pageWikipedia.evaluate(() => document.hasFocus())
-      assert(isWikipediaFocused, 'Switched to a tab in previous window (Wikipedia)')
+      await pageWikipedia.evaluate(() => window.e2e.isPageFocused())
     })
 
     it('switches to the tab that was clicked', async () => {
@@ -439,7 +454,7 @@ describe('popup >', function TestPopup() {
     })
 
     it('adds tabs opened by Ctrl+Click to the registry', async () => {
-      const pageWithLinks = await helper.openPage('page-with-links.html')
+      const pageWithLinks = await helper.openPage('links.html')
       await pageWithLinks.click('#wikipedia', {button: 'middle'})
       await pageWithLinks.click('#stack', {button: 'middle'})
       await pageWithLinks.click('#example', {button: 'middle'})
@@ -447,7 +462,7 @@ describe('popup >', function TestPopup() {
       const elTexts = await pageWithLinks.queryPopup('.tab', (els) =>
         els.map((el) => el.textContent)
       )
-      const expectedTexts = ['Page with links', 'Example', 'Stack Overflow', 'Wikipedia']
+      const expectedTexts = ['Links', 'Example', 'Stack Overflow', 'Wikipedia']
       assert.deepStrictEqual(elTexts, expectedTexts, 'background tabs were added')
     })
 

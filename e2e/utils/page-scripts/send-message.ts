@@ -10,7 +10,15 @@ export interface IMessageFromContentScript {
   message: IMessageResponse<IMessage>
 }
 
-export type IMessagePackage = IMessageFromPageScript | IMessageFromContentScript
+export interface IMessageFromNewContentScript {
+  sender: 'newContentScript'
+  message: undefined
+}
+
+export type IMessagePackage =
+  | IMessageFromPageScript
+  | IMessageFromContentScript
+  | IMessageFromNewContentScript
 
 let promiseResolver: (message: IMessageResponse<IMessage>) => void = () => {}
 

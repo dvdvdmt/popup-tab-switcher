@@ -18,6 +18,8 @@ export enum Message {
   E2E_SET_ZOOM = 'E2E_SET_ZOOM',
   INITIALIZED = 'INITIALIZED',
   GET_MODEL = 'GET_MODEL',
+  E2E_RELOAD_EXTENSION = 'E2E_RELOAD_EXTENSION',
+  E2E_RELOAD_EXTENSION_FINISHED = 'E2E_RELOAD_EXTENSION_FINISHED',
 }
 
 export function updateSettings(newSettings: DefaultSettings) {
@@ -51,6 +53,14 @@ export function e2eSetZoom(zoomFactor: number) {
   return {type: Message.E2E_SET_ZOOM, zoomFactor} as const
 }
 
+export function e2eReloadExtension() {
+  return {type: Message.E2E_RELOAD_EXTENSION} as const
+}
+
+export function e2eReloadExtensionFinished() {
+  return {type: Message.E2E_RELOAD_EXTENSION_FINISHED} as const
+}
+
 export function initialized() {
   return {type: Message.INITIALIZED} as const
 }
@@ -67,7 +77,9 @@ interface IMessageTypeToObjectMap {
   [Message.CLOSE_POPUP]: ReturnType<typeof closePopup>
   [Message.COMMAND]: ReturnType<typeof command>
   [Message.E2E_SET_ZOOM]: ReturnType<typeof e2eSetZoom>
-  [Message.INITIALIZED]: ReturnType<typeof e2eSetZoom>
+  [Message.E2E_RELOAD_EXTENSION]: ReturnType<typeof e2eReloadExtension>
+  [Message.E2E_RELOAD_EXTENSION_FINISHED]: ReturnType<typeof e2eReloadExtensionFinished>
+  [Message.INITIALIZED]: ReturnType<typeof initialized>
   [Message.GET_MODEL]: ReturnType<typeof getModel>
 }
 
