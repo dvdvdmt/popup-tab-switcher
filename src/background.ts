@@ -13,7 +13,7 @@ import {
 import isCodeExecutionForbidden from './utils/is-code-execution-forbidden'
 import {isBrowserFocused} from './utils/is-browser-focused'
 import {checkTab, ITab} from './utils/check-tab'
-import {getTabRegistry} from './utils/tab-registry-factory'
+import {TabRegistryFactory} from './utils/tab-registry-factory'
 import {log} from './utils/logger'
 
 import Tab = Tabs.Tab
@@ -40,7 +40,7 @@ Promise.all([getSettings(browser.storage.local), getOpenTabs(), getSavedTabs()])
   .then(([newSettings, openTabs, savedTabs]) => {
     log(`[ settings initialized]`, newSettings)
     settings = newSettings
-    return getTabRegistry({
+    return TabRegistryFactory.create({
       numberOfTabsToShow: settings.numberOfTabsToShow,
       openTabs,
       savedTabs,

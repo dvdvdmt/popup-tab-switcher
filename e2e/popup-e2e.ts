@@ -94,6 +94,7 @@ describe('popup >', function TestPopup() {
       await helper.openPage('wikipedia.html')
       const pageExample = await helper.openPage('example.html')
       const pageStOverflow = await helper.openPage('stackoverflow.html')
+      await helper.openPage('example.html')
       await helper.openPage('links.html')
       // Send command to reload the extension to simulate web worker shut down.
       await pageExample.bringToFront()
@@ -105,7 +106,7 @@ describe('popup >', function TestPopup() {
       )
       assert.deepStrictEqual(
         elTexts,
-        ['Stack Overflow', 'Example', 'Links', 'Wikipedia'],
+        ['Stack Overflow', 'Example', 'Links', 'Example', 'Wikipedia'],
         'The history of visited pages is not preserved after the extension reload.'
       )
     })
