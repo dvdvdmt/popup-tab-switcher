@@ -76,10 +76,6 @@ export default class TabRegistry {
     return this.tabs.slice()
   }
 
-  getInitializedTabsIds() {
-    return Object.values(this.initializedTabs).map(({id}) => id)
-  }
-
   getTabsToShow(): ITab[] {
     return this.tabs.slice(-this.numberOfTabsToShow).reverse()
   }

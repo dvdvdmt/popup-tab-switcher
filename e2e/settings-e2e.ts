@@ -101,7 +101,7 @@ async function setSettings(page: Page) {
   await input(page, '#opacity', `${newSettings.opacity}`)
 }
 
-describe('settings >', function TestSettings() {
+describe('settings', function TestSettings() {
   this.timeout(timeoutDurationMS)
 
   before(() =>

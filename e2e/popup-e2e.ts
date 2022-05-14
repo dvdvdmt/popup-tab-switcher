@@ -12,7 +12,7 @@ import {e2eReloadExtension, e2eSetZoom} from '../src/utils/messages'
 
 let helper: PuppeteerPopupHelper
 
-describe('popup >', function TestPopup() {
+describe('popup', function TestPopup() {
   this.timeout(timeoutDurationMS)
 
   before(() =>
@@ -23,7 +23,7 @@ describe('popup >', function TestPopup() {
 
   after(stopPuppeteer)
 
-  context('one page >', () => {
+  context('one page', () => {
     after(closeTabs)
 
     async function popupOpens(page: HelperPage) {
@@ -74,7 +74,7 @@ describe('popup >', function TestPopup() {
     })
   })
 
-  context('many pages >', () => {
+  context('many pages', () => {
     afterEach(closeTabs)
 
     it('adds visited pages to the registry in correct order', async () => {
