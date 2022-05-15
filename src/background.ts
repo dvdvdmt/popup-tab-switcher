@@ -1,6 +1,4 @@
 import browser, {Runtime, Tabs} from 'webextension-polyfill'
-import TabRegistry from './utils/tab-registry'
-import {getSettings, ISettings} from './utils/settings'
 import {Command, Port, uninstallURL} from './utils/constants'
 import {
   closePopup,
@@ -13,45 +11,14 @@ import {
 import isCodeExecutionForbidden from './utils/is-code-execution-forbidden'
 import {isBrowserFocused} from './utils/is-browser-focused'
 import {checkTab, ITab} from './utils/check-tab'
-import {TabRegistryFactory} from './utils/tab-registry-factory'
 import {log} from './utils/logger'
+import {ServiceFactory} from './service-factory'
 
 import Tab = Tabs.Tab
 
-let settings: ISettings
-let registry: TabRegistry
 let isTabActivationInProcess = false
 
-async function getOpenTabs(): Promise<ITab[]> {
-  const windows = await browser.windows.getAll({populate: true})
-  return windows.flatMap((w) => w.tabs || []).map(checkTab)
-}
-
-async function getSavedTabs(): Promise<ITab[]> {
-  const {tabs} = await browser.storage.local.get('tabs')
-  return tabs || []
-}
-
-function saveTabs(tabs: ITab[]): void {
-  browser.storage.local.set({tabs})
-}
-
-Promise.all([getSettings(browser.storage.local), getOpenTabs(), getSavedTabs()])
-  .then(([newSettings, openTabs, savedTabs]) => {
-    log(`[ settings initialized]`, newSettings)
-    settings = newSettings
-    return TabRegistryFactory.create({
-      numberOfTabsToShow: settings.numberOfTabsToShow,
-      openTabs,
-      savedTabs,
-      onTabsUpdate: saveTabs,
-    })
-  })
-  .then((newRegistry) => {
-    registry = newRegistry
-    log(`[ registry initialized]`, registry.titles())
-    initListeners()
-  })
+initListeners()
 
 function initListeners() {
   /** NOTE:
@@ -123,7 +90,8 @@ async function handleCommand(command: string) {
   const active = checkTab(activeTab)
   if (isCodeExecutionForbidden(active)) {
     // If the content script can't be initialized then switch to the previous tab.
-    // TODO: Create popup window on the center of a screen and show PTS in it.
+    // TODO: Create popup window in the center of a screen and show PTS in it.
+    const registry = await ServiceFactory.getTabRegistry()
     const previousTab = registry.getPreviouslyActive()
     if (previousTab) {
       await activateTab(previousTab)
@@ -146,6 +114,7 @@ async function handleWindowActivation(windowId: number) {
 }
 
 async function handleTabActivation(info?: Tabs.OnActivatedActiveInfoType) {
+  const registry = await ServiceFactory.getTabRegistry()
   if (isTabActivationInProcess) {
     log(
       `[handleTabActivation is skipped because previous tab activation is in process]`,
@@ -167,7 +136,8 @@ async function handleTabActivation(info?: Tabs.OnActivatedActiveInfoType) {
   log(`[handleTabActivation end]`, info?.tabId, active?.id, registry.titles())
 }
 
-function handleTabCreation(tab: Tab) {
+async function handleTabCreation(tab: Tab) {
+  const registry = await ServiceFactory.getTabRegistry()
   if (tab.active) {
     registry.push(checkTab(tab))
   } else {
@@ -176,7 +146,8 @@ function handleTabCreation(tab: Tab) {
   log(`[handleTabCreation end]`, tab.id, registry.titles())
 }
 
-function handleTabUpdate(tabId: number, changeInfo: Tabs.OnUpdatedChangeInfoType, tab: Tab) {
+async function handleTabUpdate(tabId: number, changeInfo: Tabs.OnUpdatedChangeInfoType, tab: Tab) {
+  const registry = await ServiceFactory.getTabRegistry()
   if (changeInfo.status === 'complete') {
     log(`[handleTabUpdate tabId]`, tabId, tab.title)
     registry.removeFromInitialized(tabId)
@@ -185,8 +156,10 @@ function handleTabUpdate(tabId: number, changeInfo: Tabs.OnUpdatedChangeInfoType
 }
 
 async function handleTabRemove(tabId: number) {
+  const registry = await ServiceFactory.getTabRegistry()
   log(`[handleTabRemove start]`, tabId, registry.titles())
   registry.remove(tabId)
+  const settings = await ServiceFactory.getSettings()
   const isSwitchingNeeded = settings.isSwitchingToPreviouslyUsedTab
   if (isSwitchingNeeded) {
     const currentTab = registry.getActive()
@@ -199,14 +172,17 @@ async function handleTabRemove(tabId: number) {
 
 function messageHandlers(): Partial<IHandlers> {
   return {
-    [Message.INITIALIZED]: (_m, sender) => {
+    [Message.INITIALIZED]: async (_m, sender) => {
+      const registry = await ServiceFactory.getTabRegistry()
       registry.addToInitialized(checkTab(sender.tab!))
     },
     [Message.SWITCH_TAB]: async ({selectedTab}) => {
       await activateTab(selectedTab)
     },
     [Message.UPDATE_SETTINGS]: async ({newSettings}) => {
+      const settings = await ServiceFactory.getSettings()
       await settings.update(newSettings)
+      const registry = await ServiceFactory.getTabRegistry()
       registry.setNumberOfTabsToShow(newSettings.numberOfTabsToShow)
       const activeTab = await getActiveTab()
       if (!activeTab) {
@@ -224,15 +200,20 @@ function messageHandlers(): Partial<IHandlers> {
       // send a command to the content script
       await browser.tabs.sendMessage(active.id, demoSettings())
     },
-    [Message.GET_MODEL]: async () => ({
-      tabs: registry.getTabsToShow(),
-      settings,
-      zoomFactor: await browser.tabs.getZoom(),
-    }),
+    [Message.GET_MODEL]: async () => {
+      const settings = await ServiceFactory.getSettings()
+      const registry = await ServiceFactory.getTabRegistry()
+      return {
+        tabs: registry.getTabsToShow(),
+        settings,
+        zoomFactor: await browser.tabs.getZoom(),
+      }
+    },
   }
 }
 
 async function initializeContentScript(tab: ITab): Promise<void> {
+  const registry = await ServiceFactory.getTabRegistry()
   if (!registry.isInitialized(tab.id)) {
     return new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
