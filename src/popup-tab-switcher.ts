@@ -244,10 +244,10 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   onKeyUp = (e: KeyboardEvent): void => {
-    if (!this.isOverlayVisible) {
+    if (this.settings.isStayingOpen || !this.isOverlayVisible) {
       return
     }
-    if (!this.settings.isStayingOpen && ['Alt', 'Control', 'Meta'].includes(e.key)) {
+    if (['Alt', 'Control', 'Meta'].includes(e.key)) {
       this.switchToSelectedTab()
       e.preventDefault()
       e.stopPropagation()

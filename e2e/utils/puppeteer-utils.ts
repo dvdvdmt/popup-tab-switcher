@@ -31,10 +31,10 @@ export async function stopPuppeteer() {
   }
 }
 
-export const timeoutDurationMS = 30000000
+export const timeoutDurationMS = 30000
 
 /**
- * This helper function is useful when there asodifjsadf is a need to debug some test case
+ * This helper function is useful when there is a need to debug some test case
  * and figure out what is in the console.
  * Steps:
  * 1. Enable --auto-open-devtools-for-tabs in puppeteer-config.
