@@ -69,8 +69,8 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   setupListeners() {
     this.addEventListener('click', this.onClick)
-    this.card.addEventListener('keyup', this.onKeyUp)
-    this.card.addEventListener('keydown', this.onKeyDown)
+    window.addEventListener('keyup', this.onKeyUp)
+    window.addEventListener('keydown', this.onKeyDown)
     window.addEventListener('blur', this.onWindowBlur)
     window.addEventListener('resize', this.onWindowResize)
 
@@ -129,8 +129,8 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   removeListeners() {
     this.removeEventListener('click', this.onClick)
-    document.removeEventListener('keyup', this.onKeyUp)
-    document.removeEventListener('keydown', this.onKeyDown)
+    window.removeEventListener('keyup', this.onKeyUp)
+    window.removeEventListener('keydown', this.onKeyDown)
     window.removeEventListener('blur', this.onWindowBlur)
     window.removeEventListener('resize', this.onWindowResize)
     browser.runtime.onMessage.removeListener(this.messageListener)
