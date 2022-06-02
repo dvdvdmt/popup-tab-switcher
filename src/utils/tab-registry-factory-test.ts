@@ -7,58 +7,58 @@ function getTab(params: Partial<ITab>): ITab {
   return result as ITab
 }
 
-function mapToTitles(tabs: ITab[]): (string | undefined)[] {
-  return tabs.map(({title}) => title)
+function mapToUrls(tabs: ITab[]): (string | undefined)[] {
+  return tabs.map(({url}) => url)
 }
 
 describe(TabRegistryFactory.name, () => {
   describe(`create`, () => {
     it(`creates registry if there are no saved tabs`, () => {
       const openTabs = [
-        getTab({title: 'example', url: 'http://example.com'}),
-        getTab({title: 'wikipedia', url: 'http://wikipedia.org', active: true}),
-        getTab({title: 'stack', url: 'http://stack.com'}),
+        getTab({url: 'example'}),
+        getTab({url: 'wikipedia', active: true}),
+        getTab({url: 'stack'}),
       ]
       const savedTabs: ITab[] = []
       const registry = TabRegistryFactory.create({numberOfTabsToShow: 5, openTabs, savedTabs})
       const result = registry.getTabs()
-      assert.deepStrictEqual(mapToTitles(result), ['example', 'stack', 'wikipedia'])
+      assert.deepStrictEqual(mapToUrls(result), ['example', 'stack', 'wikipedia'])
     })
   })
 
   describe(`sortTabs`, () => {
     it(`sorts tabs accordingly to saved ones`, () => {
       const openTabs = [
-        getTab({title: 'wikipedia', url: 'http://wikipedia.org'}),
-        getTab({title: 'stack', url: 'http://stack.com'}),
-        getTab({title: 'links', url: 'http://links.com'}),
-        getTab({title: 'example', url: 'http://example.com'}),
-        getTab({title: 'links', url: 'http://links.com'}),
+        getTab({url: 'wikipedia'}),
+        getTab({url: 'stack'}),
+        getTab({url: 'links'}),
+        getTab({url: 'example'}),
+        getTab({url: 'links'}),
       ]
       const savedTabs = [
-        getTab({title: 'links', url: 'http://links.com'}),
-        getTab({title: 'example', url: 'http://example.com'}),
-        getTab({title: 'stack', url: 'http://stack.com'}),
-        getTab({title: 'wikipedia', url: 'http://wikipedia.org'}),
-        getTab({title: 'links', url: 'http://links.com'}),
+        getTab({url: 'links'}),
+        getTab({url: 'example'}),
+        getTab({url: 'stack'}),
+        getTab({url: 'wikipedia'}),
+        getTab({url: 'links'}),
       ]
       const result = TabRegistryFactory.sortTabs(openTabs, savedTabs)
-      assert.deepStrictEqual(mapToTitles(result), mapToTitles(savedTabs))
+      assert.deepStrictEqual(mapToUrls(result), mapToUrls(savedTabs))
     })
 
     it(`sorts tabs accordingly to saved ones but prioritizes the active one`, () => {
       const openTabs = [
-        getTab({title: 'wikipedia', url: 'http://wikipedia.org'}),
-        getTab({title: 'stack', url: 'http://stack.com', active: true}),
-        getTab({title: 'example', url: 'http://example.com'}),
+        getTab({url: 'wikipedia'}),
+        getTab({url: 'stack', active: true}),
+        getTab({url: 'example'}),
       ]
       const savedTabs = [
-        getTab({title: 'example', url: 'http://example.com'}),
-        getTab({title: 'stack', url: 'http://stack.com'}),
-        getTab({title: 'wikipedia', url: 'http://wikipedia.org'}),
+        getTab({url: 'example'}),
+        getTab({url: 'stack'}),
+        getTab({url: 'wikipedia'}),
       ]
       const result = TabRegistryFactory.sortTabs(openTabs, savedTabs)
-      assert.deepStrictEqual(mapToTitles(result), ['example', 'wikipedia', 'stack'])
+      assert.deepStrictEqual(mapToUrls(result), ['example', 'wikipedia', 'stack'])
     })
   })
 })

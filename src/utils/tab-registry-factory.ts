@@ -25,9 +25,7 @@ export class TabRegistryFactory {
 
   static sortTabs(openTabs: ITab[], savedTabs: ITab[]): ITab[] {
     savedTabs.forEach((savedTab) => {
-      const similarTabIndex = openTabs.findIndex(
-        (openTab) => savedTab.title === openTab.title && savedTab.url === openTab.url
-      )
+      const similarTabIndex = openTabs.findIndex((openTab) => savedTab.url === openTab.url)
       if (similarTabIndex > -1) {
         const similarTab = openTabs[similarTabIndex]
         openTabs.splice(similarTabIndex, 1)
