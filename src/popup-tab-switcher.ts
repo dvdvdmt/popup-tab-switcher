@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill'
 import styles from './popup-tab-switcher.scss'
 import {getModel, handleMessage, initialized, Message, switchTab} from './utils/messages'
-import {DefaultSettings} from './utils/settings'
+import {defaultSettings, DefaultSettings} from './utils/settings'
 import {getIconEl, getSVGIcon} from './icon'
 import {cache} from './utils/cache'
 import {ITab} from './utils/check-tab'
@@ -26,7 +26,7 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   private timeout: number
 
-  private tabsArray: ITab[]
+  private tabsArray: ITab[] = []
 
   private selectedTabIndex = 0
 
@@ -40,7 +40,7 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   private readonly root: ShadowRoot
 
-  private settings: DefaultSettings
+  private settings = defaultSettings
 
   private isSettingsDemo = false
 
@@ -244,7 +244,7 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   onKeyUp = (e: KeyboardEvent): void => {
-    if (this.settings.isStayingOpen || !this.isOverlayVisible) {
+    if (!this.isOverlayVisible || this.settings.isStayingOpen) {
       return
     }
     if (['Alt', 'Control', 'Meta'].includes(e.key)) {
