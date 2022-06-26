@@ -2,7 +2,6 @@ const path = require('path')
 const webpack = require('webpack')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-// const ChromeExtensionReloader = require('webpack-chrome-extension-reloader')
 const deepmerge = require('deepmerge')
 
 const buildProdDir = path.join(__dirname, 'build-prod')
@@ -66,14 +65,17 @@ const conf = {
       {
         test: /\.scss$/,
         include: settingsDir,
+        // type: 'asset/resource',
         use: [
-          'style-loader',
+          'vue-style-loader',
           'css-loader',
           {
             loader: 'sass-loader',
             options: {
-              data: sassGlobals,
-              includePaths: [nodeModulesDir, stylesDir],
+              additionalData: sassGlobals,
+              sassOptions: {
+                includePaths: [nodeModulesDir, stylesDir],
+              },
             },
           },
         ],
@@ -86,8 +88,10 @@ const conf = {
           {
             loader: 'sass-loader',
             options: {
-              data: sassGlobals,
-              includePaths: [stylesDir],
+              additionalData: sassGlobals,
+              sassOptions: {
+                includePaths: [stylesDir],
+              },
             },
           },
         ],
