@@ -117,10 +117,11 @@ export class PuppeteerPopupHelper {
 
   async openPageAsPopup(pageName: string): Promise<HelperPage> {
     const active = await this.getActivePage()
+    const newPagePromise = this.newPagePromise()
     await active.evaluate((url) => {
       window.open(url, '_blank', 'width=500,height=500')
     }, getPagePath(pageName))
-    const page = await this.newPagePromise()
+    const page = await newPagePromise
     await PuppeteerPopupHelper.initPageScripts(page)
     return Object.assign(page, pageMixin)
   }
