@@ -1,6 +1,7 @@
 import path from 'path'
 import {Browser, JSONObject, Page} from 'puppeteer'
 import * as fs from 'fs'
+import {waitFor} from './puppeteer-utils'
 
 export const settingsPageUrl =
   'chrome-extension://meonejnmljcnoodabklmloagmnmcmlam/settings/index.html'
@@ -96,6 +97,7 @@ export class PuppeteerPopupHelper {
       await this.selectTabForward()
     }
     await this.switchToSelectedTab()
+    await waitFor(300)
     return this.getActivePage()
   }
 
