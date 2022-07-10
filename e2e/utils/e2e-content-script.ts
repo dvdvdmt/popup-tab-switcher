@@ -26,7 +26,7 @@ async function sendMessageToBackground(e: MessageEvent<IMessagePackage>): Promis
   try {
     response = await browser.runtime.sendMessage(e.data.message)
   } catch (err) {
-    response = err
+    response = false
   }
   return response
 }

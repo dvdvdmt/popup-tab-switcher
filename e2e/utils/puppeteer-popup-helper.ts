@@ -1,7 +1,6 @@
 import path from 'path'
 import {Browser, JSONObject, Page} from 'puppeteer'
 import * as fs from 'fs'
-import {waitFor} from './puppeteer-utils'
 
 export const settingsPageUrl =
   'chrome-extension://meonejnmljcnoodabklmloagmnmcmlam/settings/index.html'
@@ -60,8 +59,18 @@ export class PuppeteerPopupHelper {
 
   async getActivePage(): Promise<HelperPage> {
     const pages = await this.browser.pages()
-    const promises = pages.map((p) => p.evaluate(() => document.visibilityState === 'visible'))
-    const activePageIndex = (await Promise.all(promises)).findIndex((isVisible) => isVisible)
+    const promises = pages.map((p, index) =>
+      p.evaluate(async (i) => {
+        const isActive = await window.e2e.isTabActive()
+        return {
+          isActive,
+          title: document.title,
+          pageIndex: i,
+        }
+      }, index)
+    )
+    const promiseResults = await Promise.all(promises)
+    const activePageIndex = promiseResults.findIndex(({isActive}) => isActive)
     if (activePageIndex === -1) {
       throw new Error('No active page is found')
     }
@@ -97,7 +106,6 @@ export class PuppeteerPopupHelper {
       await this.selectTabForward()
     }
     await this.switchToSelectedTab()
-    await waitFor(300)
     return this.getActivePage()
   }
 
@@ -128,11 +136,12 @@ export class PuppeteerPopupHelper {
     return Object.assign(page, pageMixin)
   }
 
-  async openSettingsPage() {
-    const settingsPage = await this.browser.newPage()
-    await settingsPage.goto(settingsPageUrl)
-    await settingsPage.click('#isStayingOpen')
-    return settingsPage
+  async openPageByClickOnHyperlink(currentPage: Page, elementId: string): Promise<HelperPage> {
+    const newPagePromise = this.newPagePromise()
+    await currentPage.click(elementId, {button: 'middle'})
+    const page = await newPagePromise
+    await PuppeteerPopupHelper.initPageScripts(page)
+    return Object.assign(page, pageMixin)
   }
 
   async sendMessage(message: JSONObject) {
@@ -153,7 +162,11 @@ export class PuppeteerPopupHelper {
 
   newPagePromise() {
     return new Promise<Page>((resolve) =>
-      this.browser.once('targetcreated', (target) => resolve(target.page()))
+      this.browser.on('targetcreated', (target) => {
+        if (target.type() === 'page') {
+          resolve(target.page())
+        }
+      })
     )
   }
 }

@@ -246,28 +246,21 @@ describe('popup', function TestPopup() {
     })
 
     it('switches between windows', async () => {
-      const pageWikipedia = await helper.openPage('wikipedia.html')
-      const pageExample = await helper.openPage('example.html')
-      const pageStOverflow = await helper.openPageAsPopup('stackoverflow.html')
+      await helper.openPage('wikipedia.html')
+      await helper.openPage('example.html')
+      await helper.openPageAsPopup('stackoverflow.html')
 
-      await pageStOverflow.keyboard.down('Alt')
-      await pageStOverflow.keyboard.press('KeyY')
-      await pageStOverflow.keyboard.up('Alt')
-      const isExampleFocused = await pageExample.evaluate(() => document.hasFocus())
-      assert(isExampleFocused, 'Example page is focused')
+      let activeTab = await helper.switchTab()
+      let title = await activeTab.evaluate(() => document.title)
+      assert.strictEqual(title, 'Example')
 
-      await pageExample.keyboard.down('Alt')
-      await pageExample.keyboard.press('KeyY')
-      await pageExample.keyboard.up('Alt')
-      const isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus())
-      assert(isStOverflowFocused, 'Stack Overflow page is focused')
+      activeTab = await helper.switchTab()
+      title = await activeTab.evaluate(() => document.title)
+      assert.strictEqual(title, 'Stack Overflow')
 
-      await pageStOverflow.keyboard.down('Alt')
-      await pageStOverflow.keyboard.press('KeyY')
-      await pageStOverflow.keyboard.press('KeyY')
-      await pageStOverflow.keyboard.up('Alt')
-      const isWikipediaFocused = await pageWikipedia.evaluate(() => document.hasFocus())
-      assert(isWikipediaFocused, 'Wikipedia page is focused')
+      activeTab = await helper.switchTab(2)
+      title = await activeTab.evaluate(() => document.title)
+      assert.strictEqual(title, 'Wikipedia')
     })
 
     it('stores unlimited number of opened tabs in history', async () => {
@@ -456,9 +449,9 @@ describe('popup', function TestPopup() {
 
     it('adds tabs opened by Ctrl+Click to the registry', async () => {
       const pageWithLinks = await helper.openPage('links.html')
-      await pageWithLinks.click('#wikipedia', {button: 'middle'})
-      await pageWithLinks.click('#stack', {button: 'middle'})
-      await pageWithLinks.click('#example', {button: 'middle'})
+      await helper.openPageByClickOnHyperlink(pageWithLinks, '#wikipedia')
+      await helper.openPageByClickOnHyperlink(pageWithLinks, '#stack')
+      await helper.openPageByClickOnHyperlink(pageWithLinks, '#example')
       await helper.selectTabForward()
       const elTexts = await pageWithLinks.queryPopup('.tab', (els) =>
         els.map((el) => el.textContent)

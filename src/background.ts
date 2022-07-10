@@ -79,6 +79,15 @@ async function initForE2ETests(handlers: Partial<IHandlers>) {
   handlers[Message.E2E_RELOAD_EXTENSION] = async () => {
     await browser.runtime.reload()
   }
+  // eslint-disable-next-line no-param-reassign
+  handlers[Message.E2E_IS_PAGE_ACTIVE] = async (_message, sender) => {
+    const activeTab = await getActiveTab()
+    const sourceTab = sender.tab
+    if (sourceTab && activeTab) {
+      return sourceTab.id === activeTab.id && sourceTab.windowId === activeTab.windowId
+    }
+    return false
+  }
 }
 
 async function handleCommand(command: string) {
