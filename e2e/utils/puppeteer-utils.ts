@@ -10,6 +10,7 @@ export async function startPuppeteer() {
     return {browser, helper}
   }
   browser = await puppeteer.launch(config)
+  console.log(`Browser version:`, await browser.version())
   helper = new PuppeteerPopupHelper(browser)
   return {browser, helper}
 }
