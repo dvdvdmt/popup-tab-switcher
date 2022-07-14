@@ -13,12 +13,12 @@ declare global {
   }
 }
 
-function messageFromMe(message: IMessageResponse<IMessage>): IMessageFromContentScript {
-  return {sender: 'contentScript', message}
+function messageFromMe(message: IMessageResponse<IMessage>, id: string): IMessageFromContentScript {
+  return {sender: 'contentScript', id, message}
 }
 
 function messageFromNewMe(): IMessageFromNewContentScript {
-  return {sender: 'newContentScript', message: undefined}
+  return {sender: 'newContentScript', message: undefined, id: ''}
 }
 
 async function sendMessageToBackground(e: MessageEvent<IMessagePackage>): Promise<any> {
@@ -43,7 +43,7 @@ async function messageHandler(e: MessageEvent<IMessagePackage>) {
     } else {
       response = await sendMessageToBackground(e)
     }
-    window.postMessage(messageFromMe(response), '*')
+    window.postMessage(messageFromMe(response, e.data.id), '*')
   }
 }
 

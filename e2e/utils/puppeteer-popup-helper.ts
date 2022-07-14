@@ -101,12 +101,14 @@ export class PuppeteerPopupHelper {
   }
 
   async switchTab(times = 1) {
+    const activePage = await this.getActivePage()
+    const activatedPagePromise = this.newlyActivatedPage(activePage)
     for (let i = 0; i < times; i += 1) {
       // eslint-disable-next-line no-await-in-loop
       await this.selectTabForward()
     }
     await this.switchToSelectedTab()
-    return this.getActivePage()
+    return activatedPagePromise
   }
 
   async openPage(pageFileName: string, existingPage?: Page): Promise<HelperPage> {
@@ -168,5 +170,51 @@ export class PuppeteerPopupHelper {
         }
       })
     )
+  }
+
+  /**
+   * It waits for the page activation and returns the activated page.
+   * The currently active page will be returned if the time threshold passes.
+   */
+  async newlyActivatedPage(activePage: Page): Promise<Page> {
+    const pages = await this.browser.pages()
+    const notActivePages = pages.filter((page) => page.target() !== activePage.target())
+    const promises = notActivePages.map((page, index) =>
+      page.evaluate(async (i) => {
+        let resolver: (value: {pageIndex: number}) => void = () => {}
+        const promise = new Promise<{pageIndex: number}>((resolve) => {
+          resolver = resolve
+        })
+        let attempt = 0
+        function testAgain() {
+          setTimeout(async () => {
+            const isActive = await window.e2e.isTabActive()
+            if (isActive) {
+              resolver({pageIndex: i})
+            } else if (attempt > 100) {
+              // after 1000ms the test stops
+              resolver({pageIndex: -1})
+            } else {
+              attempt += 1
+              testAgain()
+            }
+          }, 10)
+        }
+
+        if (await window.e2e.isTabActive()) {
+          resolver({pageIndex: i})
+        } else {
+          testAgain()
+        }
+        return promise
+      }, index)
+    )
+    const result = await Promise.race(promises)
+    const activePageIndex = result.pageIndex
+    if (activePageIndex === -1) {
+      return activePage
+    }
+    const newActivePage = notActivePages[activePageIndex]
+    return Object.assign(newActivePage, pageMixin)
   }
 }
