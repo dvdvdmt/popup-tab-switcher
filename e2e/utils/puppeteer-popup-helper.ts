@@ -101,12 +101,12 @@ export class PuppeteerPopupHelper {
   }
 
   async switchTab(times = 1) {
-    const activePage = await this.getActivePage()
-    const activatedPagePromise = this.newlyActivatedPage(activePage)
     for (let i = 0; i < times; i += 1) {
       // eslint-disable-next-line no-await-in-loop
       await this.selectTabForward()
     }
+    const activePage = await this.getActivePage()
+    const activatedPagePromise = this.newlyActivatedPage(activePage)
     await this.switchToSelectedTab()
     return activatedPagePromise
   }
