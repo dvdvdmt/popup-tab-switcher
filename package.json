@@ -16,10 +16,8 @@
     "prepare": "husky install",
     "start": "webpack watch --env development",
     "test": "mocha --require @babel/register --require ts-node/register --bail ./src/**/*-test.{js,ts}",
-    "test:e2e": "npm run build:e2e && mocha --require @babel/register --require ts-node/register --slow 6000 --bail ./e2e/*-e2e.ts",
-    "test:e2e:no-build": "mocha --require @babel/register --require ts-node/register --slow 6000 --bail ./e2e/*-e2e.ts",
+    "test:e2e": "mocha --require @babel/register --require ts-node/register --slow 6000 --retries 3 ./e2e/*-e2e.ts",
     "test:e2e:mac": "PUPPETEER_EXEC_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' npm run test:e2e",
-    "test:e2e:mac:no-build": "PUPPETEER_EXEC_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' npm run test:e2e:no-build",
     "test:ts": "tsc --noEmit"
   },
   "keywords": [
