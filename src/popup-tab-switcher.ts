@@ -179,7 +179,7 @@ export default class PopupTabSwitcher extends HTMLElement {
           tabEl.classList.add('tab_timeout')
         }
       }
-      const iconEl = getIconElCached(tab.favIconUrl, tab.url)
+      const iconEl = getIconElCached(tab.url, tab.id)
       const topCornerEl = getSVGIcon('tabCorner', 'tab__cornerIcon tab__cornerIcon_top')
       const bottomCornerEl = getSVGIcon('tabCorner', 'tab__cornerIcon tab__cornerIcon_bottom')
       const textEl = document.createElement('span')
@@ -323,7 +323,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     const popupHeight = numberOfTabsToShow * tabHeight
     const popupBorderRadius = 8
     const tabHorizontalPadding = 10
-    const tabTextPadding = 14
+    const tabTextPadding = 10
     const tabTimeoutIndicatorHeight = 2
 
     this.style.setProperty('--popup-width', `${popupWidth / this.zoomFactor}px`)
