@@ -1,3 +1,28 @@
+## How to run e2e tests inside docker container?
+
+1. Build [puppeteer-headful](https://github.com/mujo-code/puppeteer-headful) image
+
+```shell
+git clone https://github.com/mujo-code/puppeteer-headful.git
+```
+
+```shell
+docker build -t puppeteer-headful ./puppeteer-headful
+# For Apple M1 this will fail
+```
+
+2. Build e2e tests
+
+```shell
+npm run build:e2e
+```
+
+3. Run tests in container
+
+```shell
+docker container run -it --mount type=bind,source="$(pwd)",target=/app -w=/app puppeteer-headful npm run test:e2e
+```
+
 ## Communication with extension
 
 There are two ways of communication between extension and Puppeteer. The first one is using
