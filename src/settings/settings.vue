@@ -1,5 +1,6 @@
 <template>
-  <div class="settings mdc-typography" v-bind:class="{settings_dark: settings.isDarkTheme}">
+  <div v-if="!settings">Loading...</div>
+  <div v-else class="settings mdc-typography" v-bind:class="{settings_dark: settings.isDarkTheme}">
     <m-tab-bar
       class="settings__nav-bar"
       :tabs="tabs"
@@ -13,14 +14,14 @@
 
 <script>
 import browser from 'webextension-polyfill'
-import Settings from '../utils/settings'
+import {getSettings} from '../utils/settings'
 import {Port} from '../utils/constants'
 import SettingsForm from './components/settings-form.vue'
 import MTabBar from './components/m-tab-bar.vue'
 import Contribute from './components/contribute.vue'
 import {updateSettings} from '../utils/messages'
+import {log} from '../utils/logger'
 
-const settingsService = new Settings()
 // The connection is necessary for tracking settings popup closing (https://stackoverflow.com/q/15798516/3167855)
 const port = browser.runtime.connect({name: Port.POPUP_SCRIPT})
 
@@ -39,7 +40,7 @@ export default {
         },
       ],
       activeTabId: 0,
-      settings: settingsService.getObject(),
+      settings: null,
     }
   },
   methods: {
@@ -47,8 +48,7 @@ export default {
       browser.runtime.sendMessage(updateSettings(newSettings))
     },
     setDefaults() {
-      settingsService.setDefaults()
-      this.settings = settingsService.getObject()
+      this.settings.reset()
       this.updateSettings(this.settings)
     },
     onTabActivated(activeTabId) {
@@ -61,6 +61,12 @@ export default {
       deep: true,
       immediate: true,
     },
+  },
+  mounted() {
+    getSettings(browser.storage.local).then((settings) => {
+      log(`[ settings]`, settings)
+      this.settings = settings
+    })
   },
   components: {
     Contribute,

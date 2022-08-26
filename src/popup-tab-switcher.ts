@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill'
 import styles from './popup-tab-switcher.scss'
 import {getModel, handleMessage, initialized, Message, switchTab} from './utils/messages'
-import {DefaultSettings} from './utils/settings'
+import {defaultSettings, DefaultSettings} from './utils/settings'
 import {getIconEl, getSVGIcon} from './icon'
 import {cache} from './utils/cache'
 import {ITab} from './utils/check-tab'
@@ -26,7 +26,7 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   private timeout: number
 
-  private tabsArray: ITab[]
+  private tabsArray: ITab[] = []
 
   private selectedTabIndex = 0
 
@@ -40,7 +40,7 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   private readonly root: ShadowRoot
 
-  private settings: DefaultSettings
+  private settings = defaultSettings
 
   private isSettingsDemo = false
 
@@ -69,8 +69,8 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   setupListeners() {
     this.addEventListener('click', this.onClick)
-    this.card.addEventListener('keyup', this.onKeyUp)
-    this.card.addEventListener('keydown', this.onKeyDown)
+    window.addEventListener('keyup', this.onKeyUp)
+    window.addEventListener('keydown', this.onKeyDown)
     window.addEventListener('blur', this.onWindowBlur)
     window.addEventListener('resize', this.onWindowResize)
 
@@ -129,8 +129,8 @@ export default class PopupTabSwitcher extends HTMLElement {
 
   removeListeners() {
     this.removeEventListener('click', this.onClick)
-    document.removeEventListener('keyup', this.onKeyUp)
-    document.removeEventListener('keydown', this.onKeyDown)
+    window.removeEventListener('keyup', this.onKeyUp)
+    window.removeEventListener('keydown', this.onKeyDown)
     window.removeEventListener('blur', this.onWindowBlur)
     window.removeEventListener('resize', this.onWindowResize)
     browser.runtime.onMessage.removeListener(this.messageListener)
@@ -179,7 +179,7 @@ export default class PopupTabSwitcher extends HTMLElement {
           tabEl.classList.add('tab_timeout')
         }
       }
-      const iconEl = getIconElCached(tab.favIconUrl, tab.url)
+      const iconEl = getIconElCached(tab.url, tab.id)
       const topCornerEl = getSVGIcon('tabCorner', 'tab__cornerIcon tab__cornerIcon_top')
       const bottomCornerEl = getSVGIcon('tabCorner', 'tab__cornerIcon tab__cornerIcon_bottom')
       const textEl = document.createElement('span')
@@ -244,10 +244,10 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   onKeyUp = (e: KeyboardEvent): void => {
-    if (!this.isOverlayVisible) {
+    if (!this.isOverlayVisible || this.settings.isStayingOpen) {
       return
     }
-    if (!this.settings.isStayingOpen && ['Alt', 'Control', 'Meta'].includes(e.key)) {
+    if (['Alt', 'Control', 'Meta'].includes(e.key)) {
       this.switchToSelectedTab()
       e.preventDefault()
       e.stopPropagation()
@@ -323,7 +323,7 @@ export default class PopupTabSwitcher extends HTMLElement {
     const popupHeight = numberOfTabsToShow * tabHeight
     const popupBorderRadius = 8
     const tabHorizontalPadding = 10
-    const tabTextPadding = 14
+    const tabTextPadding = 10
     const tabTimeoutIndicatorHeight = 2
 
     this.style.setProperty('--popup-width', `${popupWidth / this.zoomFactor}px`)

@@ -1,58 +1,34 @@
 import assert from 'assert'
-import {Browser, Page} from 'puppeteer'
-import {PuppeteerPopupHelper, getPagePath, HelperPage} from './utils/puppeteer-popup-helper'
+import {HelperPage, PuppeteerPopupHelper} from './utils/puppeteer-popup-helper'
 import {defaultSettings} from '../src/utils/settings'
-import {closeTabs, startPuppeteer, stopPuppeteer} from './utils/puppeteer-utils'
-import {e2eSetZoom} from '../src/utils/messages'
+import {
+  closeTabs,
+  startPuppeteer,
+  stopPuppeteer,
+  timeoutDurationMS,
+  waitFor,
+} from './utils/puppeteer-utils'
+import {e2eReloadExtension, e2eSetZoom} from '../src/utils/messages'
 
-let browser: Browser
 let helper: PuppeteerPopupHelper
 
-function newPagePromise() {
-  return new Promise<Page>((resolve) =>
-    browser.once('targetcreated', (target) => resolve(target.page()))
-  )
-}
-
-const timeoutDurationMS = 30000
-
-/**
- * This helper function is useful when there asodifjsadf is a need to debug some test case
- * and figure out what is in the console.
- * Steps:
- * 1. Enable --auto-open-devtools-for-tabs in puppeteer-config.
- * 2. Set timeoutDurationMS to necessary time.
- * 3. Place `await waitFor()` in a test case.
- * */
-function waitFor(durationMS = timeoutDurationMS) {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => {
-      resolve()
-    }, durationMS)
-  })
-}
-
-describe('popup >', function TestPopup() {
+describe('popup', function TestPopup() {
   this.timeout(timeoutDurationMS)
 
   before(() =>
     startPuppeteer().then((res) => {
-      browser = res.browser
       helper = res.helper
     })
   )
 
   after(stopPuppeteer)
 
-  context('one page >', () => {
+  context('one page', () => {
     after(closeTabs)
 
-    async function popupOpens(page: Page) {
+    async function popupOpens(page: HelperPage) {
       await helper.selectTabForward()
-      const isVisible = await page.$eval('#popup-tab-switcher', (popup) =>
-        window.e2e.isVisible(popup)
-      )
-      assert(isVisible, 'Popup is not visible')
+      await page.isVisible('#popup-tab-switcher')
     }
 
     it('opens on "Alt+Y"', async () => {
@@ -98,8 +74,8 @@ describe('popup >', function TestPopup() {
     })
   })
 
-  context('many pages >', () => {
-    afterEach(() => closeTabs())
+  context('many pages', () => {
+    afterEach(closeTabs)
 
     it('adds visited pages to the registry in correct order', async () => {
       const expectedTexts = ['Stack Overflow', 'Example', 'Wikipedia']
@@ -111,6 +87,28 @@ describe('popup >', function TestPopup() {
         els.map((el) => el.textContent)
       )
       assert.deepStrictEqual(elTexts, expectedTexts, '3 tabs were added')
+    })
+
+    it(`restores visited pages order after the background worker restart`, async () => {
+      // Open multiple tabs.
+      await helper.openPage('wikipedia.html')
+      const pageExample = await helper.openPage('example.html')
+      const pageStOverflow = await helper.openPage('stackoverflow.html')
+      await helper.openPage('example.html')
+      await helper.openPage('links.html')
+      // Send command to reload the extension to simulate web worker shut down.
+      await pageExample.bringToFront()
+      await pageStOverflow.bringToFront()
+      await helper.sendMessage(e2eReloadExtension())
+      await helper.selectTabForward()
+      const elTexts = await pageStOverflow.queryPopup('.tab', (els) =>
+        els.map((el) => el.textContent)
+      )
+      assert.deepStrictEqual(
+        elTexts,
+        ['Stack Overflow', 'Example', 'Links', 'Example', 'Wikipedia'],
+        'The history of visited pages is not preserved after the extension reload.'
+      )
     })
 
     it('updates tab list on closing open tabs', async () => {
@@ -133,10 +131,10 @@ describe('popup >', function TestPopup() {
       await helper.selectTabForward()
       let elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent)
       assert.strictEqual(elText, 'Example')
-      await pageStOverflow.keyboard.press('KeyY')
+      await helper.selectTabForward()
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent)
       assert.strictEqual(elText, 'Wikipedia')
-      await pageStOverflow.keyboard.press('KeyY')
+      await helper.selectTabForward()
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent)
       assert.strictEqual(elText, 'Stack Overflow')
       await helper.switchToSelectedTab()
@@ -179,38 +177,43 @@ describe('popup >', function TestPopup() {
       const pageExample = await helper.openPage('example.html')
       await helper.openPage('stackoverflow.html')
       await pageWikipedia.bringToFront()
+      // TODO:
+      //  Need to react on handleTabActivation data.tabId than use getActive() because at the time
+      //  of handleTabActivation execution the activeTab is already set to 'example.html'
       await pageWikipedia.close()
-      let activeTab = await helper.getActiveTab()
+      await waitFor(100)
+      let activeTab = await helper.getActivePage()
       let elText = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual(elText, 'Stack Overflow')
       await helper.openPage('wikipedia.html')
       await pageExample.bringToFront()
       await pageExample.close()
-      activeTab = await helper.getActiveTab()
+      await waitFor(100)
+      activeTab = await helper.getActivePage()
       elText = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual(elText, 'Wikipedia')
     })
 
     it('focuses previously active window on a tab closing', async () => {
+      /*
+      opens Wikipedia in first window
+      opens Example in second window
+      opens Stack in third window
+      opens File in first window
+      closes File -> Stack is focused
+      closes Stack -> Example is focused
+      closes Example -> Wikipedia is focused
+      */
       const pageWikipedia = await helper.openPage('wikipedia.html')
-      await pageWikipedia.evaluate((url) => {
-        window.open(url, '_blank', 'width=500,height=500')
-      }, getPagePath('example.html'))
-      const pageExample = await newPagePromise()
-      await pageWikipedia.evaluate((url) => {
-        window.open(url, '_blank', 'width=500,height=500')
-      }, getPagePath('stackoverflow.html'))
-      const pageStOverflow = await newPagePromise()
+      const pageExample = await helper.openPageAsPopup('example.html')
+      const pageStOverflow = await helper.openPageAsPopup('stackoverflow.html')
       const pageFile = await helper.openPage('file.js')
       await pageFile.close()
-      const isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus())
-      assert(isStOverflowFocused, 'Switched to a tab in previous window (StackOverflow)')
+      await pageStOverflow.evaluate(() => window.e2e.isPageFocused())
       await pageStOverflow.close()
-      const isExampleFocused = await pageExample.evaluate(() => document.hasFocus())
-      assert(isExampleFocused, 'Switched to a tab in previous window (Example)')
+      await pageExample.evaluate(() => window.e2e.isPageFocused())
       await pageExample.close()
-      const isWikipediaFocused = await pageWikipedia.evaluate(() => document.hasFocus())
-      assert(isWikipediaFocused, 'Switched to a tab in previous window (Wikipedia)')
+      await pageWikipedia.evaluate(() => window.e2e.isPageFocused())
     })
 
     it('switches to the tab that was clicked', async () => {
@@ -223,7 +226,7 @@ describe('popup >', function TestPopup() {
       })
 
       await pageStOverflow.keyboard.up('Alt')
-      const activeTab = await helper.getActiveTab()
+      const activeTab = await helper.getActivePage()
       const elText = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual(elText, 'Wikipedia', 'switches to the clicked tab')
     })
@@ -234,47 +237,30 @@ describe('popup >', function TestPopup() {
       const pageStOverflow = await helper.openPage('stackoverflow.html')
       await helper.selectTabForward()
       await pageStOverflow.keyboard.press('Escape')
-      const isPopupClosed = await pageStOverflow.$eval(
-        '#popup-tab-switcher',
-        (el) => getComputedStyle(el).display === 'none'
-      )
+      const isPopupClosed = await pageStOverflow.isNotVisible('#popup-tab-switcher')
       assert(isPopupClosed, 'hides on pressing Esc button')
       await pageStOverflow.keyboard.up('Alt')
-      const activeTab = await helper.getActiveTab()
+      const activeTab = await helper.getActivePage()
       const elText = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual(elText, 'Stack Overflow', 'stays on the same tab')
     })
 
     it('switches between windows', async () => {
-      const pageWikipedia = await helper.openPage('wikipedia.html')
-      const pageExample = await helper.openPage('example.html')
-      const pageStOverflow = await openPageInAPopup(pageExample, 'stackoverflow.html')
+      await helper.openPage('wikipedia.html')
+      await helper.openPage('example.html')
+      await helper.openPageAsPopup('stackoverflow.html')
 
-      await pageStOverflow.keyboard.down('Alt')
-      await pageStOverflow.keyboard.press('KeyY')
-      await pageStOverflow.keyboard.up('Alt')
-      const isExampleFocused = await pageExample.evaluate(() => document.hasFocus())
-      assert(isExampleFocused, 'Example page is focused')
+      let activeTab = await helper.switchTab()
+      let title = await activeTab.evaluate(() => document.title)
+      assert.strictEqual(title, 'Example')
 
-      await pageExample.keyboard.down('Alt')
-      await pageExample.keyboard.press('KeyY')
-      await pageExample.keyboard.up('Alt')
-      const isStOverflowFocused = await pageStOverflow.evaluate(() => document.hasFocus())
-      assert(isStOverflowFocused, 'Stack Overflow page is focused')
+      activeTab = await helper.switchTab()
+      title = await activeTab.evaluate(() => document.title)
+      assert.strictEqual(title, 'Stack Overflow')
 
-      await pageStOverflow.keyboard.down('Alt')
-      await pageStOverflow.keyboard.press('KeyY')
-      await pageStOverflow.keyboard.press('KeyY')
-      await pageStOverflow.keyboard.up('Alt')
-      const isWikipediaFocused = await pageWikipedia.evaluate(() => document.hasFocus())
-      assert(isWikipediaFocused, 'Wikipedia page is focused')
-
-      async function openPageInAPopup(existingPage: Page, pageFileName: string) {
-        await existingPage.evaluate((url) => {
-          window.open(url, '_blank', 'width=500,height=500')
-        }, getPagePath(pageFileName))
-        return newPagePromise()
-      }
+      activeTab = await helper.switchTab(2)
+      title = await activeTab.evaluate(() => document.title)
+      assert.strictEqual(title, 'Wikipedia')
     })
 
     it('stores unlimited number of opened tabs in history', async () => {
@@ -286,7 +272,7 @@ describe('popup >', function TestPopup() {
         pages.push(await helper.openPage('example.html'))
       }
       await helper.selectTabForward()
-      let activeTab = await helper.getActiveTab()
+      let activeTab = await helper.getActivePage()
       let numberOfShownTabs = await activeTab.queryPopup('.tab', (els) => els.length)
       assert.strictEqual(
         numberOfShownTabs,
@@ -299,7 +285,7 @@ describe('popup >', function TestPopup() {
       }
       await Promise.all(closingPagesPromises)
       await helper.selectTabForward()
-      activeTab = await helper.getActiveTab()
+      activeTab = await helper.getActivePage()
       numberOfShownTabs = await activeTab.queryPopup('.tab', (els) => els.length)
       assert.strictEqual(
         numberOfShownTabs,
@@ -329,7 +315,7 @@ describe('popup >', function TestPopup() {
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent)
       assert.strictEqual(elText, 'Wikipedia')
       await pageStOverflow.keyboard.press('Enter')
-      const activeTab = await helper.getActiveTab()
+      const activeTab = await helper.getActivePage()
       elText = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual(elText, 'Wikipedia')
     })
@@ -354,7 +340,7 @@ describe('popup >', function TestPopup() {
       elText = await pageStOverflow.queryPopup('.tab_selected', ([el]) => el.textContent)
       assert.strictEqual(elText, 'Wikipedia')
       await pageStOverflow.keyboard.press('Enter')
-      const activeTab = await helper.getActiveTab()
+      const activeTab = await helper.getActivePage()
       elText = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual(elText, 'Wikipedia')
     })
@@ -398,14 +384,14 @@ describe('popup >', function TestPopup() {
       })
       await pageWithInputs.focus('#dewey')
       await helper.switchTab()
-      let activeTab = await helper.getActiveTab()
+      let activeTab = await helper.getActivePage()
       let tabTitle = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual('Example', tabTitle, 'focus on radio button does not prevent switching')
 
       await pageWithInputs.bringToFront()
       await pageWithInputs.focus('#manual-mode')
       await helper.switchTab()
-      activeTab = await helper.getActiveTab()
+      activeTab = await helper.getActivePage()
       tabTitle = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual('Example', tabTitle, 'focus on checkbox does not prevent switching')
 
@@ -431,17 +417,17 @@ describe('popup >', function TestPopup() {
     it('switches on any modifier (Alt, Control, Command) keyup event', async () => {
       await helper.openPage('wikipedia.html')
       await helper.openPage('example.html')
-      let activeTab = await helper.getActiveTab()
+      let activeTab = await helper.getActivePage()
       await activeTab.keyboard.down('Control')
       await activeTab.keyboard.press('KeyY')
       await activeTab.keyboard.up('Control')
-      activeTab = await helper.getActiveTab()
+      activeTab = await helper.getActivePage()
       let tabTitle = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual('Wikipedia', tabTitle)
       await activeTab.keyboard.down('Meta') // Command or Windows key
       await activeTab.keyboard.press('KeyY')
       await activeTab.keyboard.up('Meta')
-      activeTab = await helper.getActiveTab()
+      activeTab = await helper.getActivePage()
       tabTitle = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual('Example', tabTitle)
     })
@@ -451,26 +437,24 @@ describe('popup >', function TestPopup() {
       const pageWithIframe = await helper.openPage('page-with-iframe.html')
       const frame = await pageWithIframe.$('iframe').then((handle) => handle?.contentFrame())
       await frame?.focus('input')
-      await helper.switchTab()
-      let activeTab = await helper.getActiveTab()
+      let activeTab = await helper.switchTab()
       let tabTitle = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual('Wikipedia', tabTitle)
-      await helper.switchTab()
-      activeTab = await helper.getActiveTab()
+      activeTab = await helper.switchTab()
       tabTitle = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual('Page with iframe', tabTitle)
     })
 
     it('adds tabs opened by Ctrl+Click to the registry', async () => {
-      const pageWithLinks = await helper.openPage('page-with-links.html')
-      await pageWithLinks.click('#wikipedia', {button: 'middle'})
-      await pageWithLinks.click('#stack', {button: 'middle'})
-      await pageWithLinks.click('#example', {button: 'middle'})
+      const pageWithLinks = await helper.openPage('links.html')
+      await helper.openPageByClickOnHyperlink(pageWithLinks, '#wikipedia')
+      await helper.openPageByClickOnHyperlink(pageWithLinks, '#stack')
+      await helper.openPageByClickOnHyperlink(pageWithLinks, '#example')
       await helper.selectTabForward()
       const elTexts = await pageWithLinks.queryPopup('.tab', (els) =>
         els.map((el) => el.textContent)
       )
-      const expectedTexts = ['Page with links', 'Example', 'Stack Overflow', 'Wikipedia']
+      const expectedTexts = ['Links', 'Example', 'Stack Overflow', 'Wikipedia']
       assert.deepStrictEqual(elTexts, expectedTexts, 'background tabs were added')
     })
 

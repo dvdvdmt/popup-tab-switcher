@@ -10,6 +10,7 @@ export async function startPuppeteer() {
     return {browser, helper}
   }
   browser = await puppeteer.launch(config)
+  console.log(`Browser version:`, await browser.version())
   helper = new PuppeteerPopupHelper(browser)
   return {browser, helper}
 }
@@ -29,4 +30,22 @@ export async function stopPuppeteer() {
     await browser.close()
     browser = undefined
   }
+}
+
+export const timeoutDurationMS = 30000
+
+/**
+ * This helper function is useful when there is a need to debug some test case
+ * and figure out what is in the console.
+ * Steps:
+ * 1. Enable --auto-open-devtools-for-tabs in puppeteer-config.
+ * 2. Set timeoutDurationMS to necessary time.
+ * 3. Place `await waitFor()` in a test case.
+ * */
+export function waitFor(durationMS = timeoutDurationMS) {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, durationMS)
+  })
 }

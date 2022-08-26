@@ -18,6 +18,9 @@ export enum Message {
   E2E_SET_ZOOM = 'E2E_SET_ZOOM',
   INITIALIZED = 'INITIALIZED',
   GET_MODEL = 'GET_MODEL',
+  E2E_RELOAD_EXTENSION = 'E2E_RELOAD_EXTENSION',
+  E2E_RELOAD_EXTENSION_FINISHED = 'E2E_RELOAD_EXTENSION_FINISHED',
+  E2E_IS_PAGE_ACTIVE = 'E2E_IS_PAGE_ACTIVE',
 }
 
 export function updateSettings(newSettings: DefaultSettings) {
@@ -51,6 +54,18 @@ export function e2eSetZoom(zoomFactor: number) {
   return {type: Message.E2E_SET_ZOOM, zoomFactor} as const
 }
 
+export function e2eIsPageActive() {
+  return {type: Message.E2E_IS_PAGE_ACTIVE} as const
+}
+
+export function e2eReloadExtension() {
+  return {type: Message.E2E_RELOAD_EXTENSION} as const
+}
+
+export function e2eReloadExtensionFinished() {
+  return {type: Message.E2E_RELOAD_EXTENSION_FINISHED} as const
+}
+
 export function initialized() {
   return {type: Message.INITIALIZED} as const
 }
@@ -60,25 +75,36 @@ export function getModel() {
 }
 
 interface IMessageTypeToObjectMap {
-  [Message.UPDATE_SETTINGS]: {message: ReturnType<typeof updateSettings>; response: void}
-  [Message.DEMO_SETTINGS]: {message: ReturnType<typeof demoSettings>; response: void}
-  [Message.SWITCH_TAB]: {message: ReturnType<typeof switchTab>; response: void}
-  [Message.SELECT_TAB]: {message: ReturnType<typeof selectTab>; response: void}
-  [Message.CLOSE_POPUP]: {message: ReturnType<typeof closePopup>; response: void}
-  [Message.COMMAND]: {message: ReturnType<typeof command>; response: void}
-  [Message.E2E_SET_ZOOM]: {message: ReturnType<typeof e2eSetZoom>; response: void}
-  [Message.INITIALIZED]: {message: ReturnType<typeof e2eSetZoom>; response: void}
-  [Message.GET_MODEL]: {message: ReturnType<typeof getModel>; response: Promise<IModel>}
+  [Message.UPDATE_SETTINGS]: ReturnType<typeof updateSettings>
+  [Message.DEMO_SETTINGS]: ReturnType<typeof demoSettings>
+  [Message.SWITCH_TAB]: ReturnType<typeof switchTab>
+  [Message.SELECT_TAB]: ReturnType<typeof selectTab>
+  [Message.CLOSE_POPUP]: ReturnType<typeof closePopup>
+  [Message.COMMAND]: ReturnType<typeof command>
+  [Message.E2E_SET_ZOOM]: ReturnType<typeof e2eSetZoom>
+  [Message.E2E_IS_PAGE_ACTIVE]: ReturnType<typeof e2eIsPageActive>
+  [Message.E2E_RELOAD_EXTENSION]: ReturnType<typeof e2eReloadExtension>
+  [Message.E2E_RELOAD_EXTENSION_FINISHED]: ReturnType<typeof e2eReloadExtensionFinished>
+  [Message.INITIALIZED]: ReturnType<typeof initialized>
+  [Message.GET_MODEL]: ReturnType<typeof getModel>
 }
+
+export type IMessage = IMessageTypeToObjectMap[keyof IMessageTypeToObjectMap]
+
+export type IMessageResponse<Message extends IMessage> = Message extends ReturnType<typeof getModel>
+  ? IModel
+  : Message extends ReturnType<typeof e2eIsPageActive>
+  ? boolean
+  : void
 
 export type IHandlers = {
   [key in Message]: (
-    message: IMessageTypeToObjectMap[key]['message'],
+    message: IMessageTypeToObjectMap[key],
     sender: MessageSender
-  ) => IMessageTypeToObjectMap[key]['response']
+  ) => IMessageResponse<IMessageTypeToObjectMap[key]> extends void
+    ? void
+    : Promise<IMessageResponse<IMessageTypeToObjectMap[key]>>
 }
-
-type IMessage = IMessageTypeToObjectMap[keyof IMessageTypeToObjectMap]['message']
 
 function hasOwnProperty<X extends {}, Y extends PropertyKey>(
   obj: X,

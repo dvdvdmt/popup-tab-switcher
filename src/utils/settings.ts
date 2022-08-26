@@ -1,3 +1,7 @@
+import {Storage} from 'webextension-polyfill'
+
+import LocalStorageArea = Storage.LocalStorageArea
+
 export interface DefaultSettings {
   textScrollDelay: number
   textScrollCoefficient: number
@@ -28,40 +32,23 @@ export const defaultSettings: DefaultSettings = {
   isStayingOpen: false,
 }
 
-export default class Settings {
-  private readonly defaults: DefaultSettings
+export interface ISettings extends DefaultSettings {
+  update(settings: DefaultSettings): Promise<void>
+  reset(): Promise<void>
+}
 
-  private storage: Storage
-
-  constructor(defaults = defaultSettings, storage = localStorage) {
-    this.defaults = defaults
-    this.storage = storage
-    let settings
-    try {
-      settings = JSON.parse(this.storage.settings)
-    } catch (e) {
-      settings = {}
-    }
-    this.storage.settings = JSON.stringify({...defaults, ...settings})
-  }
-
-  get(name: keyof DefaultSettings) {
-    return this.getObject()[name]
-  }
-
-  getObject(): DefaultSettings {
-    return JSON.parse(this.getString())
-  }
-
-  getString() {
-    return this.storage.settings
-  }
-
-  update(newSettings: DefaultSettings) {
-    this.storage.settings = JSON.stringify(newSettings)
-  }
-
-  setDefaults() {
-    this.update(this.defaults)
+export async function getSettings(storage: LocalStorageArea): Promise<ISettings> {
+  const {settings: stored} = await storage.get('settings')
+  return {
+    ...defaultSettings,
+    ...stored,
+    async update(newSettings) {
+      Object.assign(this, newSettings)
+      await storage.set({settings: newSettings})
+    },
+    async reset() {
+      Object.assign(this, defaultSettings)
+      await storage.set({settings: defaultSettings})
+    },
   }
 }

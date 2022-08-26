@@ -8,7 +8,6 @@ $color-gray-porcelain: #e9ebec;
 $color-gray-shark: #252629;
 $color-gray-shark-light: #2e3133;
 $color-blue-dodger: #448aff;
-$color-blue-royal: #2376e5;
 $color-blue-mariner: #366ad3;
 $color-blue-mariner-light: #2274e1;
 
@@ -19,7 +18,6 @@ $color-blue-mariner-light: #2274e1;
   --tab_selected-background: white;
   --tab_hover-background: #{$color-gray-athens-light};
   --tab__timeoutIndicator-background: #{$color-blue-dodger};
-  --tab__icon-fill: #{$color-blue-royal};
   --tab__icon_noFavIcon-fill: #{$color-gray-abbey};
 }
 
@@ -30,6 +28,5 @@ $color-blue-mariner-light: #2274e1;
   --tab_selected-background: #{$color-gray-outer-space};
   --tab_hover-background: #{$color-gray-shark-light};
   --tab__timeoutIndicator-background: #{$color-blue-dodger};
-  --tab__icon-fill: white;
   --tab__icon_noFavIcon-fill: white;
 }

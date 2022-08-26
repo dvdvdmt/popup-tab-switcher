@@ -125,7 +125,6 @@
   // Prevents jumping of the icon after image finished loading.
   // The width property doesn't apply to the image when it is loading.
   min-width: var(--icon-size);
-  fill: var(--tab__icon-fill);
 
   &_noFavIcon {
     fill: var(--tab__icon_noFavIcon-fill);

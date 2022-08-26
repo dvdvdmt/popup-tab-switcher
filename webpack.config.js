@@ -2,7 +2,6 @@ const path = require('path')
 const webpack = require('webpack')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const ChromeExtensionReloader = require('webpack-chrome-extension-reloader')
 const deepmerge = require('deepmerge')
 
 const buildProdDir = path.join(__dirname, 'build-prod')
@@ -12,14 +11,16 @@ const srcDir = path.join(__dirname, 'src')
 const settingsDir = path.join(srcDir, 'settings')
 const stylesDir = path.join(srcDir, 'styles')
 const nodeModulesDir = path.join(__dirname, 'node_modules')
+const e2eDir = path.join(__dirname, 'e2e')
 const sassGlobals = '@import "variables";'
 const conf = {
   mode: 'development',
+  devtool: false,
 
   entry: {
     background: './src/background.ts',
     content: './src/content.ts',
-    'settings/index': './src/settings/index.js',
+    settings: {import: './src/settings/index.js', filename: 'settings/index.js'},
   },
 
   output: {
@@ -64,14 +65,17 @@ const conf = {
       {
         test: /\.scss$/,
         include: settingsDir,
+        // type: 'asset/resource',
         use: [
-          'style-loader',
+          'vue-style-loader',
           'css-loader',
           {
             loader: 'sass-loader',
             options: {
-              data: sassGlobals,
-              includePaths: [nodeModulesDir, stylesDir],
+              additionalData: sassGlobals,
+              sassOptions: {
+                includePaths: [nodeModulesDir, stylesDir],
+              },
             },
           },
         ],
@@ -84,16 +88,16 @@ const conf = {
           {
             loader: 'sass-loader',
             options: {
-              data: sassGlobals,
-              includePaths: [stylesDir],
+              additionalData: sassGlobals,
+              sassOptions: {
+                includePaths: [stylesDir],
+              },
             },
           },
         ],
       },
     ],
   },
-
-  devtool: 'eval-source-map',
 
   resolve: {
     extensions: ['.ts', '.js'],
@@ -108,9 +112,9 @@ module.exports = (env) => {
         const original = JSON.parse(content.toString())
         // generates the manifest file using the package.json information
         const developmentProps = {
-          content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'",
+          // content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'",
           key: 'popuptabswitcher', // id: meonejnmljcnoodabklmloagmnmcmlam
-          browser_action: {
+          action: {
             default_icon: 'images/icon-48-gray.png',
           },
           icons: {48: 'images/icon-48-gray.png'},
@@ -145,8 +149,6 @@ module.exports = (env) => {
     },
   ]
   if (env.production) {
-    conf.mode = 'production'
-    conf.devtool = 'source-map'
     conf.output.path = buildProdDir
     conf.plugins = [
       new CopyWebpackPlugin(copyWebpackPluginOptions),
@@ -165,21 +167,20 @@ module.exports = (env) => {
         PRODUCTION: 'false',
         DEVELOPMENT: 'true',
       }),
-      env.WEBPACK_WATCH
-        ? new ChromeExtensionReloader({
-            entries: {
-              contentScript: 'content',
-              background: 'background',
-            },
-          })
-        : () => {},
+      // env.WEBPACK_WATCH
+      //   ? new ChromeExtensionReloader({
+      //       entries: {
+      //         contentScript: 'content',
+      //         background: 'background',
+      //       },
+      //     })
+      //   : () => {},
       new VueLoaderPlugin(),
     ]
   } else if (env.e2e) {
-    conf.mode = 'production'
-    conf.devtool = 'source-map'
-    conf.entry['e2e-test-commands-bridge'] = path.resolve(srcDir, 'e2e-test-commands-bridge.ts')
     conf.output.path = buildE2eDir
+    conf.entry['e2e-page-scripts'] = path.join(e2eDir, 'utils', 'page-scripts', 'index.ts')
+    conf.entry['e2e-content-script'] = path.join(e2eDir, 'utils', 'e2e-content-script.ts')
     conf.plugins = [
       new CopyWebpackPlugin(copyWebpackPluginOptions),
       new webpack.DefinePlugin({

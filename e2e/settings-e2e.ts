@@ -1,8 +1,8 @@
 import assert from 'assert'
-import {Browser, Page} from 'puppeteer'
+import {Page} from 'puppeteer'
 import {defaultSettings, DefaultSettings} from '../src/utils/settings'
-import {closeTabs, startPuppeteer, stopPuppeteer} from './utils/puppeteer-utils'
-import {PuppeteerPopupHelper, settingsPageUrl} from './utils/puppeteer-popup-helper'
+import {closeTabs, startPuppeteer, stopPuppeteer, timeoutDurationMS} from './utils/puppeteer-utils'
+import {PuppeteerPopupHelper} from './utils/puppeteer-popup-helper'
 
 declare global {
   interface Window {
@@ -10,7 +10,6 @@ declare global {
   }
 }
 
-let browser: Browser
 let helper: PuppeteerPopupHelper
 
 async function input(page: Page, selector: string, text: string) {
@@ -102,12 +101,11 @@ async function setSettings(page: Page) {
   await input(page, '#opacity', `${newSettings.opacity}`)
 }
 
-describe('settings >', function TestSettings() {
-  this.timeout(30000)
+describe('settings', function TestSettings() {
+  this.timeout(timeoutDurationMS)
 
   before(() =>
     startPuppeteer().then((res) => {
-      browser = res.browser
       helper = res.helper
     })
   )
@@ -118,20 +116,18 @@ describe('settings >', function TestSettings() {
 
   it('renders', async () => {
     const expected = defaultSettings
-    const settingsPage = await browser.newPage()
-    await settingsPage.goto(settingsPageUrl)
+    const settingsPage = await helper.openPage('settings')
     const actual = await getSettingsFromPage(settingsPage)
     assert.deepStrictEqual(actual, expected)
   })
 
   it('modifies and resets', async () => {
-    const settingsPage = await browser.newPage()
-    await settingsPage.goto(settingsPageUrl)
+    const settingsPage = await helper.openPage('settings')
     await setSettings(settingsPage)
     let actual = await getSettingsFromPage(settingsPage)
-    assert.deepStrictEqual(actual, newSettings, 'new settings set in the form')
-    actual = await settingsPage.evaluate(() => JSON.parse(localStorage.settings))
-    assert.deepStrictEqual(actual, newSettings, 'new settings set in localStorage')
+    assert.deepStrictEqual(actual, newSettings, 'settings in form are different')
+    actual = await settingsPage.evaluate(() => window.e2e.getSettings())
+    assert.deepStrictEqual(actual, newSettings, 'settings were not updated in storage')
     await settingsPage.click('#setDefaults')
     actual = await getSettingsFromPage(settingsPage)
     assert.deepStrictEqual(actual, defaultSettings, 'set defaults')
@@ -153,8 +149,7 @@ describe('settings >', function TestSettings() {
       }
     }
 
-    const settingsPage = await browser.newPage()
-    await settingsPage.goto(settingsPageUrl)
+    const settingsPage = await helper.openPage('settings')
     await setSettings(settingsPage)
     const page = await helper.openPage('page-with-long-title.html')
     await helper.switchTab()
@@ -187,8 +182,8 @@ describe('settings >', function TestSettings() {
   })
 
   it('validates inserted values', async () => {
-    const settingsPage = await browser.newPage()
-    await settingsPage.goto(settingsPageUrl)
+    const settingsPage = await helper.openPage('settings')
+    await settingsPage.click('#setDefaults')
     await input(settingsPage, '#textScrollDelay', '-1500')
     await input(settingsPage, '#popupWidth', 'asdf')
     const isValuesCorrect = await settingsPage.evaluate(() => {
@@ -208,8 +203,7 @@ describe('settings >', function TestSettings() {
   })
 
   it('opens contribute section', async () => {
-    const settingsPage = await browser.newPage()
-    await settingsPage.goto(settingsPageUrl)
+    const settingsPage = await helper.openPage('settings')
     await settingsPage.click('#mdc-tab-2')
     const isContributeSectionOpen = await settingsPage.$eval(
       '.contribute',
@@ -219,35 +213,34 @@ describe('settings >', function TestSettings() {
   })
 
   it('controls automatic switching to a previously used tab when the current one closes', async () => {
-    const settingsPage = await browser.newPage()
-    await settingsPage.goto(settingsPageUrl)
-    await settingsPage.click('#isSwitchingToPreviouslyUsedTab')
-    await settingsPage.close()
+    const settingsPage = await helper.openPage('settings')
+    await settingsPage.click('#setDefaults')
+    await settingsPage.click('#isSwitchingToPreviouslyUsedTab') // Turns off the setting
     const pageWikipedia = await helper.openPage('wikipedia.html')
     await helper.openPage('example.html')
     await helper.openPage('stackoverflow.html')
     await pageWikipedia.bringToFront()
     await pageWikipedia.close()
-    const activeTab = await helper.getActiveTab()
+    const activeTab = await helper.getActivePage()
     const tabTitle = await activeTab.$eval('title', (el) => el.textContent)
     assert.strictEqual(tabTitle, 'Example', 'switched to the nearest tab')
   })
 
   it('controls hiding of the switcher when modifier key is released', async () => {
-    const settingsPage = await browser.newPage()
-    await settingsPage.goto(settingsPageUrl)
+    const settingsPage = await helper.openPage('settings')
+    await settingsPage.click('#setDefaults')
     await settingsPage.click('#isStayingOpen')
     await helper.openPage('wikipedia.html')
     await helper.openPage('example.html')
     await helper.switchTab()
-    const activeTab = await helper.getActiveTab()
+    const activeTab = await helper.getActivePage()
     const tabTitle = await activeTab.$eval('title', (el) => el.textContent)
     assert.strictEqual(tabTitle, 'Example', 'does not leave the current tab')
   })
 
   it('limits the height of the popup to the height of the window and allows scrolling if there are many tabs', async () => {
-    const settingsPage = await browser.newPage()
-    await settingsPage.goto(settingsPageUrl)
+    const settingsPage = await helper.openPage('settings')
+    await settingsPage.click('#setDefaults')
     await input(settingsPage, '#tabHeight', '250')
     await input(settingsPage, '#numberOfTabsToShow', '10')
     for (let i = 0; i < 10; i += 1) {
@@ -256,13 +249,13 @@ describe('settings >', function TestSettings() {
     }
     await helper.selectTabForward()
     await helper.selectTabBackward() // Focuses on the first tab
-    const activeTab = await helper.getActiveTab()
-    const isFirstTabVisible = await activeTab.queryPopup('.tab_selected', ([el]) =>
+    const activePage = await helper.getActivePage()
+    const isFirstTabVisible = await activePage.queryPopup('.tab_selected', ([el]) =>
       window.e2e.isVisible(el)
     )
     assert(isFirstTabVisible, 'First tab is not visible')
     await helper.selectTabBackward()
-    const isSecondTabVisible = await activeTab.queryPopup('.tab_selected', ([el]) =>
+    const isSecondTabVisible = await activePage.queryPopup('.tab_selected', ([el]) =>
       window.e2e.isVisible(el)
     )
     assert(isSecondTabVisible, 'Second tab is not visible')
