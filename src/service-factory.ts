@@ -10,9 +10,9 @@ export class ServiceFactory {
 
   private static registryCache: TabRegistry | undefined
 
-  static async getSettings(): Promise<ISettings> {
-    if (ServiceFactory.settingsCache) {
-      return Promise.resolve(ServiceFactory.settingsCache)
+  static async getSettings(reload = false): Promise<ISettings> {
+    if (!reload && ServiceFactory.settingsCache) {
+      return ServiceFactory.settingsCache
     }
     const settings = await getSettings(browser.storage.local)
     ServiceFactory.settingsCache = settings

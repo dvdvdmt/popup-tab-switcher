@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import {Runtime} from 'webextension-polyfill'
-import {DefaultSettings} from './settings'
 import {Command} from './constants'
 import {ITab} from './check-tab'
 import {IModel} from '../popup-tab-switcher'
@@ -10,7 +9,6 @@ import Port = Runtime.Port
 
 export enum Message {
   DEMO_SETTINGS = 'DEMO_SETTINGS',
-  UPDATE_SETTINGS = 'UPDATE_SETTINGS',
   CLOSE_POPUP = 'CLOSE_POPUP',
   SELECT_TAB = 'SELECT_TAB',
   SWITCH_TAB = 'SWITCH_TAB',
@@ -21,10 +19,6 @@ export enum Message {
   E2E_RELOAD_EXTENSION = 'E2E_RELOAD_EXTENSION',
   E2E_RELOAD_EXTENSION_FINISHED = 'E2E_RELOAD_EXTENSION_FINISHED',
   E2E_IS_PAGE_ACTIVE = 'E2E_IS_PAGE_ACTIVE',
-}
-
-export function updateSettings(newSettings: DefaultSettings) {
-  return {type: Message.UPDATE_SETTINGS, newSettings} as const
 }
 
 export function demoSettings() {
@@ -75,7 +69,6 @@ export function getModel() {
 }
 
 interface IMessageTypeToObjectMap {
-  [Message.UPDATE_SETTINGS]: ReturnType<typeof updateSettings>
   [Message.DEMO_SETTINGS]: ReturnType<typeof demoSettings>
   [Message.SWITCH_TAB]: ReturnType<typeof switchTab>
   [Message.SELECT_TAB]: ReturnType<typeof selectTab>

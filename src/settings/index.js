@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Settings from './settings.vue'
+import {ServiceFactory} from '../service-factory'
 
 // eslint-disable-next-line no-undef
 if (E2E) {
@@ -7,7 +8,14 @@ if (E2E) {
 }
 
 Vue.config.productionTip = false
-window.app = new Vue(Settings)
-document.addEventListener('DOMContentLoaded', () => {
-  window.app.$mount('#app')
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const settings = await ServiceFactory.getSettings()
+  // eslint-disable-next-line no-new
+  new Vue({
+    el: '#app',
+    render(createElement) {
+      return createElement(Settings, {props: {initialSettings: settings}})
+    },
+  })
 })
