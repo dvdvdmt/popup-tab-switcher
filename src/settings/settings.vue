@@ -1,6 +1,5 @@
 <template>
-  <div v-if="!settings">Loading...</div>
-  <div v-else class="settings mdc-typography" v-bind:class="{settings_dark: settings.isDarkTheme}">
+  <div class="settings mdc-typography" v-bind:class="{settings_dark: settings.isDarkTheme}">
     <m-tab-bar
       class="settings__nav-bar"
       :tabs="tabs"
@@ -14,19 +13,23 @@
 
 <script>
 import browser from 'webextension-polyfill'
-import {getSettings} from '../utils/settings'
 import {Port} from '../utils/constants'
 import SettingsForm from './components/settings-form.vue'
 import MTabBar from './components/m-tab-bar.vue'
 import Contribute from './components/contribute.vue'
-import {updateSettings} from '../utils/messages'
-import {log} from '../utils/logger'
+import {demoSettings} from '../utils/messages'
 
 // The connection is necessary for tracking settings popup closing (https://stackoverflow.com/q/15798516/3167855)
-const port = browser.runtime.connect({name: Port.POPUP_SCRIPT})
+browser.runtime.connect({name: Port.POPUP_SCRIPT})
 
 export default {
   name: 'Settings',
+  props: {
+    initialSettings: {
+      type: [Object],
+      required: true,
+    },
+  },
   data() {
     return {
       tabs: [
@@ -40,16 +43,20 @@ export default {
         },
       ],
       activeTabId: 0,
-      settings: null,
+      settings: this.initialSettings,
     }
   },
   methods: {
-    updateSettings(newSettings) {
-      browser.runtime.sendMessage(updateSettings(newSettings))
+    demoSettings() {
+      browser.runtime.sendMessage(demoSettings())
     },
     setDefaults() {
       this.settings.reset()
-      this.updateSettings(this.settings)
+      this.demoSettings()
+    },
+    setNewSettings(newSettings) {
+      this.settings.update(newSettings)
+      this.demoSettings()
     },
     onTabActivated(activeTabId) {
       this.activeTabId = activeTabId
@@ -57,16 +64,12 @@ export default {
   },
   watch: {
     settings: {
-      handler: 'updateSettings',
+      handler: 'setNewSettings',
       deep: true,
-      immediate: true,
     },
   },
   mounted() {
-    getSettings(browser.storage.local).then((settings) => {
-      log(`[ settings]`, settings)
-      this.settings = settings
-    })
+    this.demoSettings()
   },
   components: {
     Contribute,
