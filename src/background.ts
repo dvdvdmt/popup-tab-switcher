@@ -80,6 +80,8 @@ async function initForE2ETests(handlers: Partial<IHandlers>) {
     await browser.runtime.reload()
   }
   // eslint-disable-next-line no-param-reassign
+  handlers[Message.E2E_IS_MESSAGING_READY] = async () => true
+  // eslint-disable-next-line no-param-reassign
   handlers[Message.E2E_IS_PAGE_ACTIVE] = async (_message, sender) => {
     const activeTab = await getActiveTab()
     const sourceTab = sender.tab

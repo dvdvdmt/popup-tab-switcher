@@ -11,6 +11,7 @@ Vue.config.productionTip = false
 
 document.addEventListener('DOMContentLoaded', async () => {
   const settings = await ServiceFactory.getSettings()
+  window.settings = settings
   // eslint-disable-next-line no-new
   new Vue({
     el: '#app',

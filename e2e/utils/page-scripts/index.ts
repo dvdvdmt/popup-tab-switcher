@@ -10,6 +10,7 @@ import {resolveWhenPageBecomesVisible} from './resolve-when-page-becomes-visible
 import {isPageFocused} from './is-page-focused'
 import {log} from '../../../src/utils/logger'
 import {isTabActive} from './is-tab-active'
+import {waitUntilMessagingIsReady} from './is-messaging-ready'
 
 declare global {
   interface Window {
@@ -17,6 +18,7 @@ declare global {
       getSettings: typeof getSettings
       isPageFocused: typeof isPageFocused
       isVisible: typeof isVisible
+      waitUntilMessagingIsReady: typeof waitUntilMessagingIsReady
       isTabActive: typeof isTabActive
       queryPopup: typeof queryPopup
       resolveWhenPageBecomesVisible: typeof resolveWhenPageBecomesVisible
@@ -33,6 +35,7 @@ if (!window.e2e) {
     getSettings,
     isPageFocused,
     isTabActive,
+    waitUntilMessagingIsReady,
     isVisible,
     queryPopup,
     resolveWhenPageBecomesVisible,

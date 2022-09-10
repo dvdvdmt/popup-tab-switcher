@@ -1,6 +1,7 @@
 import path from 'path'
-import {Browser, JSONObject, Page} from 'puppeteer'
+import {Browser, Page} from 'puppeteer'
 import * as fs from 'fs'
+import {IMessage} from '../../src/utils/messages'
 
 export const settingsPageUrl =
   'chrome-extension://meonejnmljcnoodabklmloagmnmcmlam/settings/index.html'
@@ -123,6 +124,7 @@ export class PuppeteerPopupHelper {
     }
     await page.goto(getPagePath(pageFileName))
     await PuppeteerPopupHelper.initPageScripts(page)
+    await page.evaluate(() => window.e2e.waitUntilMessagingIsReady())
     await page.bringToFront()
     return Object.assign(page, pageMixin)
   }
@@ -146,7 +148,7 @@ export class PuppeteerPopupHelper {
     return Object.assign(page, pageMixin)
   }
 
-  async sendMessage(message: JSONObject) {
+  async sendMessage(message: IMessage) {
     const page = await this.getActivePage()
     await page.evaluate((m) => window.e2e.sendMessage(m), message)
   }

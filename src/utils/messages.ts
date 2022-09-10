@@ -19,6 +19,7 @@ export enum Message {
   E2E_RELOAD_EXTENSION = 'E2E_RELOAD_EXTENSION',
   E2E_RELOAD_EXTENSION_FINISHED = 'E2E_RELOAD_EXTENSION_FINISHED',
   E2E_IS_PAGE_ACTIVE = 'E2E_IS_PAGE_ACTIVE',
+  E2E_IS_MESSAGING_READY = 'E2E_IS_MESSAGING_READY',
 }
 
 export function demoSettings() {
@@ -52,6 +53,10 @@ export function e2eIsPageActive() {
   return {type: Message.E2E_IS_PAGE_ACTIVE} as const
 }
 
+export function e2eIsMessagingReady() {
+  return {type: Message.E2E_IS_MESSAGING_READY} as const
+}
+
 export function e2eReloadExtension() {
   return {type: Message.E2E_RELOAD_EXTENSION} as const
 }
@@ -76,6 +81,7 @@ interface IMessageTypeToObjectMap {
   [Message.COMMAND]: ReturnType<typeof command>
   [Message.E2E_SET_ZOOM]: ReturnType<typeof e2eSetZoom>
   [Message.E2E_IS_PAGE_ACTIVE]: ReturnType<typeof e2eIsPageActive>
+  [Message.E2E_IS_MESSAGING_READY]: ReturnType<typeof e2eIsMessagingReady>
   [Message.E2E_RELOAD_EXTENSION]: ReturnType<typeof e2eReloadExtension>
   [Message.E2E_RELOAD_EXTENSION_FINISHED]: ReturnType<typeof e2eReloadExtensionFinished>
   [Message.INITIALIZED]: ReturnType<typeof initialized>
@@ -87,6 +93,8 @@ export type IMessage = IMessageTypeToObjectMap[keyof IMessageTypeToObjectMap]
 export type IMessageResponse<Message extends IMessage> = Message extends ReturnType<typeof getModel>
   ? IModel
   : Message extends ReturnType<typeof e2eIsPageActive>
+  ? boolean
+  : Message extends ReturnType<typeof e2eIsMessagingReady>
   ? boolean
   : void
 

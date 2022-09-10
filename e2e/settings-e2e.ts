@@ -6,7 +6,7 @@ import {PuppeteerPopupHelper} from './utils/puppeteer-popup-helper'
 
 declare global {
   interface Window {
-    app: {settings: DefaultSettings}
+    settings: DefaultSettings
   }
 }
 
@@ -14,7 +14,10 @@ let helper: PuppeteerPopupHelper
 
 async function input(page: Page, selector: string, text: string) {
   await page.evaluate((s) => {
-    document.querySelector(s).value = ''
+    const element = document.querySelector<HTMLInputElement>(s)
+    if (element) {
+      element.value = ''
+    }
   }, selector)
   await page.type(selector, text)
 }
@@ -188,9 +191,7 @@ describe('settings', function TestSettings() {
     await input(settingsPage, '#popupWidth', 'asdf')
     const isValuesCorrect = await settingsPage.evaluate(() => {
       const {
-        app: {
-          settings: {textScrollDelay, popupWidth},
-        },
+        settings: {textScrollDelay, popupWidth},
       } = window
       return (
         Number.isInteger(textScrollDelay) &&

@@ -24,4 +24,4 @@ jobs:
         env:
           CI: 'true'
         with:
-          args: npm run build:e2e && npm run test:e2e
+          args: npm run test:e2e:ci
