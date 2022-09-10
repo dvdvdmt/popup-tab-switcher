@@ -44,6 +44,7 @@ export default class TabRegistry {
     if (initialization) {
       log('[tab initialized]', tab)
       initialization.resolver()
+      this.tabInitializations.delete(tab.id)
     }
   }
 
