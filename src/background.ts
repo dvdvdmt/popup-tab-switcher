@@ -225,26 +225,27 @@ function messageHandlers(): Partial<IHandlers> {
 async function initializeContentScript(tab: ITab): Promise<void> {
   const registry = await ServiceFactory.getTabRegistry()
   if (!registry.isInitialized(tab.id)) {
-    return new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(() => {
-        reject(new Error('Initialization took too much time'))
-      }, 100)
-      registry.tabInitialized = (initedTab) => {
-        log(`[tabInitialized]`, initedTab)
-        resolve()
-      }
+    const initialization = registry.tabInitializations.get(tab.id)
+    if (initialization) {
+      log('[tab initialisation is in progress', tab)
+      return initialization.promise
+    }
+    let resolver = () => {}
+    const promise = new Promise<void>((resolve, reject) => {
+      resolver = resolve
       browser.scripting
         .executeScript({
           target: {tabId: tab.id, allFrames: false},
           files: ['content.js'],
         })
         .catch((e) => {
-          clearTimeout(timeoutId)
+          log(`[tab initialization failed]`, tab)
           reject(e)
         })
     })
+    registry.tabInitializations.set(tab.id, {resolver, promise})
+    return promise
   }
-  return Promise.resolve()
 }
 
 async function getActiveTab(): Promise<Tab | undefined> {

@@ -1,4 +1,5 @@
 import {ITab} from './check-tab'
+import {log} from './logger'
 
 interface ITabRegistryOptions {
   tabs: ITab[]
@@ -19,19 +20,19 @@ export default class TabRegistry {
 
   private onUpdate: (tabs: ITab[]) => void
 
+  tabInitializations: Map<number, {resolver: () => void; promise: Promise<void>}>
+
   constructor({
     tabs = [],
     numberOfTabsToShow = 7,
     onUpdate = () => {},
   }: Partial<ITabRegistryOptions> = {}) {
     this.initializedTabs = {}
+    this.tabInitializations = new Map()
     this.tabs = tabs
     this.numberOfTabsToShow = numberOfTabsToShow
     this.onUpdate = onUpdate
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  tabInitialized: (tab: ITab) => void = () => {}
 
   setNumberOfTabsToShow(n: number) {
     this.numberOfTabsToShow = n
@@ -39,7 +40,11 @@ export default class TabRegistry {
 
   addToInitialized(tab: ITab) {
     this.initializedTabs[tab.id] = tab
-    this.tabInitialized(tab)
+    const initialization = this.tabInitializations.get(tab.id)
+    if (initialization) {
+      log('[tab initialized]', tab)
+      initialization.resolver()
+    }
   }
 
   removeFromInitialized(tabId: number) {
