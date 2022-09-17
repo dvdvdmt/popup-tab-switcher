@@ -13,6 +13,7 @@ import {isBrowserFocused} from './utils/is-browser-focused'
 import {checkTab, ITab} from './utils/check-tab'
 import {log} from './utils/logger'
 import {ServiceFactory} from './service-factory'
+import {createTabInitializer} from './utils/tab-initializer'
 
 import Tab = Tabs.Tab
 
@@ -222,30 +223,19 @@ function messageHandlers(): Partial<IHandlers> {
   }
 }
 
-async function initializeContentScript(tab: ITab): Promise<void> {
+async function initializeContentScript(tab: ITab): Promise<boolean> {
   const registry = await ServiceFactory.getTabRegistry()
-  if (!registry.isInitialized(tab.id)) {
-    const initialization = registry.tabInitializations.get(tab.id)
-    if (initialization) {
-      log('[tab initialisation is in progress', tab)
-      return initialization.promise
-    }
-    let resolver = () => {}
-    const promise = new Promise<void>((resolve, reject) => {
-      resolver = resolve
-      browser.scripting
-        .executeScript({
-          target: {tabId: tab.id, allFrames: false},
-          files: ['content.js'],
-        })
-        .catch((e) => {
-          log(`[tab initialization failed]`, tab)
-          reject(e)
-        })
-    })
-    registry.tabInitializations.set(tab.id, {resolver, promise})
-    return promise
+  if (registry.isInitialized(tab.id)) {
+    return true
   }
+  const initialization = registry.tabInitializations.get(tab.id)
+  if (initialization) {
+    log('[tab initialisation is in progress', tab)
+    return initialization.promise
+  }
+  const initializer = createTabInitializer(tab)
+  registry.tabInitializations.set(tab.id, initializer)
+  return initializer.promise
 }
 
 async function getActiveTab(): Promise<Tab | undefined> {

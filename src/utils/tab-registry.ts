@@ -1,5 +1,6 @@
 import {ITab} from './check-tab'
 import {log} from './logger'
+import {ITabInitializer} from './tab-initializer'
 
 interface ITabRegistryOptions {
   tabs: ITab[]
@@ -20,7 +21,7 @@ export default class TabRegistry {
 
   private onUpdate: (tabs: ITab[]) => void
 
-  tabInitializations: Map<number, {resolver: () => void; promise: Promise<void>}>
+  tabInitializations: Map<number, ITabInitializer>
 
   constructor({
     tabs = [],
@@ -43,7 +44,7 @@ export default class TabRegistry {
     const initialization = this.tabInitializations.get(tab.id)
     if (initialization) {
       log('[tab initialized]', tab)
-      initialization.resolver()
+      initialization.resolver(true)
       this.tabInitializations.delete(tab.id)
     }
   }
