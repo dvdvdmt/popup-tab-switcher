@@ -13,7 +13,6 @@ import {isBrowserFocused} from './utils/is-browser-focused'
 import {checkTab, ITab} from './utils/check-tab'
 import {log} from './utils/logger'
 import {ServiceFactory} from './service-factory'
-import {createTabInitializer} from './utils/tab-initializer'
 
 import Tab = Tabs.Tab
 
@@ -93,6 +92,14 @@ async function initForE2ETests(handlers: Partial<IHandlers>) {
   }
 }
 
+async function switchToPreviousTab() {
+  const registry = await ServiceFactory.getTabRegistry()
+  const previousTab = registry.getPreviouslyActive()
+  if (previousTab) {
+    await activateTab(previousTab)
+  }
+}
+
 async function handleCommand(command: string) {
   const activeTab = await getActiveTab()
   if (!activeTab) {
@@ -103,16 +110,19 @@ async function handleCommand(command: string) {
   if (isCodeExecutionForbidden(active)) {
     // If the content script can't be initialized then switch to the previous tab.
     // TODO: Create popup window in the center of a screen and show PTS in it.
-    const registry = await ServiceFactory.getTabRegistry()
-    const previousTab = registry.getPreviouslyActive()
-    if (previousTab) {
-      await activateTab(previousTab)
-    }
+    await switchToPreviousTab()
     return
   }
-  await initializeContentScript(active)
-  // send the command to the content script
-  await browser.tabs.sendMessage(active.id, selectTab(command === Command.NEXT ? 1 : -1))
+  if (await initializeContentScript(active)) {
+    // send the command to the content script
+    await browser.tabs.sendMessage(active.id, selectTab(command === Command.NEXT ? 1 : -1))
+  } else {
+    // Tab initialization may fail due to different reasons:
+    // - the page is not loaded,
+    // - the initialization timeout passed.
+    // If this happens we are switching to the previous tab
+    await switchToPreviousTab()
+  }
 }
 
 async function handleWindowActivation(windowId: number) {
@@ -230,12 +240,11 @@ async function initializeContentScript(tab: ITab): Promise<boolean> {
   }
   const initialization = registry.tabInitializations.get(tab.id)
   if (initialization) {
-    log('[tab initialisation is in progress', tab)
+    log('[tab initialisation is in progress]', tab)
     return initialization.promise
   }
-  const initializer = createTabInitializer(tab)
-  registry.tabInitializations.set(tab.id, initializer)
-  return initializer.promise
+  const newInitialization = registry.startInitialization(tab)
+  return newInitialization.promise
 }
 
 async function getActiveTab(): Promise<Tab | undefined> {

@@ -33,7 +33,7 @@
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.10",
     "@babel/register": "^7.12.10",
-    "@types/chrome": "0.0.95",
+    "@types/chrome": "^0.0.197",
     "@types/mocha": "^7.0.1",
     "@typescript-eslint/eslint-plugin": "^2.20.0",
     "@typescript-eslint/parser": "^2.20.0",
