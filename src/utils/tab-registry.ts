@@ -52,8 +52,8 @@ export default class TabRegistry {
     delete this.initializedTabs[tabId]
   }
 
-  isInitialized(tabId: number) {
-    return this.initializedTabs[tabId]
+  isInitialized(tab: ITab) {
+    return this.initializedTabs[tab.id]
   }
 
   push(current: ITab) {

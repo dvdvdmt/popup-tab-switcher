@@ -217,9 +217,11 @@ function messageHandlers(): Partial<IHandlers> {
         }
         return
       }
-      await initializeContentScript(active)
-      // send a command to the content script
-      await browser.tabs.sendMessage(active.id, demoSettings())
+      if (await initializeContentScript(active)) {
+        await browser.tabs.sendMessage(active.id, demoSettings())
+      } else {
+        // TODO: Show extension in a separate window
+      }
     },
     [Message.GET_MODEL]: async () => {
       const settings = await ServiceFactory.getSettings()
@@ -235,7 +237,7 @@ function messageHandlers(): Partial<IHandlers> {
 
 async function initializeContentScript(tab: ITab): Promise<boolean> {
   const registry = await ServiceFactory.getTabRegistry()
-  if (registry.isInitialized(tab.id)) {
+  if (registry.isInitialized(tab)) {
     return true
   }
   const initialization = registry.tabInitializations.get(tab.id)
@@ -278,8 +280,9 @@ function handleConnection(port: Runtime.Port) {
 }
 
 async function closeSwitcherInActiveTab() {
+  const registry = await ServiceFactory.getTabRegistry()
   const currentTab = await getActiveTab()
-  if (currentTab) {
+  if (currentTab && registry.isInitialized(checkTab(currentTab))) {
     await browser.tabs.sendMessage(checkTab(currentTab).id, closePopup())
   }
 }
