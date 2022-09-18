@@ -194,6 +194,18 @@ describe('popup', function TestPopup() {
       assert.strictEqual(elText, 'Wikipedia')
     })
 
+    it.skip(`switches instantly or after a timeout if the page can't show the popup`, async () => {
+      /*
+        Examples of the pages that can't show the switcher are:
+        - Utility pages like Settings, History, New tab, etc.
+        - Broken or non-existent pages with a message like "This site can't be reached".
+        - Slowly loading pages or those that were broken during the load.
+          These include errors like ERR_INVALID_CHUNKED_ENCODING when the DOM was not created.
+       Currently, it is impossible to test the switching from such pages because they don't allow
+       content script initialization which is crucial to simulate keyboard pressings with sendCommandOnShortcut()
+      */
+    })
+
     it('focuses previously active window on a tab closing', async () => {
       /*
       opens Wikipedia in first window
