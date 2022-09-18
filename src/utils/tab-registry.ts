@@ -11,7 +11,14 @@ interface IInitializedTabs {
   [key: number]: ITab
 }
 
+export interface ITabInitialization {
+  resolver: (status: boolean) => void
+  promise: Promise<boolean>
+}
+
 export default class TabRegistry {
+  tabInitializations: Map<number, ITabInitialization>
+
   private tabs: ITab[]
 
   private numberOfTabsToShow: number
@@ -19,8 +26,6 @@ export default class TabRegistry {
   private initializedTabs: IInitializedTabs
 
   private onUpdate: (tabs: ITab[]) => void
-
-  tabInitializations: Map<number, {resolver: () => void; promise: Promise<void>}>
 
   constructor({
     tabs = [],
@@ -40,20 +45,15 @@ export default class TabRegistry {
 
   addToInitialized(tab: ITab) {
     this.initializedTabs[tab.id] = tab
-    const initialization = this.tabInitializations.get(tab.id)
-    if (initialization) {
-      log('[tab initialized]', tab)
-      initialization.resolver()
-      this.tabInitializations.delete(tab.id)
-    }
+    this.endInitialization(tab)
   }
 
   removeFromInitialized(tabId: number) {
     delete this.initializedTabs[tabId]
   }
 
-  isInitialized(tabId: number) {
-    return this.initializedTabs[tabId]
+  isInitialized(tab: ITab) {
+    return this.initializedTabs[tab.id]
   }
 
   push(current: ITab) {
@@ -124,6 +124,43 @@ export default class TabRegistry {
 
   titles() {
     return this.tabs.map((tab) => `#${tab.id} ${tab.title}`).join(', ')
+  }
+
+  startInitialization(tab: ITab): ITabInitialization {
+    let resolver: (status: boolean) => void = () => {}
+    const promise = new Promise<boolean>((resolve) => {
+      resolver = (status: boolean) => {
+        this.tabInitializations.delete(tab.id)
+        resolve(status)
+      }
+      chrome.scripting
+        .executeScript({
+          target: {tabId: tab.id, allFrames: false},
+          files: ['content.js'],
+        })
+        .catch((e) => {
+          log(`[tab initialization failed due to executeScript()]`, tab, e)
+          resolver(false)
+        })
+    })
+    const tabSwitchingTimeoutMs = 400
+    setTimeout(() => {
+      if (this.tabInitializations.has(tab.id)) {
+        log(`[tab initialization failed due to timeout]`, tab)
+        resolver(false)
+      }
+    }, tabSwitchingTimeoutMs)
+    const result = {resolver, promise}
+    this.tabInitializations.set(tab.id, result)
+    return result
+  }
+
+  private endInitialization(tab: ITab) {
+    const initialization = this.tabInitializations.get(tab.id)
+    if (initialization) {
+      log('[tab initialized]', tab)
+      initialization.resolver(true)
+    }
   }
 
   private removeTab(tabId: number): ITab[] {

@@ -92,6 +92,14 @@ async function initForE2ETests(handlers: Partial<IHandlers>) {
   }
 }
 
+async function switchToPreviousTab() {
+  const registry = await ServiceFactory.getTabRegistry()
+  const previousTab = registry.getPreviouslyActive()
+  if (previousTab) {
+    await activateTab(previousTab)
+  }
+}
+
 async function handleCommand(command: string) {
   const activeTab = await getActiveTab()
   if (!activeTab) {
@@ -102,16 +110,19 @@ async function handleCommand(command: string) {
   if (isCodeExecutionForbidden(active)) {
     // If the content script can't be initialized then switch to the previous tab.
     // TODO: Create popup window in the center of a screen and show PTS in it.
-    const registry = await ServiceFactory.getTabRegistry()
-    const previousTab = registry.getPreviouslyActive()
-    if (previousTab) {
-      await activateTab(previousTab)
-    }
+    await switchToPreviousTab()
     return
   }
-  await initializeContentScript(active)
-  // send the command to the content script
-  await browser.tabs.sendMessage(active.id, selectTab(command === Command.NEXT ? 1 : -1))
+  if (await initializeContentScript(active)) {
+    // send the command to the content script
+    await browser.tabs.sendMessage(active.id, selectTab(command === Command.NEXT ? 1 : -1))
+  } else {
+    // Tab initialization may fail due to different reasons:
+    // - the page is not loaded,
+    // - the initialization timeout passed.
+    // If this happens we are switching to the previous tab
+    await switchToPreviousTab()
+  }
 }
 
 async function handleWindowActivation(windowId: number) {
@@ -206,9 +217,11 @@ function messageHandlers(): Partial<IHandlers> {
         }
         return
       }
-      await initializeContentScript(active)
-      // send a command to the content script
-      await browser.tabs.sendMessage(active.id, demoSettings())
+      if (await initializeContentScript(active)) {
+        await browser.tabs.sendMessage(active.id, demoSettings())
+      } else {
+        // TODO: Show extension in a separate window
+      }
     },
     [Message.GET_MODEL]: async () => {
       const settings = await ServiceFactory.getSettings()
@@ -222,30 +235,18 @@ function messageHandlers(): Partial<IHandlers> {
   }
 }
 
-async function initializeContentScript(tab: ITab): Promise<void> {
+async function initializeContentScript(tab: ITab): Promise<boolean> {
   const registry = await ServiceFactory.getTabRegistry()
-  if (!registry.isInitialized(tab.id)) {
-    const initialization = registry.tabInitializations.get(tab.id)
-    if (initialization) {
-      log('[tab initialisation is in progress', tab)
-      return initialization.promise
-    }
-    let resolver = () => {}
-    const promise = new Promise<void>((resolve, reject) => {
-      resolver = resolve
-      browser.scripting
-        .executeScript({
-          target: {tabId: tab.id, allFrames: false},
-          files: ['content.js'],
-        })
-        .catch((e) => {
-          log(`[tab initialization failed]`, tab)
-          reject(e)
-        })
-    })
-    registry.tabInitializations.set(tab.id, {resolver, promise})
-    return promise
+  if (registry.isInitialized(tab)) {
+    return true
   }
+  const initialization = registry.tabInitializations.get(tab.id)
+  if (initialization) {
+    log('[tab initialisation is in progress]', tab)
+    return initialization.promise
+  }
+  const newInitialization = registry.startInitialization(tab)
+  return newInitialization.promise
 }
 
 async function getActiveTab(): Promise<Tab | undefined> {
@@ -279,8 +280,9 @@ function handleConnection(port: Runtime.Port) {
 }
 
 async function closeSwitcherInActiveTab() {
+  const registry = await ServiceFactory.getTabRegistry()
   const currentTab = await getActiveTab()
-  if (currentTab) {
+  if (currentTab && registry.isInitialized(checkTab(currentTab))) {
     await browser.tabs.sendMessage(checkTab(currentTab).id, closePopup())
   }
 }
