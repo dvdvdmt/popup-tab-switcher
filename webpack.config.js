@@ -20,7 +20,10 @@ const conf = {
   entry: {
     background: './src/background.ts',
     content: './src/content.ts',
-    settings: {import: './src/settings/index.js', filename: 'settings/index.js'},
+    settings: {
+      import: './src/settings/index.js',
+      filename: 'settings/index.js',
+    },
   },
 
   output: {
@@ -105,49 +108,53 @@ const conf = {
 }
 
 module.exports = (env) => {
-  const copyWebpackPluginOptions = [
-    {
-      from: 'src/manifest.json',
-      transform(content) {
-        const original = JSON.parse(content.toString())
-        // generates the manifest file using the package.json information
-        const developmentProps = {
-          // content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'",
-          key: 'popuptabswitcher', // id: meonejnmljcnoodabklmloagmnmcmlam
-          action: {
-            default_icon: 'images/icon-48-gray.png',
+  const copyWebpackPluginOptions = {
+    patterns: [
+      {
+        from: 'src/manifest.json',
+        transform: {
+          transformer(content) {
+            const original = JSON.parse(content.toString())
+            // generates the manifest file using the package.json information
+            const developmentProps = {
+              // content_security_policy: "script-src 'self' 'unsafe-eval'; object-src 'self'",
+              key: 'popuptabswitcher', // id: meonejnmljcnoodabklmloagmnmcmlam
+              action: {
+                default_icon: 'images/icon-48-gray.png',
+              },
+              icons: {48: 'images/icon-48-gray.png'},
+              name: `${original.name} - Development`,
+            }
+            const e2eProps = {
+              key: developmentProps.key,
+            }
+            return JSON.stringify(
+              deepmerge.all([
+                original,
+                env.development ? developmentProps : {},
+                env.e2e ? e2eProps : {},
+              ]),
+              null,
+              2
+            )
           },
-          icons: {48: 'images/icon-48-gray.png'},
-          name: `${original.name} - Development`,
-        }
-        const e2eProps = {
-          key: developmentProps.key,
-        }
-        return JSON.stringify(
-          deepmerge.all([
-            original,
-            env.development ? developmentProps : {},
-            env.e2e ? e2eProps : {},
-          ]),
-          null,
-          2
-        )
+        },
       },
-    },
-    {
-      from: 'icon*.png',
-      to: 'images/',
-      context: 'src/images',
-    },
-    {
-      from: 'src/settings/index.html',
-      to: 'settings',
-    },
-    {
-      from: 'src/settings/fonts/',
-      to: 'settings/fonts',
-    },
-  ]
+      {
+        from: 'icon*.png',
+        to: 'images/',
+        context: 'src/images',
+      },
+      {
+        from: 'src/settings/index.html',
+        to: 'settings',
+      },
+      {
+        from: 'src/settings/fonts/',
+        to: 'settings/fonts',
+      },
+    ],
+  }
   if (env.production) {
     conf.output.path = buildProdDir
     conf.plugins = [
