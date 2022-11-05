@@ -27,6 +27,20 @@ describe(TabRegistryFactory.name, () => {
   })
 
   describe(`sortTabs`, () => {
+    // Problem:
+    // Current sorting algorithm doesn't distinct between tabs with equal URLs.
+    //
+    // Example:
+    // Given the openTabs array [tab1, tab2, activeTab] where tab1, tab2 have equal 'example' URL
+    // and the user last accessed the tab2.
+    // And the savedTabs array is [tab] with 'example' URL,
+    // When the openTabs is sorted using the savedTabs.
+    // Then the resulted array will be: [tab2, tab1, activeTab]
+    // This places the tab1 before the tab2 which is invalid last access order.
+    //
+    // This may confuse the user because another tab will be selected after the extension initialisation.
+    // If the tab could be identified uniquely between sessions (browser reloads) then the sorting would be easy to do.
+    // This answer may provide the solution for the unique tabs between sessions (https://stackoverflow.com/a/14518800/3167855)
     it(`sorts tabs accordingly to saved ones`, () => {
       const openTabs = [
         getTab({url: 'wikipedia'}),

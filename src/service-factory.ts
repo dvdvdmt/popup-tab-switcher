@@ -36,7 +36,7 @@ export class ServiceFactory {
       onTabsUpdate: saveTabs,
     })
     ServiceFactory.registryCache = registry
-    log(`[Registry initialized]`, registry.titles())
+    log(`[Registry initialized]`, {openTabs, savedTabs, registryTitles: registry.titles()})
     return registry
   }
 }
