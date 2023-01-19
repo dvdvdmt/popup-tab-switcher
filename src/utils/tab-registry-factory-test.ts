@@ -7,22 +7,27 @@ function getTab(params: Partial<ITab>): ITab {
   return result as ITab
 }
 
-function mapToUrls(tabs: ITab[]): (string | undefined)[] {
-  return tabs.map(({url}) => url)
+function mapToResult(tabs: ITab[]): Pick<ITab, 'url' | 'id'>[] {
+  return tabs.map(({id, url}) => ({id, url}))
 }
 
 describe(TabRegistryFactory.name, () => {
   describe(`create`, () => {
     it(`creates registry if there are no saved tabs`, () => {
       const openTabs = [
-        getTab({url: 'example'}),
-        getTab({url: 'wikipedia', active: true}),
-        getTab({url: 'stack'}),
+        getTab({id: 1001, url: 'example'}),
+        getTab({id: 1002, url: 'wikipedia', active: true}),
+        getTab({id: 1003, url: 'stack'}),
       ]
       const savedTabs: ITab[] = []
       const registry = TabRegistryFactory.create({numberOfTabsToShow: 5, openTabs, savedTabs})
       const result = registry.getTabs()
-      assert.deepStrictEqual(mapToUrls(result), ['example', 'stack', 'wikipedia'])
+      const expected = [
+        getTab({id: 1001, url: 'example'}),
+        getTab({id: 1003, url: 'stack'}),
+        getTab({id: 1002, url: 'wikipedia'}),
+      ]
+      assert.deepStrictEqual(mapToResult(result), mapToResult(expected))
     })
   })
 
@@ -43,36 +48,48 @@ describe(TabRegistryFactory.name, () => {
     // This answer may provide the solution for the unique tabs between sessions (https://stackoverflow.com/a/14518800/3167855)
     it(`sorts tabs accordingly to saved ones`, () => {
       const openTabs = [
-        getTab({url: 'wikipedia'}),
-        getTab({url: 'stack'}),
-        getTab({url: 'links'}),
-        getTab({url: 'example'}),
-        getTab({url: 'links'}),
+        getTab({id: 1001, url: 'wikipedia'}),
+        getTab({id: 1002, url: 'stack'}),
+        getTab({id: 1003, url: 'links'}),
+        getTab({id: 1004, url: 'example'}),
+        getTab({id: 1005, url: 'links'}),
       ]
       const savedTabs = [
-        getTab({url: 'links'}),
-        getTab({url: 'example'}),
-        getTab({url: 'stack'}),
-        getTab({url: 'wikipedia'}),
-        getTab({url: 'links'}),
+        getTab({id: 2001, url: 'links'}),
+        getTab({id: 2002, url: 'example'}),
+        getTab({id: 2003, url: 'stack'}),
+        getTab({id: 2004, url: 'wikipedia'}),
+        getTab({id: 2005, url: 'links'}),
+      ]
+      const expected = [
+        getTab({id: 1003, url: 'links'}),
+        getTab({id: 1004, url: 'example'}),
+        getTab({id: 1002, url: 'stack'}),
+        getTab({id: 1001, url: 'wikipedia'}),
+        getTab({id: 1005, url: 'links'}),
       ]
       const result = TabRegistryFactory.sortTabs(openTabs, savedTabs)
-      assert.deepStrictEqual(mapToUrls(result), mapToUrls(savedTabs))
+      assert.deepStrictEqual(mapToResult(result), mapToResult(expected))
     })
 
     it(`sorts tabs accordingly to saved ones but prioritizes the active one`, () => {
       const openTabs = [
-        getTab({url: 'wikipedia'}),
-        getTab({url: 'stack', active: true}),
-        getTab({url: 'example'}),
+        getTab({id: 1001, url: 'wikipedia'}),
+        getTab({id: 1002, url: 'stack', active: true}),
+        getTab({id: 1003, url: 'example'}),
       ]
       const savedTabs = [
-        getTab({url: 'example'}),
-        getTab({url: 'stack'}),
-        getTab({url: 'wikipedia'}),
+        getTab({id: 2001, url: 'example'}),
+        getTab({id: 2002, url: 'stack'}),
+        getTab({id: 2003, url: 'wikipedia'}),
+      ]
+      const expected = [
+        getTab({id: 1003, url: 'example'}),
+        getTab({id: 1001, url: 'wikipedia'}),
+        getTab({id: 1002, url: 'stack'}),
       ]
       const result = TabRegistryFactory.sortTabs(openTabs, savedTabs)
-      assert.deepStrictEqual(mapToUrls(result), ['example', 'wikipedia', 'stack'])
+      assert.deepStrictEqual(mapToResult(result), mapToResult(expected))
     })
   })
 })
