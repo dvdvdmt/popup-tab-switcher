@@ -91,5 +91,25 @@ describe(TabRegistryFactory.name, () => {
       const result = TabRegistryFactory.sortTabs(openTabs, savedTabs)
       assert.deepStrictEqual(mapToResult(result), mapToResult(expected))
     })
+
+    it(`sorts tabs accordingly to their creation order`, () => {
+      const openTabs = [
+        getTab({id: 1001, url: 'example', title: 'example 1'}),
+        getTab({id: 1002, url: 'example', title: 'example 2'}),
+        getTab({id: 1003, url: 'wikipedia', active: true}),
+      ]
+      const savedTabs = [
+        getTab({id: 2002, url: 'example', title: 'example 2'}),
+        getTab({id: 2001, url: 'example', title: 'example 1'}),
+        getTab({id: 2003, url: 'wikipedia'}),
+      ]
+      const expected = [
+        getTab({id: 1002, url: 'example', title: 'example 2'}),
+        getTab({id: 1001, url: 'example', title: 'example 1'}),
+        getTab({id: 1003, url: 'wikipedia'}),
+      ]
+      const result = TabRegistryFactory.sortTabs(openTabs, savedTabs)
+      assert.deepStrictEqual(mapToResult(result), mapToResult(expected))
+    })
   })
 })
