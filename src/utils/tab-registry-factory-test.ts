@@ -111,5 +111,32 @@ describe(TabRegistryFactory.name, () => {
       const result = TabRegistryFactory.sortTabs(openTabs, savedTabs)
       assert.deepStrictEqual(mapToResult(result), mapToResult(expected))
     })
+
+    it(`prioritizes the most recently active tab`, () => {
+      // Given 2 active tabs in openTabs.
+      // When the tabs are sorted.
+      // Then the last active tab is prioritized.
+
+      // Note: The active tab is not unique in the openTabs array.
+      // It is unique in the window. Because openTabs array contains tabs from all windows,
+      // there may be multiple active tabs.
+      const openTabs = [
+        getTab({id: 1001, url: 'wikipedia', active: true}),
+        getTab({id: 1002, url: 'example', active: true, title: 'example 1'}),
+        getTab({id: 1003, url: 'example', title: 'example 2'}),
+      ]
+      const savedTabs = [
+        getTab({id: 2001, url: 'wikipedia'}),
+        getTab({id: 2003, url: 'example', title: 'example 2'}),
+        getTab({id: 2002, url: 'example', title: 'example 1'}),
+      ]
+      const expected = [
+        getTab({id: 1001, url: 'wikipedia', active: true}),
+        getTab({id: 1003, url: 'example'}),
+        getTab({id: 1002, url: 'example', active: true}),
+      ]
+      const result = TabRegistryFactory.sortTabs(openTabs, savedTabs)
+      assert.deepStrictEqual(mapToResult(result), mapToResult(expected))
+    })
   })
 })

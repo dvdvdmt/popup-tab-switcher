@@ -81,9 +81,16 @@ export class TabRegistryFactory {
   }
 
   private static moveActiveTabToTheEnd(openTabs: ITab[]) {
-    const activeTabIndex = openTabs.findIndex((tab) => tab.active)
-    if (activeTabIndex > -1) {
-      this.moveItemToTheEnd(openTabs, activeTabIndex)
+    // TODO: Replace with openTabs.findLastIndex((tab) => tab.active)
+    let lastActiveTabIndex = -1
+    for (let i = openTabs.length - 1; i >= 0; i -= 1) {
+      if (openTabs[i].active) {
+        lastActiveTabIndex = i
+        break
+      }
+    }
+    if (lastActiveTabIndex > -1) {
+      this.moveItemToTheEnd(openTabs, lastActiveTabIndex)
     }
   }
 
