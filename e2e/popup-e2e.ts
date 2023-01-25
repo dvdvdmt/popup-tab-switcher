@@ -92,12 +92,18 @@ describe('popup', function TestPopup() {
     it(`restores visited pages order after the background worker restart`, async () => {
       // Open multiple tabs.
       await helper.openPage('wikipedia.html')
-      const pageExample = await helper.openPage('example.html')
+      const pageExample1 = await helper.openPage('example.html')
+      await pageExample1.evaluate(() => {
+        document.title = 'Example 1'
+      })
       const pageStOverflow = await helper.openPage('stackoverflow.html')
-      await helper.openPage('example.html')
+      const pageExample2 = await helper.openPage('example.html')
+      await pageExample2.evaluate(() => {
+        document.title = 'Example 2'
+      })
       await helper.openPage('links.html')
       // Send command to reload the extension to simulate web worker shut down.
-      await pageExample.bringToFront()
+      await pageExample1.bringToFront()
       await pageStOverflow.bringToFront()
       await helper.sendMessage(e2eReloadExtension())
       await helper.selectTabForward()
@@ -106,7 +112,7 @@ describe('popup', function TestPopup() {
       )
       assert.deepStrictEqual(
         elTexts,
-        ['Stack Overflow', 'Example', 'Links', 'Example', 'Wikipedia'],
+        ['Stack Overflow', 'Example 1', 'Links', 'Example 2', 'Wikipedia'],
         'The history of visited pages is not preserved after the extension reload.'
       )
     })

@@ -1,5 +1,6 @@
 import {ITab} from './check-tab'
 import {log} from './logger'
+import {getTabsInfo} from './registry-utils'
 
 interface ITabRegistryOptions {
   tabs: ITab[]
@@ -123,7 +124,7 @@ export default class TabRegistry {
   }
 
   titles() {
-    return this.tabs.map((tab) => `#${tab.id} ${tab.title}`).join(', ')
+    return getTabsInfo(this.tabs)
   }
 
   startInitialization(tab: ITab): ITabInitialization {
