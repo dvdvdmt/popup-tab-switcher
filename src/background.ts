@@ -14,7 +14,7 @@ import {checkTab, ITab} from './utils/check-tab'
 import {log} from './utils/logger'
 import {ServiceFactory} from './service-factory'
 
-import Tab = Tabs.Tab
+type Tab = Tabs.Tab
 
 let isTabActivationInProcess = false
 

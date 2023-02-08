@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
-import {Runtime} from 'webextension-polyfill'
+import type {Runtime} from 'webextension-polyfill'
 import {Command} from './constants'
 import {ITab} from './check-tab'
 import {IModel} from '../popup-tab-switcher'
 
-import MessageSender = Runtime.MessageSender
-import Port = Runtime.Port
+type MessageSender = Runtime.MessageSender
+type Port = Runtime.Port
 
 export enum Message {
   DEMO_SETTINGS = 'DEMO_SETTINGS',

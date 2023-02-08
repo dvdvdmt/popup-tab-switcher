@@ -1,6 +1,6 @@
-import {Storage} from 'webextension-polyfill'
+import type {Storage} from 'webextension-polyfill'
 
-import LocalStorageArea = Storage.LocalStorageArea
+type LocalStorageArea = Storage.LocalStorageArea
 
 export interface DefaultSettings {
   textScrollDelay: number

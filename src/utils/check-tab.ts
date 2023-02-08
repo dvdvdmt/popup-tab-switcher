@@ -1,6 +1,6 @@
-import {Tabs} from 'webextension-polyfill'
+import type {Tabs} from 'webextension-polyfill'
 
-import Tab = Tabs.Tab
+type Tab = Tabs.Tab
 
 /**
  * This interface guarantees the presence of potentially undefined fields in a tab object
