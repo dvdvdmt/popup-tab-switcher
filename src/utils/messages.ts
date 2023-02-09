@@ -2,7 +2,7 @@
 import type {Runtime} from 'webextension-polyfill'
 import {Command} from './constants'
 import {ITab} from './check-tab'
-import {IModel} from '../popup-tab-switcher'
+import {DefaultSettings} from './settings'
 
 type MessageSender = Runtime.MessageSender
 type Port = Runtime.Port
@@ -90,8 +90,14 @@ interface IMessageTypeToObjectMap {
 
 export type IMessage = IMessageTypeToObjectMap[keyof IMessageTypeToObjectMap]
 
+export interface IGetModelResponse {
+  settings: DefaultSettings
+  tabs: ITab[]
+  zoomFactor: number
+}
+
 export type IMessageResponse<Message extends IMessage> = Message extends ReturnType<typeof getModel>
-  ? IModel
+  ? IGetModelResponse
   : Message extends ReturnType<typeof e2eIsPageActive>
   ? boolean
   : Message extends ReturnType<typeof e2eIsMessagingReady>

@@ -1,16 +1,17 @@
 import browser from 'webextension-polyfill'
 import styles from './popup-tab-switcher.scss'
-import {getModel, handleMessage, initialized, Message, switchTab} from './utils/messages'
-import {defaultSettings, DefaultSettings} from './utils/settings'
-import {getIconEl, getSVGIcon} from './icon'
-import {cache} from './utils/cache'
-import {ITab} from './utils/check-tab'
-
-export interface IModel {
-  settings: DefaultSettings
-  tabs: ITab[]
-  zoomFactor: number
-}
+import {
+  getModel,
+  handleMessage,
+  IGetModelResponse,
+  initialized,
+  Message,
+  switchTab,
+} from '../utils/messages'
+import {defaultSettings} from '../utils/settings'
+import {getIconEl, getSVGIcon} from '../icon'
+import {cache} from '../utils/cache'
+import {ITab} from '../utils/check-tab'
 
 const getIconElCached = cache(getIconEl)
 
@@ -116,7 +117,7 @@ export default class PopupTabSwitcher extends HTMLElement {
   }
 
   async updateModel() {
-    const model: IModel = await browser.runtime.sendMessage(getModel())
+    const model: IGetModelResponse = await browser.runtime.sendMessage(getModel())
     this.tabsArray = model.tabs
     this.zoomFactor = model.zoomFactor
     this.settings = model.settings
