@@ -35,7 +35,7 @@ const conf = {
     rules: [
       {
         exclude: nodeModulesDir,
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         use: {
           loader: 'babel-loader',
           options: {
@@ -43,6 +43,7 @@ const conf = {
             configFile: false,
             presets: [
               ['@babel/preset-env', {targets: 'last 2 chrome version'}],
+              'babel-preset-solid',
               '@babel/preset-typescript',
             ],
           },
@@ -113,7 +114,7 @@ const conf = {
   },
 
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.ts', '.tsx', '.js'],
   },
 }
 

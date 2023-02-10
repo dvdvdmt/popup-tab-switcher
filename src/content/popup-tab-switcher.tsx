@@ -1,4 +1,5 @@
 import browser from 'webextension-polyfill'
+import {render} from 'solid-js/web'
 import styles from './popup-tab-switcher.scss'
 import {
   getModel,
@@ -53,9 +54,10 @@ export default class PopupTabSwitcher extends HTMLElement {
     this.overlay = document.createElement('div')
     this.overlay.classList.add('overlay')
     this.card = document.createElement('div')
-    this.root.appendChild(style)
+    render(() => <div class="card">THIS IS A TEST OF SOLID-JS</div>, this.root)
+    // this.root.appendChild(style)
     this.overlay.appendChild(this.card)
-    this.root.appendChild(this.overlay)
+    // this.root.appendChild(this.overlay)
     this.setupListeners()
     browser.runtime.sendMessage(initialized())
   }
