@@ -1,5 +1,5 @@
-import noFaviconSVG from './images/no-favicon-icon.svg'
-import tabCornerSymbol from './images/tab-corner.svg'
+import noFaviconSVG from '../images/no-favicon-icon.svg'
+import tabCornerSymbol from '../images/tab-corner.svg'
 
 const parser = new DOMParser()
 

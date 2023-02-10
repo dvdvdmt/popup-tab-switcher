@@ -9,7 +9,7 @@ import {
   switchTab,
 } from '../utils/messages'
 import {defaultSettings} from '../utils/settings'
-import {getIconEl, getSVGIcon} from '../icon'
+import {getIconEl, getSVGIcon} from './icon'
 import {cache} from '../utils/cache'
 import {ITab} from '../utils/check-tab'
 
