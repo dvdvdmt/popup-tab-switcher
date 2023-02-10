@@ -6,6 +6,12 @@
 git clone https://github.com/mujo-code/puppeteer-headful.git
 ```
 
+or faster
+
+```shell
+npx degit mujo-code/puppeteer-headful puppeteer-headful
+```
+
 ```shell
 docker build -t puppeteer-headful ./puppeteer-headful
 # For Apple M1 this will fail
