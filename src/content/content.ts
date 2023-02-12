@@ -1,13 +1,12 @@
-import '@webcomponents/custom-elements'
-import uuid from '../utils/uuid'
-import PopupTabSwitcher from './popup-tab-switcher'
+import '@webcomponents/custom-elements' // polyfill for custom elements
+import {customElement} from 'solid-element'
+import {PopupTabSwitcher} from './popup-tab-switcher'
 
-const existingEl = document.querySelector('#popup-tab-switcher')
+const elementName = 'popup-tab-switcher'
+const existingEl = document.querySelector(elementName)
 if (existingEl) {
   existingEl.remove()
 }
-const id = uuid()
-customElements.define(`popup-tab-switcher-${id}`, PopupTabSwitcher)
-const tabSwitcherEl = document.createElement(`popup-tab-switcher-${id}`)
-tabSwitcherEl.id = 'popup-tab-switcher'
+customElement(elementName, PopupTabSwitcher)
+const tabSwitcherEl = document.createElement(elementName)
 document.body.append(tabSwitcherEl)

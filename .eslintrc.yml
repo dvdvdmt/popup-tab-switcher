@@ -20,6 +20,7 @@ rules:
   prefer-destructuring: off
   curly: [error, all]
   brace-style: [error, 1tbs, {allowSingleLine: false}]
+  no-param-reassign: off
   no-multiple-empty-lines: [error, {max: 1, maxEOF: 0, maxBOF: 0}]
   no-use-before-define: [error, {functions: false}]
   '@typescript-eslint/no-use-before-define': [error, {functions: false}]

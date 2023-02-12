@@ -1,5 +1,7 @@
 import browser from 'webextension-polyfill'
 import {render} from 'solid-js/web'
+import {ComponentType} from 'solid-element'
+import {onCleanup, onMount} from 'solid-js'
 import styles from './popup-tab-switcher.scss'
 import {
   getModel,
@@ -13,6 +15,7 @@ import {defaultSettings} from '../utils/settings'
 import {getIconEl, getSVGIcon} from './icon'
 import {cache} from '../utils/cache'
 import {ITab} from '../utils/check-tab'
+import {log} from '../utils/logger'
 
 const getIconElCached = cache(getIconEl)
 
@@ -23,7 +26,25 @@ function rangedIncrement(number: number, increment: number, maxInteger: number) 
   return (number + (increment % maxInteger) + maxInteger) % maxInteger
 }
 
-export default class PopupTabSwitcher extends HTMLElement {
+export const PopupTabSwitcher: ComponentType<unknown> = (_props, {element}) => {
+  onMount(() => {
+    log(`[init switcher]`)
+    element.style.display = 'block'
+  })
+  onCleanup(() => {
+    log(`[remove switcher]`)
+  })
+  return (
+    <>
+      <style>{styles}</style>
+      <div class="overlay">
+        <div class="card"></div>
+      </div>
+    </>
+  )
+}
+
+export class PopupTabSwitcherElementOld extends HTMLElement {
   private activeEl: Element | null
 
   private timeout: number
