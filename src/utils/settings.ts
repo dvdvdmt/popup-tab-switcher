@@ -2,7 +2,7 @@ import type {Storage} from 'webextension-polyfill'
 
 type LocalStorageArea = Storage.LocalStorageArea
 
-export interface DefaultSettings {
+export interface ISettings {
   textScrollDelay: number
   textScrollCoefficient: number
   autoSwitchingTimeout: number
@@ -17,7 +17,7 @@ export interface DefaultSettings {
   isStayingOpen: boolean
 }
 
-export const defaultSettings: DefaultSettings = {
+export const defaultSettings: ISettings = {
   textScrollDelay: 1000,
   textScrollCoefficient: 2500,
   autoSwitchingTimeout: 1000,
@@ -32,12 +32,12 @@ export const defaultSettings: DefaultSettings = {
   isStayingOpen: false,
 }
 
-export interface ISettings extends DefaultSettings {
-  update(settings: DefaultSettings): Promise<void>
+export interface ISettingsService extends ISettings {
+  update(settings: ISettings): Promise<void>
   reset(): Promise<void>
 }
 
-export async function getSettings(storage: LocalStorageArea): Promise<ISettings> {
+export async function getSettings(storage: LocalStorageArea): Promise<ISettingsService> {
   const {settings: stored} = await storage.get('settings')
   return {
     ...defaultSettings,

@@ -2,7 +2,7 @@
 import type {Runtime} from 'webextension-polyfill'
 import {Command} from './constants'
 import {ITab} from './check-tab'
-import {DefaultSettings} from './settings'
+import {ISettings} from './settings'
 
 type MessageSender = Runtime.MessageSender
 type Port = Runtime.Port
@@ -91,7 +91,7 @@ interface IMessageTypeToObjectMap {
 export type IMessage = IMessageTypeToObjectMap[keyof IMessageTypeToObjectMap]
 
 export interface IGetModelResponse {
-  settings: DefaultSettings
+  settings: ISettings
   tabs: ITab[]
   zoomFactor: number
 }

@@ -1,12 +1,12 @@
 import assert from 'assert'
 import {Page} from 'puppeteer'
-import {defaultSettings, DefaultSettings} from '../src/utils/settings'
+import {defaultSettings, ISettings} from '../src/utils/settings'
 import {closeTabs, startPuppeteer, stopPuppeteer, timeoutDurationMS} from './utils/puppeteer-utils'
 import {PuppeteerPopupHelper} from './utils/puppeteer-popup-helper'
 
 declare global {
   interface Window {
-    settings: DefaultSettings
+    settings: ISettings
   }
 }
 
