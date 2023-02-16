@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill'
-import {render} from 'solid-js/web'
+import {For, render, Show} from 'solid-js/web'
 import {ComponentType} from 'solid-element'
-import {onCleanup, onMount} from 'solid-js'
+import {createEffect, onCleanup, onMount} from 'solid-js'
 import styles from './popup-tab-switcher.scss'
 import {
   getModel,
@@ -16,6 +16,7 @@ import {getIconEl, getSVGIcon} from './icon'
 import {cache} from '../utils/cache'
 import {ITab} from '../utils/check-tab'
 import {log} from '../utils/logger'
+import {createPopupStore} from './popup-store'
 
 const getIconElCached = cache(getIconEl)
 
@@ -27,19 +28,134 @@ function rangedIncrement(number: number, increment: number, maxInteger: number) 
 }
 
 export const PopupTabSwitcher: ComponentType<unknown> = (_props, {element}) => {
+  const {store, syncStoreWithBackground, openPopup, closePopup} = createPopupStore()
+  // TODO: check that isSettingsDemo is needed
+  // let isSettingsDemo = false
+  const setUpListeners = () => {
+    // element.addEventListener('click', this.onClick)
+    // window.addEventListener('keyup', this.onKeyUp)
+    // window.addEventListener('keydown', this.onKeyDown)
+    // window.addEventListener('blur', this.onWindowBlur)
+    // window.addEventListener('resize', this.onWindowResize)
+
+    const messageListener = handleMessage({
+      [Message.DEMO_SETTINGS]: async () => {
+        // isSettingsDemo = true
+        await syncStoreWithBackground()
+        openPopup()
+        this.renderTabs()
+        // setTimeout(() => {
+        //   //  Double clicks on settings icon can result in hidden switcher.
+        //   //  This happens because switcher reacts on window blur event.
+        //   //  When settings are open blur handler should be disabled.
+        //   this.isSettingsDemo = false
+        // })
+      },
+      [Message.CLOSE_POPUP]: closePopup,
+      // [Message.SELECT_TAB]: async ({increment}) => {
+      //   await this.updateModel()
+      //   this.selectNextTab(increment)
+      //   // When the focus is on the address bar or the 'search in the page' field
+      //   // then the extension should switch a tab at the end of a timer.
+      //   // Because there is no way to handle key pressings when a page has no focus.
+      //   // https://stackoverflow.com/a/20940788/3167855
+      //   if (!document.hasFocus()) {
+      //     // When PDF file opens 'document.hasFocus() === false' no mater if the page
+      //     // focused or not. This enables auto switching timeout which must not happen.
+      //     // To prevent that we can switch to another tab instantly for all PDFs and
+      //     // other locally opened files.
+      //     if (document.contentType !== 'text/html') {
+      //       this.switchToSelectedTab()
+      //       return
+      //     }
+      //
+      //     clearTimeout(this.timeout)
+      //     this.timeout = window.setTimeout(
+      //       this.switchToSelectedTab.bind(this),
+      //       this.settings.autoSwitchingTimeout
+      //     )
+      //   }
+      // },
+    })
+    browser.runtime.onMessage.addListener(messageListener)
+  }
+
+  const setStylePropertiesThatDependOnPageZoom = () => {
+    /*
+     NOTE:
+     The popup tries to look the same independent of a page zoom level.
+     Unfortunately there is no way of getting zoom level reliably (https://stackoverflow.com/questions/1713771/how-to-detect-page-zoom-level-in-all-modern-browsers).
+     - Using outerWidth/innerWidth will give wrong results if a side bar is open (eg. dev tools,
+       menu in FF).
+     - The usage of 'vw' unit has the same flaws as outerWidth/innerWidth approach.
+     - The window.devicePixelRatio (DPR) changes on zoom but you can't rely on it on high DPI devices
+       because there is no way of getting base DPR that corresponds to zoom 100% (https://www.w3.org/community/respimg/2013/04/06/devicenormalpixelratio-proposal-for-zoom-independent-devicepixelratio-for-hd-retina-games/).
+
+     Currently extension specific API browser.tabs.getZoom() is used to get tab zoom factor.
+     Restrictions:
+     - The minimal font size on large zoom levels can't be rewritten.
+    */
+    const {fontSize, numberOfTabsToShow, tabHeight, popupWidth, iconSize} = store.settings
+    const zoomFactor = store.zoomFactor
+    const popupHeight = numberOfTabsToShow * tabHeight
+    const popupBorderRadius = 8
+    const tabHorizontalPadding = 10
+    const tabTextPadding = 10
+    const tabTimeoutIndicatorHeight = 2
+
+    element.style.setProperty('--popup-width', `${popupWidth / zoomFactor}px`)
+    element.style.setProperty('--popup-height', `${popupHeight / zoomFactor}px`)
+    element.style.setProperty('--popup-border-radius', `${popupBorderRadius / zoomFactor}px`)
+    element.style.setProperty('--tab-height', `${tabHeight / zoomFactor}px`)
+    element.style.setProperty('--tab-horizontal-padding', `${tabHorizontalPadding / zoomFactor}px`)
+    element.style.setProperty('--tab-text-padding', `${tabTextPadding / zoomFactor}px`)
+    element.style.setProperty(
+      '--tab-timeout-indicator-height',
+      `${tabTimeoutIndicatorHeight / zoomFactor}px`
+    )
+    element.style.setProperty('--font-size', `${fontSize / zoomFactor}px`)
+    element.style.setProperty('--icon-size', `${iconSize / zoomFactor}px`)
+  }
+
+  const showOverlay = () => {
+    element.style.display = 'block'
+    element.style.setProperty('--popup-opacity', `${store.settings.opacity / 100}`)
+    element.style.setProperty(
+      '--time-auto-switch-timeout',
+      `${store.settings.autoSwitchingTimeout}ms`
+    )
+    setStylePropertiesThatDependOnPageZoom()
+  }
+
   onMount(() => {
     log(`[init switcher]`)
-    element.style.display = 'block'
+    setUpListeners()
+    browser.runtime.sendMessage(initialized())
   })
+
   onCleanup(() => {
     log(`[remove switcher]`)
   })
+
+  createEffect(() => {
+    log(`[render switcher]`)
+    if (store.isOpen) {
+      showOverlay()
+    } else {
+      element.style.display = 'none'
+    }
+  })
+
   return (
     <>
       <style>{styles}</style>
-      <div class="overlay">
-        <div class="card"></div>
-      </div>
+      <Show when={store.isOpen}>
+        <div class="overlay">
+          <div class="card" classList={{card_dark: store.settings.isDarkTheme}}>
+            <For each={store.tabs}>{(tab) => <div class="tab">{tab.title}</div>}</For>
+          </div>
+        </div>
+      </Show>
     </>
   )
 }

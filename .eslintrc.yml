@@ -12,6 +12,7 @@ extends:
   - plugin:@typescript-eslint/recommended
   - plugin:import/errors
   - plugin:import/warnings
+  - plugin:react/recommended
 settings:
   import/resolver:
     node:
@@ -29,6 +30,7 @@ rules:
   '@typescript-eslint/no-unused-vars': [error, {argsIgnorePattern: '^_', varsIgnorePattern: '^_'}]
   '@typescript-eslint/member-delimiter-style': off
   '@typescript-eslint/no-empty-function': [warn]
+  '@typescript-eslint/camelcase': [warn]
   prefer-arrow-callback: off
   object-curly-spacing: [error, never]
   arrow-parens: [error, always]
@@ -36,6 +38,9 @@ rules:
   import/no-extraneous-dependencies:
     [error, {devDependencies: ['./**/*test.js', 'webpack.config.js']}]
   import/prefer-default-export: off
+  react/jsx-uses-vars: error
+  react/react-in-jsx-scope: off
+  react/no-unknown-property: off
   react/prop-types: off
   react/display-name: off
   comma-dangle: off
