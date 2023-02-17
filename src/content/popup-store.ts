@@ -1,4 +1,4 @@
-import {createStore} from 'solid-js/store'
+import {createStore, reconcile} from 'solid-js/store'
 import browser from 'webextension-polyfill'
 import type {ITab} from '../utils/check-tab'
 import {ISettings, defaultSettings} from '../utils/settings'
@@ -10,6 +10,7 @@ interface IStore {
   isOpen: boolean
   settings: ISettings
   zoomFactor: number
+  selectedTabIndex: number // maybe replace it with selectedTabId?
 }
 
 export function createPopupStore() {
@@ -18,6 +19,7 @@ export function createPopupStore() {
     isOpen: false,
     settings: defaultSettings,
     zoomFactor: 1,
+    selectedTabIndex: 0,
   })
 
   const closePopup = () => {
@@ -32,10 +34,11 @@ export function createPopupStore() {
     const model: IGetModelResponse = await browser.runtime.sendMessage(getModel())
     log(`[syncStoreWithBackground model]`, model)
     setStore({
-      tabs: model.tabs,
       settings: model.settings,
       zoomFactor: model.zoomFactor,
     })
+    // This makes DOM updates efficient https://github.com/solidjs/solid/discussions/366#discussioncomment-5004420
+    setStore('tabs', reconcile(model.tabs))
   }
 
   return {

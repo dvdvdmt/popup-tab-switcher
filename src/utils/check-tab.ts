@@ -13,6 +13,7 @@ export interface ITab extends Tab {
   windowId: number
 }
 
+// TODO: Remove this function because it misleads the consumers of the API
 export function checkTab(tab: Tab): ITab {
   if (!tab.id) {
     console.warn('The tab.id is empty', tab)

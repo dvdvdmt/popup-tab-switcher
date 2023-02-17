@@ -17,6 +17,7 @@ import {cache} from '../utils/cache'
 import {ITab} from '../utils/check-tab'
 import {log} from '../utils/logger'
 import {createPopupStore} from './popup-store'
+import {TabCornerIcon, TabIcon} from './icons'
 
 const getIconElCached = cache(getIconEl)
 
@@ -43,7 +44,7 @@ export const PopupTabSwitcher: ComponentType<unknown> = (_props, {element}) => {
         // isSettingsDemo = true
         await syncStoreWithBackground()
         openPopup()
-        this.renderTabs()
+        // this.renderTabs()
         // setTimeout(() => {
         //   //  Double clicks on settings icon can result in hidden switcher.
         //   //  This happens because switcher reacts on window blur event.
@@ -151,8 +152,28 @@ export const PopupTabSwitcher: ComponentType<unknown> = (_props, {element}) => {
       <style>{styles}</style>
       <Show when={store.isOpen}>
         <div class="overlay">
-          <div class="card" classList={{card_dark: store.settings.isDarkTheme}}>
-            <For each={store.tabs}>{(tab) => <div class="tab">{tab.title}</div>}</For>
+          <div
+            class="card"
+            classList={{card_dark: store.settings.isDarkTheme}}
+            data-test-id="pts__card"
+          >
+            <For each={store.tabs}>
+              {(tab, index) => (
+                <div
+                  tabindex="-1"
+                  class="tab"
+                  classList={{
+                    tab_selected: store.selectedTabIndex === index(),
+                  }}
+                >
+                  <Show when={store.selectedTabIndex === index() && !document.hasFocus()}>
+                    <div class="tab__timeoutIndicator" />
+                  </Show>
+                  <TabIcon url={tab.url} />
+                  {tab.title}
+                </div>
+              )}
+            </For>
           </div>
         </div>
       </Show>
@@ -316,7 +337,6 @@ export class PopupTabSwitcherElementOld extends HTMLElement {
           const indicator = document.createElement('div')
           indicator.className = 'tab__timeoutIndicator'
           tabEl.append(indicator)
-          tabEl.classList.add('tab_timeout')
         }
       }
       const iconEl = getIconElCached(tab.url, tab.id)

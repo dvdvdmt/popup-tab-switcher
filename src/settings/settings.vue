@@ -20,7 +20,7 @@ import Contribute from './components/contribute.vue'
 import {demoSettings} from '../utils/messages'
 
 // The connection is necessary for tracking settings popup closing (https://stackoverflow.com/q/15798516/3167855)
-browser.runtime.connect({name: Port.POPUP_SCRIPT})
+// browser.runtime.connect({name: Port.POPUP_SCRIPT})
 
 export default {
   name: 'Settings',
