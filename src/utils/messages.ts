@@ -92,7 +92,7 @@ export type IMessage = IMessageTypeToObjectMap[keyof IMessageTypeToObjectMap]
 
 export interface IGetModelResponse {
   settings: ISettings
-  tabs: ITab[]
+  tabs: chrome.tabs.Tab[]
   zoomFactor: number
 }
 

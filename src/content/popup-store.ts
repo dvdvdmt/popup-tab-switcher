@@ -1,12 +1,11 @@
 import {createStore, reconcile} from 'solid-js/store'
 import browser from 'webextension-polyfill'
-import type {ITab} from '../utils/check-tab'
-import {ISettings, defaultSettings} from '../utils/settings'
+import {defaultSettings, ISettings} from '../utils/settings'
 import {getModel, IGetModelResponse} from '../utils/messages'
 import {log} from '../utils/logger'
 
 interface IStore {
-  tabs: ITab[]
+  tabs: chrome.tabs.Tab[]
   isOpen: boolean
   settings: ISettings
   zoomFactor: number

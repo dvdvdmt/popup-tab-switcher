@@ -17,7 +17,7 @@ import {cache} from '../utils/cache'
 import {ITab} from '../utils/check-tab'
 import {log} from '../utils/logger'
 import {createPopupStore} from './popup-store'
-import {TabCornerIcon, TabIcon} from './icons'
+import {TabComponent} from './tab-component'
 
 const getIconElCached = cache(getIconEl)
 
@@ -159,19 +159,12 @@ export const PopupTabSwitcher: ComponentType<unknown> = (_props, {element}) => {
           >
             <For each={store.tabs}>
               {(tab, index) => (
-                <div
-                  tabindex="-1"
-                  class="tab"
-                  classList={{
-                    tab_selected: store.selectedTabIndex === index(),
-                  }}
-                >
-                  <Show when={store.selectedTabIndex === index() && !document.hasFocus()}>
-                    <div class="tab__timeoutIndicator" />
-                  </Show>
-                  <TabIcon url={tab.url} />
-                  {tab.title}
-                </div>
+                <TabComponent
+                  tab={tab}
+                  isFirst={index() === 0}
+                  isLast={index() === store.tabs.length - 1}
+                  isSelected={index() === store.selectedTabIndex}
+                />
               )}
             </For>
           </div>

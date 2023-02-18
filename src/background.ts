@@ -227,7 +227,7 @@ function messageHandlers(): Partial<IHandlers> {
       const settings = await ServiceFactory.getSettings()
       const registry = await ServiceFactory.getTabRegistry()
       return {
-        tabs: registry.getTabsToShow(),
+        tabs: registry.getTabsToShow() as chrome.tabs.Tab[],
         settings,
         zoomFactor: await browser.tabs.getZoom(),
       }
