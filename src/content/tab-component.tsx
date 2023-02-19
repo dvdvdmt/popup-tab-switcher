@@ -1,5 +1,5 @@
 import {Show} from 'solid-js/web'
-import {onMount} from 'solid-js'
+import {createEffect} from 'solid-js'
 import {TabCornerIcon, TabIcon} from './icons'
 
 interface IProps {
@@ -48,9 +48,11 @@ export function TabComponent(props: IProps) {
     }
   }
 
-  onMount(() => {
+  createEffect(() => {
     if (props.isSelected) {
       scrollLongTextOfSelectedTab()
+    } else {
+      titleElement.getAnimations().forEach((animation) => animation.cancel())
     }
   })
 

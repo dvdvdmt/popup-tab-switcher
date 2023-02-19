@@ -23,6 +23,7 @@ export function createPopupStore() {
 
   const closePopup = () => {
     setStore('isOpen', false)
+    setStore('selectedTabIndex', 0)
   }
 
   const openPopup = () => {
@@ -45,5 +46,18 @@ export function createPopupStore() {
     closePopup,
     openPopup,
     syncStoreWithBackground,
+    selectNextTab,
   }
+
+  function selectNextTab(increment: number) {
+    const newIndex = rangedIncrement(store.selectedTabIndex, increment, store.tabs.length)
+    setStore('selectedTabIndex', newIndex)
+  }
+}
+
+/**
+ * Restricts result of a number increment between [0, maxInteger - 1]
+ */
+export function rangedIncrement(number: number, increment: number, maxInteger: number) {
+  return (number + (increment % maxInteger) + maxInteger) % maxInteger
 }

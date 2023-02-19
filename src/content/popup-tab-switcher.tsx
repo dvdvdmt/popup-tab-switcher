@@ -13,30 +13,24 @@ import {
 } from '../utils/messages'
 import {defaultSettings} from '../utils/settings'
 import {log} from '../utils/logger'
-import {createPopupStore} from './popup-store'
+import {createPopupStore, rangedIncrement} from './popup-store'
 import {TabComponent} from './tab-component'
 
 type ITab = chrome.tabs.Tab
 
-/**
- * Restricts result of a number increment between [0, maxInteger - 1]
- */
-function rangedIncrement(number: number, increment: number, maxInteger: number) {
-  return (number + (increment % maxInteger) + maxInteger) % maxInteger
-}
-
-export const PopupTabSwitcher: ComponentType<unknown> = (_props, {element}) => {
-  const {store, syncStoreWithBackground, openPopup, closePopup} = createPopupStore()
+export function PopupTabSwitcher(_props: unknown, {element}: {element: HTMLElement}) {
+  const {store, syncStoreWithBackground, openPopup, closePopup, selectNextTab} = createPopupStore()
   // TODO: check that isSettingsDemo is needed
   // let isSettingsDemo = false
-  let lastActiveElement: HTMLElement | null = null
+  let lastActiveElement: Element | null = null
 
-  // TODO: Think of moving all arrow functions to named functions and placing them
-  // after the return statement. This will divide code in two distinct parts:
-  // - synchronous part that creates the component
-  // - asynchronous part that handles changes during the component lifecycle
-  // By putting the structure and main logic of the component at the start
-  // and minor details like event handlers at the end of the file we achieve better readability.
+  // TODO:
+  //  Think of moving all arrow functions to named functions and placing them
+  //  after the return statement. This will divide code in two distinct parts:
+  //  - synchronous part that creates the component
+  //  - asynchronous part that handles changes during the component lifecycle
+  //  By putting the structure and main logic of the component at the start
+  //  and minor details like event handlers at the end of the file we achieve better readability.
   const setStylePropertiesThatDependOnPageZoom = () => {
     /*
      NOTE:
@@ -92,7 +86,7 @@ export const PopupTabSwitcher: ComponentType<unknown> = (_props, {element}) => {
   }
 
   const setUpListeners = () => {
-    // element.addEventListener('click', this.onClick)
+    element.addEventListener('click', onOverlayClick)
     // window.addEventListener('keyup', this.onKeyUp)
     // window.addEventListener('keydown', this.onKeyDown)
     // window.addEventListener('blur', this.onWindowBlur)
@@ -112,30 +106,31 @@ export const PopupTabSwitcher: ComponentType<unknown> = (_props, {element}) => {
         // })
       },
       [Message.CLOSE_POPUP]: closePopup,
-      // [Message.SELECT_TAB]: async ({increment}) => {
-      //   await this.updateModel()
-      //   this.selectNextTab(increment)
-      //   // When the focus is on the address bar or the 'search in the page' field
-      //   // then the extension should switch a tab at the end of a timer.
-      //   // Because there is no way to handle key pressings when a page has no focus.
-      //   // https://stackoverflow.com/a/20940788/3167855
-      //   if (!document.hasFocus()) {
-      //     // When PDF file opens 'document.hasFocus() === false' no mater if the page
-      //     // focused or not. This enables auto switching timeout which must not happen.
-      //     // To prevent that we can switch to another tab instantly for all PDFs and
-      //     // other locally opened files.
-      //     if (document.contentType !== 'text/html') {
-      //       this.switchToSelectedTab()
-      //       return
-      //     }
-      //
-      //     clearTimeout(this.timeout)
-      //     this.timeout = window.setTimeout(
-      //       this.switchToSelectedTab.bind(this),
-      //       this.settings.autoSwitchingTimeout
-      //     )
-      //   }
-      // },
+      [Message.SELECT_TAB]: async ({increment}) => {
+        await syncStoreWithBackground()
+        openPopup()
+        selectNextTab(increment)
+        // When the focus is on the address bar or the 'search in the page' field
+        // then the extension should switch a tab at the end of a timer.
+        // Because there is no way to handle key pressings when a page has no focus.
+        // https://stackoverflow.com/a/20940788/3167855
+        // if (!document.hasFocus()) {
+        //   // When PDF file opens 'document.hasFocus() === false' no mater if the page
+        //   // focused or not. This enables auto switching timeout which must not happen.
+        //   // To prevent that we can switch to another tab instantly for all PDFs and
+        //   // other locally opened files.
+        //   if (document.contentType !== 'text/html') {
+        //     this.switchToSelectedTab()
+        //     return
+        //   }
+        //
+        //   clearTimeout(this.timeout)
+        //   this.timeout = window.setTimeout(
+        //     this.switchToSelectedTab.bind(this),
+        //     this.settings.autoSwitchingTimeout
+        //   )
+        // }
+      },
     })
     browser.runtime.onMessage.addListener(messageListener)
   }
@@ -158,10 +153,11 @@ export const PopupTabSwitcher: ComponentType<unknown> = (_props, {element}) => {
   createEffect(() => {
     log(`[render switcher]`)
     if (store.isOpen) {
-      lastActiveElement = document.activeElement as HTMLElement
+      lastActiveElement = document.activeElement
       showOverlay()
     } else {
       element.style.display = 'none'
+      restoreSelectionAndFocus()
     }
   })
 
@@ -195,6 +191,39 @@ export const PopupTabSwitcher: ComponentType<unknown> = (_props, {element}) => {
       </Show>
     </>
   )
+
+  function onOverlayClick(event: MouseEvent) {
+    if (event.target === element) {
+      closePopup()
+    }
+  }
+
+  function restoreSelectionAndFocus() {
+    if (!lastActiveElement) {
+      return
+    }
+    if (lastActiveElement instanceof HTMLElement) {
+      lastActiveElement.focus({preventScroll: true})
+    }
+    // TODO: Restore selection properly.
+    //  Not only input and textarea elements can have selection.
+    //  For example, contenteditable elements can have selection too.
+    if (
+      lastActiveElement instanceof HTMLInputElement ||
+      lastActiveElement instanceof HTMLTextAreaElement
+    ) {
+      const {selectionStart, selectionEnd, selectionDirection} = lastActiveElement
+      try {
+        lastActiveElement.setSelectionRange(
+          selectionStart,
+          selectionEnd,
+          selectionDirection as 'forward' | 'backward' | 'none'
+        )
+        // eslint-disable-next-line no-empty
+      } catch (e) {}
+    }
+    lastActiveElement = null
+  }
 }
 
 export class PopupTabSwitcherElementOld extends HTMLElement {
