@@ -15,6 +15,7 @@ import {log} from './utils/logger'
 import {ServiceFactory} from './service-factory'
 
 type Tab = Tabs.Tab
+type ChromeTab = chrome.tabs.Tab
 
 let isTabActivationInProcess = false
 
@@ -96,7 +97,7 @@ async function switchToPreviousTab() {
   const registry = await ServiceFactory.getTabRegistry()
   const previousTab = registry.getPreviouslyActive()
   if (previousTab) {
-    await activateTab(previousTab)
+    await activateTab(previousTab as ChromeTab)
   }
 }
 
@@ -187,7 +188,7 @@ async function handleTabRemove(tabId: number) {
     const currentTab = registry.getActive()
     if (currentTab) {
       log(`[handleTabRemove will activate tab]`, currentTab.id, currentTab.title)
-      await activateTab(currentTab)
+      await activateTab(currentTab as ChromeTab)
     }
   }
 }
@@ -213,7 +214,7 @@ function messageHandlers(): Partial<IHandlers> {
       if (isCodeExecutionForbidden(active)) {
         const previousNormalTab = registry.findBackward((tab) => !isCodeExecutionForbidden(tab))
         if (previousNormalTab) {
-          await activateTab(previousNormalTab)
+          await activateTab(previousNormalTab as ChromeTab)
         }
         return
       }
@@ -257,7 +258,7 @@ async function getActiveTab(): Promise<Tab | undefined> {
   return activeTab
 }
 
-async function activateTab({id, windowId}: ITab) {
+async function activateTab({id, windowId}: ChromeTab) {
   isTabActivationInProcess = true
   try {
     // The tab can already be removed from the browser, for example when a user quickly closes multiple tabs.

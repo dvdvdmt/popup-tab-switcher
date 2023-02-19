@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 import type {Runtime} from 'webextension-polyfill'
 import {Command} from './constants'
-import {ITab} from './check-tab'
 import {ISettings} from './settings'
 
 type MessageSender = Runtime.MessageSender
 type Port = Runtime.Port
+type ChromeTab = chrome.tabs.Tab
 
 export enum Message {
   DEMO_SETTINGS = 'DEMO_SETTINGS',
@@ -26,7 +26,7 @@ export function demoSettings() {
   return {type: Message.DEMO_SETTINGS} as const
 }
 
-export function switchTab(selectedTab: ITab) {
+export function switchTab(selectedTab: ChromeTab) {
   return {type: Message.SWITCH_TAB, selectedTab} as const
 }
 
