@@ -268,11 +268,25 @@ export function PopupTabSwitcher({element}: IProps) {
 }
 
 export class PopupTabSwitcherElement extends HTMLElement {
-  private readonly root: ShadowRoot
-
   constructor() {
     super()
-    this.root = this.attachShadow({mode: 'open'})
-    render(() => <PopupTabSwitcher element={this} />, this.root)
+    this.attachShadow({mode: 'open'})
   }
+}
+
+export function initPopupTabSwitcher(): void {
+  // TODO: restore proper redefinition of custom element that was removed.
+  //  Because custom element can't use the same name in define method we need to
+  //  generate new name for each redefinition. That is why we mixing a random
+  //  number into the name.
+  const name = 'popup-tab-switcher'
+  const existingEl = document.querySelector(name)
+  if (existingEl) {
+    existingEl.remove()
+  } else {
+    customElements.define(name, PopupTabSwitcherElement)
+  }
+  const tabSwitcherEl = document.createElement(name)
+  render(() => <PopupTabSwitcher element={tabSwitcherEl} />, tabSwitcherEl.shadowRoot!)
+  document.body.append(tabSwitcherEl)
 }
