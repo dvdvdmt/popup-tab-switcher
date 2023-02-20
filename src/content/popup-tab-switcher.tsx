@@ -6,6 +6,7 @@ import {handleMessage, initialized, Message, switchTab} from '../utils/messages'
 import {log} from '../utils/logger'
 import {createPopupStore} from './popup-store'
 import {TabComponent} from './tab-component'
+import uuid from '../utils/uuid'
 
 type ITab = chrome.tabs.Tab
 
@@ -268,25 +269,46 @@ export function PopupTabSwitcher({element}: IProps) {
 }
 
 export class PopupTabSwitcherElement extends HTMLElement {
+  shadowRoot: ShadowRoot
+
+  /**
+   * Removes the SolidJS element from the DOM.
+   */
+  dispose: () => void
+
   constructor() {
     super()
     this.attachShadow({mode: 'open'})
   }
+
+  /**
+   * Fires when the custom element is disconnected from the DOM.
+   */
+  disconnectedCallback() {
+    this.dispose()
+  }
+
+  render() {
+    // We can't render instantly in the constructor because the element should not have properties
+    // before it is created.
+    this.dispose = render(() => <PopupTabSwitcher element={this} />, this.shadowRoot)
+  }
 }
 
 export function initPopupTabSwitcher(): void {
-  // TODO: restore proper redefinition of custom element that was removed.
-  //  Because custom element can't use the same name in define method we need to
-  //  generate new name for each redefinition. That is why we mixing a random
-  //  number into the name.
-  const name = 'popup-tab-switcher'
-  const existingEl = document.querySelector(name)
+  const id = 'popup-tab-switcher'
+  const existingEl = document.getElementById(id)
   if (existingEl) {
     existingEl.remove()
-  } else {
-    customElements.define(name, PopupTabSwitcherElement)
   }
-  const tabSwitcherEl = document.createElement(name)
-  render(() => <PopupTabSwitcher element={tabSwitcherEl} />, tabSwitcherEl.shadowRoot!)
-  document.body.append(tabSwitcherEl)
+  // NOTE:
+  // Registered custom element can't use the same name in a subsequent registration
+  // using define() method. That is why we need to generate a new name by mixing
+  // a random number to it.
+  const name = `${id}-${uuid()}`
+  customElements.define(name, PopupTabSwitcherElement)
+  const tabSwitcherElement = document.createElement(name) as PopupTabSwitcherElement
+  tabSwitcherElement.id = id
+  tabSwitcherElement.render()
+  document.body.append(tabSwitcherElement)
 }
