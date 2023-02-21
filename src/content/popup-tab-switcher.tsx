@@ -288,7 +288,10 @@ export class PopupTabSwitcherElement extends HTMLElement {
     this.dispose()
   }
 
-  render() {
+  /**
+   * Fires when the custom element is connected to the DOM.
+   */
+  connectedCallback() {
     // We can't render instantly in the constructor because the element should not have properties
     // before it is created.
     this.dispose = render(() => <PopupTabSwitcher element={this} />, this.shadowRoot)
@@ -307,8 +310,7 @@ export function initPopupTabSwitcher(): void {
   // a random number to it.
   const name = `${id}-${uuid()}`
   customElements.define(name, PopupTabSwitcherElement)
-  const tabSwitcherElement = document.createElement(name) as PopupTabSwitcherElement
+  const tabSwitcherElement = document.createElement(name)
   tabSwitcherElement.id = id
-  tabSwitcherElement.render()
   document.body.append(tabSwitcherElement)
 }
