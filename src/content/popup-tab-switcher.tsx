@@ -25,6 +25,7 @@ export function PopupTabSwitcher({element}: IProps) {
   let isSettingsDemo = false
   let lastActiveElement: Element | null = null
   let cleanUpListeners = () => {}
+  let disposeAutoSwitchingTimeout: () => void = () => {}
 
   onMount(() => {
     log(`[init switcher]`)
@@ -35,6 +36,7 @@ export function PopupTabSwitcher({element}: IProps) {
   onCleanup(() => {
     log(`[remove switcher]`)
     cleanUpListeners()
+    disposeAutoSwitchingTimeout()
     browser.runtime.sendMessage(contentScriptStopped())
   })
 
@@ -147,11 +149,11 @@ export function PopupTabSwitcher({element}: IProps) {
   }
 
   function setUpListeners() {
-    element.addEventListener('click', onOverlayClick)
-    window.addEventListener('keyup', onKeyUp)
-    window.addEventListener('keydown', onKeyDown)
-    window.addEventListener('blur', onWindowBlur)
-    window.addEventListener('resize', onWindowResize)
+    element.addEventListener('click', onOverlayClick, {capture: true})
+    window.addEventListener('keyup', onKeyUp, {capture: true})
+    window.addEventListener('keydown', onKeyDown, {capture: true})
+    window.addEventListener('blur', onWindowBlur, {capture: true})
+    window.addEventListener('resize', onWindowResize, {capture: true})
 
     const messageListener = handleMessage({
       [Message.DEMO_SETTINGS]: async () => {
@@ -168,22 +170,26 @@ export function PopupTabSwitcher({element}: IProps) {
         // then the extension should switch a tab at the end of a timer.
         // Because there is no way to handle key pressings when a page has no focus.
         // https://stackoverflow.com/a/20940788/3167855
-        // if (!document.hasFocus()) {
-        //   // When PDF file opens 'document.hasFocus() === false' no mater if the page
-        //   // focused or not. This enables auto switching timeout which must not happen.
-        //   // To prevent that we can switch to another tab instantly for all PDFs and
-        //   // other locally opened files.
-        //   if (document.contentType !== 'text/html') {
-        //     this.switchToSelectedTab()
-        //     return
-        //   }
-        //
-        //   clearTimeout(this.timeout)
-        //   this.timeout = window.setTimeout(
-        //     this.switchToSelectedTab.bind(this),
-        //     this.settings.autoSwitchingTimeout
-        //   )
-        // }
+        if (!document.hasFocus()) {
+          // When PDF file opens 'document.hasFocus() === false' no mater if the page
+          // focused or not. This enables auto switching timeout which must not happen.
+          // To prevent that we can switch to another tab instantly for all PDFs and
+          // other locally opened files.
+          if (document.contentType !== 'text/html') {
+            switchTo(store.tabs[store.selectedTabIndex])
+            return
+          }
+
+          disposeAutoSwitchingTimeout()
+
+          const timeout = window.setTimeout(() => {
+            switchTo(store.tabs[store.selectedTabIndex])
+          }, store.settings.autoSwitchingTimeout)
+
+          disposeAutoSwitchingTimeout = () => {
+            window.clearTimeout(timeout)
+          }
+        }
       },
     })
     browser.runtime.onMessage.addListener(messageListener)
