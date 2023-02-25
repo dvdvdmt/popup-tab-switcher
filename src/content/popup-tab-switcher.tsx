@@ -74,11 +74,11 @@ export function PopupTabSwitcher({element}: IProps) {
   )
 
   // NOTE:
-  //  Placing functions them after the return statement divides the code in two distinct parts:
+  //  Placing functions after the return statement divides the code in two distinct parts:
   //  - Synchronous part that creates the component.
   //  - Asynchronous part that handles changes during the component lifecycle.
-  //  By placing the structure and sync logic of the component at the start and all
-  //  minor details like event handlers at the end of the file we achieve better clarity.
+  //  By placing the structure and sync logic of at the start and all
+  //  minor details like event handlers at the end we achieve better clarity.
 
   function setStylePropertiesThatDependOnPageZoom() {
     /*
