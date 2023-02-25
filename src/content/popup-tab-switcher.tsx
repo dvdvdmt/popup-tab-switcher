@@ -268,7 +268,12 @@ export class PopupTabSwitcherElement extends HTMLElement {
   /**
    * Removes the SolidJS element from the DOM.
    */
-  dispose: () => void
+  private disposeRoot: () => void
+
+  /**
+   * Stops listening to the disconnection of the element from the DOM.
+   */
+  private disposeDisconnectionListener: () => void
 
   constructor() {
     super()
@@ -279,16 +284,44 @@ export class PopupTabSwitcherElement extends HTMLElement {
    * Fires when the custom element is disconnected from the DOM.
    */
   disconnectedCallback() {
-    this.dispose()
+    log('[disconnectedCallback]')
+    this.disposeDisconnectionListener()
+    this.disposeRoot()
   }
 
   /**
    * Fires when the custom element is connected to the DOM.
    */
   connectedCallback() {
-    // We can't render instantly in the constructor because the element should not have properties
-    // before it is created.
-    this.dispose = render(() => <PopupTabSwitcher element={this} />, this.shadowRoot)
+    this.disposeDisconnectionListener = this.initDisconnectionListener()
+    // We can't render instantly in the constructor because the custom element
+    // should not have properties before it is created.
+    this.disposeRoot = render(() => <PopupTabSwitcher element={this} />, this.shadowRoot)
+  }
+
+  /**
+   * Safety measure that tracks the disconnection of the element from the DOM, even in cases when
+   * the `disconnectedCallback` is not called. It happens when the element is removed from the DOM
+   * by the external script. The external script is a script that was not injected by the extension.
+   * It may be:
+   * - a page script that already exists on the page.
+   * - another extension. Including the different version of the Popup Tab Switcher extension.
+   */
+  initDisconnectionListener(): () => void {
+    const observer = new MutationObserver((records) => {
+      log(`[mutation records]`, records)
+      if (!this.parentNode) {
+        this.disconnectedCallback()
+      }
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+    })
+
+    return () => {
+      observer.disconnect()
+    }
   }
 }
 
@@ -297,6 +330,7 @@ export function initPopupTabSwitcher(): void {
   const existingEl = document.getElementById(id)
   if (existingEl) {
     existingEl.remove()
+    // document.body.removeChild(existingEl)
   }
   // NOTE:
   // Registered custom element can't use the same name in a subsequent registration
