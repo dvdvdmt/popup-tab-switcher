@@ -151,12 +151,6 @@ export function PopupTabSwitcher({element}: IProps) {
         isSettingsDemo = true
         await syncStoreWithBackground()
         openPopup()
-        // setTimeout(() => {
-        //   //  Double clicks on settings icon can result in hidden switcher.
-        //   //  This happens because switcher reacts on window blur event.
-        //   //  When settings are open blur handler should be disabled.
-        //   this.isSettingsDemo = false
-        // })
       },
       [Message.CLOSE_POPUP]: closePopup,
       [Message.SELECT_TAB]: async ({increment}) => {
