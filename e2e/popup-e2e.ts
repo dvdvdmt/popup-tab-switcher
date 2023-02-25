@@ -567,5 +567,10 @@ describe('popup', function TestPopup() {
         'Card has invalid height on initial zoom and new window size'
       )
     })
+
+    // TODO:
+    //  Given the content script is started.
+    //  When an external script removes the popup-tab-switcher element.
+    //  The popup should open again on the next tab switch.
   })
 })
