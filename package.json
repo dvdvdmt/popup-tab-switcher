@@ -67,7 +67,6 @@
     "babel-preset-solid": "^1.6.10",
     "eslint-plugin-react": "^7.32.2",
     "material-components-web": "^2.3.1",
-    "solid-element": "^1.6.3",
     "solid-js": "^1.6.10",
     "svg-baker-runtime": "^1.4.3",
     "vue": "^2.6.11",
