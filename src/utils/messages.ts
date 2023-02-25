@@ -8,18 +8,19 @@ type Port = Runtime.Port
 type ChromeTab = chrome.tabs.Tab
 
 export enum Message {
-  DEMO_SETTINGS = 'DEMO_SETTINGS',
   CLOSE_POPUP = 'CLOSE_POPUP',
-  SELECT_TAB = 'SELECT_TAB',
-  SWITCH_TAB = 'SWITCH_TAB',
   COMMAND = 'COMMAND',
-  E2E_SET_ZOOM = 'E2E_SET_ZOOM',
-  INITIALIZED = 'INITIALIZED',
-  GET_MODEL = 'GET_MODEL',
+  ContentScriptStarted = 'ContentScriptStarted',
+  ContentScriptStopped = 'ContentScriptStopped',
+  DEMO_SETTINGS = 'DEMO_SETTINGS',
+  E2E_IS_MESSAGING_READY = 'E2E_IS_MESSAGING_READY',
+  E2E_IS_PAGE_ACTIVE = 'E2E_IS_PAGE_ACTIVE',
   E2E_RELOAD_EXTENSION = 'E2E_RELOAD_EXTENSION',
   E2E_RELOAD_EXTENSION_FINISHED = 'E2E_RELOAD_EXTENSION_FINISHED',
-  E2E_IS_PAGE_ACTIVE = 'E2E_IS_PAGE_ACTIVE',
-  E2E_IS_MESSAGING_READY = 'E2E_IS_MESSAGING_READY',
+  E2E_SET_ZOOM = 'E2E_SET_ZOOM',
+  GET_MODEL = 'GET_MODEL',
+  SELECT_TAB = 'SELECT_TAB',
+  SWITCH_TAB = 'SWITCH_TAB',
 }
 
 export function demoSettings() {
@@ -65,8 +66,12 @@ export function e2eReloadExtensionFinished() {
   return {type: Message.E2E_RELOAD_EXTENSION_FINISHED} as const
 }
 
-export function initialized() {
-  return {type: Message.INITIALIZED} as const
+export function contentScriptStarted() {
+  return {type: Message.ContentScriptStarted} as const
+}
+
+export function contentScriptStopped() {
+  return {type: Message.ContentScriptStopped} as const
 }
 
 export function getModel() {
@@ -74,18 +79,19 @@ export function getModel() {
 }
 
 interface IMessageTypeToObjectMap {
-  [Message.DEMO_SETTINGS]: ReturnType<typeof demoSettings>
-  [Message.SWITCH_TAB]: ReturnType<typeof switchTab>
-  [Message.SELECT_TAB]: ReturnType<typeof selectTab>
   [Message.CLOSE_POPUP]: ReturnType<typeof closePopup>
   [Message.COMMAND]: ReturnType<typeof command>
-  [Message.E2E_SET_ZOOM]: ReturnType<typeof e2eSetZoom>
-  [Message.E2E_IS_PAGE_ACTIVE]: ReturnType<typeof e2eIsPageActive>
+  [Message.ContentScriptStarted]: ReturnType<typeof contentScriptStarted>
+  [Message.ContentScriptStopped]: ReturnType<typeof contentScriptStopped>
+  [Message.DEMO_SETTINGS]: ReturnType<typeof demoSettings>
   [Message.E2E_IS_MESSAGING_READY]: ReturnType<typeof e2eIsMessagingReady>
+  [Message.E2E_IS_PAGE_ACTIVE]: ReturnType<typeof e2eIsPageActive>
   [Message.E2E_RELOAD_EXTENSION]: ReturnType<typeof e2eReloadExtension>
   [Message.E2E_RELOAD_EXTENSION_FINISHED]: ReturnType<typeof e2eReloadExtensionFinished>
-  [Message.INITIALIZED]: ReturnType<typeof initialized>
+  [Message.E2E_SET_ZOOM]: ReturnType<typeof e2eSetZoom>
   [Message.GET_MODEL]: ReturnType<typeof getModel>
+  [Message.SELECT_TAB]: ReturnType<typeof selectTab>
+  [Message.SWITCH_TAB]: ReturnType<typeof switchTab>
 }
 
 export type IMessage = IMessageTypeToObjectMap[keyof IMessageTypeToObjectMap]

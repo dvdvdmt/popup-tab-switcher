@@ -195,9 +195,15 @@ async function handleTabRemove(tabId: number) {
 
 function messageHandlers(): Partial<IHandlers> {
   return {
-    [Message.INITIALIZED]: async (_m, sender) => {
+    [Message.ContentScriptStarted]: async (_m, sender) => {
+      log(`[ContentScriptStarted]`, sender.tab)
       const registry = await ServiceFactory.getTabRegistry()
       registry.addToInitialized(checkTab(sender.tab!))
+    },
+    [Message.ContentScriptStopped]: async (_m, sender) => {
+      log(`[ContentScriptStopped]`, sender.tab)
+      const registry = await ServiceFactory.getTabRegistry()
+      registry.removeFromInitialized(sender.tab!.id!)
     },
     [Message.SWITCH_TAB]: async ({selectedTab}) => {
       await activateTab(selectedTab)

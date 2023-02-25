@@ -2,7 +2,13 @@ import browser from 'webextension-polyfill'
 import {For, render, Show} from 'solid-js/web'
 import {createEffect, onCleanup, onMount} from 'solid-js'
 import styles from './popup-tab-switcher.scss'
-import {handleMessage, initialized, Message, switchTab} from '../utils/messages'
+import {
+  handleMessage,
+  contentScriptStarted,
+  Message,
+  switchTab,
+  contentScriptStopped,
+} from '../utils/messages'
 import {log} from '../utils/logger'
 import {createPopupStore} from './popup-store'
 import {TabComponent} from './tab-component'
@@ -23,12 +29,13 @@ export function PopupTabSwitcher({element}: IProps) {
   onMount(() => {
     log(`[init switcher]`)
     cleanUpListeners = setUpListeners()
-    browser.runtime.sendMessage(initialized())
+    browser.runtime.sendMessage(contentScriptStarted())
   })
 
   onCleanup(() => {
     log(`[remove switcher]`)
     cleanUpListeners()
+    browser.runtime.sendMessage(contentScriptStopped())
   })
 
   createEffect(() => {
@@ -330,7 +337,6 @@ export function initPopupTabSwitcher(): void {
   const existingEl = document.getElementById(id)
   if (existingEl) {
     existingEl.remove()
-    // document.body.removeChild(existingEl)
   }
   // NOTE:
   // Registered custom element can't use the same name in a subsequent registration
