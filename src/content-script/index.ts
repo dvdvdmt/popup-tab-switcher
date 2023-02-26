@@ -1,4 +1,4 @@
 import '@webcomponents/custom-elements' // polyfill for custom elements
-import {initPopupTabSwitcher} from './popup-tab-switcher'
+import {initPopupTabSwitcher} from './popup'
 
 initPopupTabSwitcher()

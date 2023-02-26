@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill'
 import {For, render, Show} from 'solid-js/web'
 import {createEffect, onCleanup, onMount} from 'solid-js'
-import styles from './popup-tab-switcher.scss'
+import styles from './popup.scss'
 import {
   handleMessage,
   contentScriptStarted,
@@ -11,7 +11,7 @@ import {
 } from '../utils/messages'
 import {log} from '../utils/logger'
 import {createPopupStore} from './popup-store'
-import {TabComponent} from './tab-component'
+import {PopupTab} from './popup-tab'
 import uuid from '../utils/uuid'
 
 type ITab = chrome.tabs.Tab
@@ -20,7 +20,7 @@ interface IProps {
   element: HTMLElement
 }
 
-export function PopupTabSwitcher({element}: IProps) {
+export function Popup({element}: IProps) {
   const {store, syncStoreWithBackground, openPopup, closePopup, selectNextTab} = createPopupStore()
   let isSettingsDemo = false
   let lastActiveElement: Element | null = null
@@ -63,7 +63,7 @@ export function PopupTabSwitcher({element}: IProps) {
           >
             <For each={store.tabs}>
               {(tab, index) => (
-                <TabComponent
+                <PopupTab
                   tab={tab}
                   isFirst={index() === 0}
                   isLast={index() === store.tabs.length - 1}
@@ -309,7 +309,7 @@ export class PopupTabSwitcherElement extends HTMLElement {
     this.disposeDisconnectionListener = this.initDisconnectionListener()
     // We can't render instantly in the constructor because the custom element
     // should not have properties before it is created.
-    this.disposeRoot = render(() => <PopupTabSwitcher element={this} />, this.shadowRoot)
+    this.disposeRoot = render(() => <Popup element={this} />, this.shadowRoot)
   }
 
   /**

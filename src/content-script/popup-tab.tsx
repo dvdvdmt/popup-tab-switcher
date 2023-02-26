@@ -12,7 +12,7 @@ interface IProps {
   textScrollDelay: number
 }
 
-export function TabComponent(props: IProps) {
+export function PopupTab(props: IProps) {
   let titleElement: HTMLElement
 
   const scrollLongTextOfSelectedTab = () => {
