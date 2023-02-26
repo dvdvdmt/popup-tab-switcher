@@ -44,6 +44,7 @@ describe('popup', function TestPopup() {
     })
 
     it('opens on file pages', async () => {
+      // TODO: await popupOpens(await helper.openPage('file.pdf'))
       await popupOpens(await helper.openPage('file.png'))
       await popupOpens(await helper.openPage('file.js'))
     })

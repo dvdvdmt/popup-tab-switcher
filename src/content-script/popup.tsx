@@ -171,15 +171,6 @@ export function Popup({element}: IProps) {
         // Because there is no way to handle key pressings when a page has no focus.
         // https://stackoverflow.com/a/20940788/3167855
         if (!document.hasFocus()) {
-          // When PDF file opens 'document.hasFocus() === false' no mater if the page
-          // focused or not. This enables auto switching timeout which must not happen.
-          // To prevent that we can switch to another tab instantly for all PDFs and
-          // other locally opened files.
-          if (document.contentType !== 'text/html') {
-            switchTo(store.tabs[store.selectedTabIndex])
-            return
-          }
-
           disposeAutoSwitchingTimeout()
 
           const timeout = window.setTimeout(() => {
@@ -194,6 +185,8 @@ export function Popup({element}: IProps) {
     })
     browser.runtime.onMessage.addListener(messageListener)
 
+    const disposeFixUnfocusedDocumentInPdfFiles = fixUnfocusedDocumentInPdfFiles()
+
     return () => {
       element.removeEventListener('click', onOverlayClick)
       window.removeEventListener('keyup', onKeyUp)
@@ -201,6 +194,7 @@ export function Popup({element}: IProps) {
       window.removeEventListener('blur', onWindowBlur)
       window.removeEventListener('resize', onWindowResize)
       browser.runtime.onMessage.removeListener(messageListener)
+      disposeFixUnfocusedDocumentInPdfFiles()
     }
   }
 
@@ -211,6 +205,7 @@ export function Popup({element}: IProps) {
   }
 
   function onKeyDown(event: KeyboardEvent) {
+    log(`[onKeyDown event]`, event)
     if (!store.isOpen) {
       return
     }
@@ -230,6 +225,7 @@ export function Popup({element}: IProps) {
   }
 
   function onKeyUp(event: KeyboardEvent): void {
+    log(`[onKeyUp event]`, event)
     if (!store.isOpen || store.settings.isStayingOpen) {
       return
     }
@@ -272,6 +268,29 @@ export function Popup({element}: IProps) {
       } catch (e) {}
     }
     lastActiveElement = null
+  }
+
+  /**
+   * When PDF file opens 'document.hasFocus() === false' which turns ON
+   * the auto switching behaviour by timer.
+   * This fix force focus the PDF embed element and solves the issue.
+   * More on this: https://stackoverflow.com/questions/58702747/window-events-with-pdf-document-via-chrome/75570258#75570258
+   */
+  function fixUnfocusedDocumentInPdfFiles(): () => void {
+    if (document.contentType !== 'application/pdf') {
+      return () => {}
+    }
+    const pdfElement = document.querySelector<HTMLEmbedElement>('embed[type="application/pdf"]')
+    restoreFocus()
+    pdfElement?.addEventListener('blur', restoreFocus)
+
+    return () => {
+      pdfElement?.removeEventListener('blur', restoreFocus)
+    }
+
+    function restoreFocus() {
+      pdfElement?.focus()
+    }
   }
 }
 

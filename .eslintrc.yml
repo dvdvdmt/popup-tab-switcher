@@ -51,6 +51,7 @@ rules:
   object-curly-newline: off
   indent: off
   max-len: off
+  no-unused-expressions: off
   semi: off
   consistent-return: off
 overrides:

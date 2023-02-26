@@ -115,6 +115,9 @@ async function handleCommand(command: string) {
     return
   }
   if (await initializeContentScript(active)) {
+    // This forced activation solves the problem with document.contentType === 'application/pdf'
+    // when the document.hasFocus() returns false.
+    await activateTab(activeTab as ChromeTab)
     // send the command to the content script
     await browser.tabs.sendMessage(active.id, selectTab(command === Command.NEXT ? 1 : -1))
   } else {
