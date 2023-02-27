@@ -4,6 +4,7 @@ import {TabCornerIcon, TabIcon} from './icons'
 
 interface IProps {
   isSelected: boolean
+  isTimeoutShown: boolean
   isLast: boolean
   isFirst: boolean
   tab: chrome.tabs.Tab
@@ -13,9 +14,45 @@ interface IProps {
 }
 
 export function PopupTab(props: IProps) {
+  let tabElement: HTMLDivElement
   let titleElement: HTMLElement
 
-  const scrollLongTextOfSelectedTab = () => {
+  createEffect(() => {
+    if (props.isSelected) {
+      scrollLongTextOfSelectedTab()
+      tabElement.focus()
+    } else {
+      titleElement.getAnimations().forEach((animation) => animation.cancel())
+    }
+  })
+
+  return (
+    <div
+      ref={tabElement!}
+      tabindex="-1"
+      class="tab"
+      classList={{
+        tab_selected: props.isSelected,
+      }}
+      onClick={props.onClick}
+    >
+      <Show when={props.isTimeoutShown}>
+        <div class="tab__timeoutIndicator" />
+      </Show>
+      <TabIcon url={props.tab.url} />
+      <Show when={!props.isFirst}>
+        <TabCornerIcon type="top" />
+      </Show>
+      <Show when={!props.isLast}>
+        <TabCornerIcon type="bottom" />
+      </Show>
+      <span ref={titleElement!} class="tab__text">
+        {props.tab.title}
+      </span>
+    </div>
+  )
+
+  function scrollLongTextOfSelectedTab() {
     const textOverflow = titleElement.scrollWidth - titleElement.offsetWidth
     if (textOverflow > 0) {
       const scrollTime = (textOverflow / titleElement.offsetWidth) * props.textScrollCoefficient
@@ -47,37 +84,4 @@ export function PopupTab(props: IProps) {
       )
     }
   }
-
-  createEffect(() => {
-    if (props.isSelected) {
-      scrollLongTextOfSelectedTab()
-    } else {
-      titleElement.getAnimations().forEach((animation) => animation.cancel())
-    }
-  })
-
-  return (
-    <div
-      tabindex="-1"
-      class="tab"
-      classList={{
-        tab_selected: props.isSelected,
-      }}
-      onClick={props.onClick}
-    >
-      <Show when={props.isSelected && !document.hasFocus()}>
-        <div class="tab__timeoutIndicator" />
-      </Show>
-      <TabIcon url={props.tab.url} />
-      <Show when={!props.isFirst}>
-        <TabCornerIcon type="top" />
-      </Show>
-      <Show when={!props.isLast}>
-        <TabCornerIcon type="bottom" />
-      </Show>
-      <span ref={titleElement!} class="tab__text">
-        {props.tab.title}
-      </span>
-    </div>
-  )
 }

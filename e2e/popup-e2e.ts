@@ -462,6 +462,7 @@ describe('popup', function TestPopup() {
       activeTab = await helper.switchTab()
       tabTitle = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual('Page with iframe', tabTitle)
+      // TODO: Restore the selection properly in iframes
     })
 
     it('adds tabs opened by Ctrl+Click to the registry', async () => {

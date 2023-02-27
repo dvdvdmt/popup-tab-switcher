@@ -68,6 +68,7 @@ export function Popup({element}: IProps) {
                   isFirst={index() === 0}
                   isLast={index() === store.tabs.length - 1}
                   isSelected={index() === store.selectedTabIndex}
+                  isTimeoutShown={index() === store.selectedTabIndex && !document.hasFocus()}
                   onClick={() => {
                     switchTo(tab)
                   }}
@@ -236,8 +237,8 @@ export function Popup({element}: IProps) {
     }
   }
 
-  function onWindowBlur(): void {
-    if (isSettingsDemo) {
+  function onWindowBlur(event: Event): void {
+    if (event.target !== window || isSettingsDemo) {
       return
     }
     closePopup()
