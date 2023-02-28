@@ -34,10 +34,10 @@ export function createPopupStore() {
     const model: IGetModelResponse = await browser.runtime.sendMessage(getModel())
     log(`[syncStoreWithBackground model]`, model)
     setStore({
-      settings: model.settings,
       zoomFactor: model.zoomFactor,
     })
     // This makes DOM updates efficient https://github.com/solidjs/solid/discussions/366#discussioncomment-5004420
+    setStore('settings', reconcile(model.settings))
     setStore('tabs', reconcile(model.tabs))
   }
 

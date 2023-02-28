@@ -22,19 +22,21 @@ interface IProps {
 
 export function Popup({element}: IProps) {
   const {store, syncStoreWithBackground, openPopup, closePopup, selectNextTab} = createPopupStore()
+  // Prevents auto switching when the popup is opened.
   let isSettingsDemo = false
+  // Stores the last active element before the popup was opened.
   let lastActiveElement: Element | null = null
   let cleanUpListeners = () => {}
   let disposeAutoSwitchingTimeout: () => void = () => {}
 
   onMount(() => {
-    log(`[init switcher]`)
+    log(`[start switcher]`)
     cleanUpListeners = setUpListeners()
     browser.runtime.sendMessage(contentScriptStarted())
   })
 
   onCleanup(() => {
-    log(`[remove switcher]`)
+    log(`[stop switcher]`)
     cleanUpListeners()
     disposeAutoSwitchingTimeout()
     browser.runtime.sendMessage(contentScriptStopped())
@@ -43,7 +45,7 @@ export function Popup({element}: IProps) {
   createEffect(() => {
     log(`[render switcher]`)
     if (store.isOpen) {
-      lastActiveElement = document.activeElement
+      lastActiveElement = lastActiveElement ?? document.activeElement
       showOverlay()
     } else {
       element.style.display = 'none'
@@ -245,6 +247,7 @@ export function Popup({element}: IProps) {
   }
 
   function restoreSelectionAndFocus() {
+    console.log(`[restoreSelectionAndFocus lastActiveElement]`, lastActiveElement)
     if (!lastActiveElement) {
       return
     }
