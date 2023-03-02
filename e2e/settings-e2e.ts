@@ -155,7 +155,7 @@ describe('settings', function TestSettings() {
     const settingsPage = await helper.openPage('settings')
     await setSettings(settingsPage)
     const page = await helper.openPage('page-with-long-title.html')
-    await helper.switchTab()
+    await helper.selectTabForward()
     let actual = await page.queryPopup('.card', getSettingsFromContentScript())
     assert.deepStrictEqual(
       actual,
@@ -168,6 +168,7 @@ describe('settings', function TestSettings() {
       'settings apply to the content script popup'
     )
 
+    await settingsPage.bringToFront()
     await settingsPage.click('#setDefaults')
     await page.bringToFront()
     await helper.selectTabForward()
