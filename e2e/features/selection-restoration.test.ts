@@ -57,9 +57,6 @@ describe('Selection restoration', function () {
       `If you put off everything till you're sure of it, you'll never get anything done.`
     )
   })
-  //   Given the selected text.
-  //   When the popup is opened and closed.
-  //   Then the text should be selected.
   //
   // restores selection of the text in "input" element
   //   Given the selected text in the "input" element.
