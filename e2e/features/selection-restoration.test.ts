@@ -1,3 +1,4 @@
+import assert from 'assert'
 import {closeTabs, startPuppeteer, stopPuppeteer, timeoutDurationMS} from '../utils/puppeteer-utils'
 import {PuppeteerPopupHelper} from '../utils/puppeteer-popup-helper'
 
@@ -17,11 +18,18 @@ describe('Selection restoration', function () {
   after(stopPuppeteer)
   beforeEach(closeTabs)
 
-  // Test cases:
-  // returns focus to the initially focused element
-  //   Given the focused button.
-  //   When the popup is opened and closed.
-  //   Then the button should be focused.
+  it(`returns focus to the initially focused element`, async () => {
+    // Given the focused button.
+    const page = await helper.openPage('control-elements.html')
+    await page.focus('#fourth-button')
+
+    // When the popup is opened and closed.
+    await helper.selectTabForward()
+    await page.keyboard.press('Escape')
+
+    // Then the button should be focused.
+    assert.strictEqual(await page.evaluate(() => document.activeElement?.id), 'fourth-button')
+  })
   //
   // restores selection of the non-editable text
   //   Given the selected text.

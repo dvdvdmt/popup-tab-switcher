@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Control elements</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        font-family: Avenir Next, Avenir, Noto Sans, Arial, Helvetica, Helvetica Neue, sans-serif;
+      }
+
+      body {
+        background-color: #f2f2f2;
+      }
+
+      h2 {
+        margin-top: 32px;
+        margin-bottom: 8px;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .section {
+        max-width: 768px;
+        margin: 0 auto;
+        padding: 0 10px;
+      }
+
+      .text {
+        padding: 4px 8px;
+        border: 1px solid lightgray;
+        border-radius: 4px;
+        min-height: 100px;
+        width: 100%;
+        background-color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="section">
+      <div>
+        <h2>Five buttons</h2>
+        <button>One</button>
+        <button>Two</button>
+        <button>Three</button>
+        <button id="fourth-button">Four</button>
+        <button>Five</button>
+      </div>
+      <div>
+        <h2>Text</h2>
+        <div class="text" contenteditable="true">
+          If you put off everything till you're sure of it, you'll never get anything done.
+        </div>
+      </div>
+      <div>
+        <h2>Output</h2>
+        <div class="text">
+          <div class="textOutput_text"></div>
+          <div class="textOutput_search"></div>
+          <div class="textOutput_pattern"></div>
+        </div>
+      </div>
+      <div class="settings">
+        <form class="solutionOptions">
+          <span>Mental model:</span>
+          <label
+            ><input type="radio" name="solution" value="ExpandingFrame" checked />Expanding
+            frame</label
+          >
+          <label><input type="radio" name="solution" value="SlidingFrame" />Sliding frame</label>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
