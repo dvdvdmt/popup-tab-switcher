@@ -13,6 +13,7 @@ import {log} from '../utils/logger'
 import {createPopupStore} from './popup-store'
 import {PopupTab} from './popup-tab'
 import uuid from '../utils/uuid'
+import {getSelectionRanges} from './utils/get-slection-ranges'
 
 type ITab = chrome.tabs.Tab
 
@@ -26,6 +27,7 @@ export function Popup({element}: IProps) {
   let isSettingsDemo = false
   // Stores the last active element before the popup was opened.
   let lastActiveElement: Element | null = null
+  let lastSelectionRanges: Range[] = []
   let cleanUpListeners = () => {}
   let disposeAutoSwitchingTimeout: () => void = () => {}
 
@@ -45,7 +47,7 @@ export function Popup({element}: IProps) {
   createEffect(() => {
     log(`[render switcher]`)
     if (store.isOpen) {
-      lastActiveElement = lastActiveElement ?? document.activeElement
+      preserveSelectionAndFocus()
       showOverlay()
     } else {
       element.style.display = 'none'
@@ -247,13 +249,24 @@ export function Popup({element}: IProps) {
   }
 
   function restoreSelectionAndFocus() {
-    console.log(`[restoreSelectionAndFocus lastActiveElement]`, lastActiveElement)
+    log(`[restoreSelectionAndFocus lastActiveElement]`, lastActiveElement)
     if (!lastActiveElement) {
       return
     }
+
     if (lastActiveElement instanceof HTMLElement) {
       lastActiveElement.focus({preventScroll: true})
     }
+
+    if (lastSelectionRanges.length > 0) {
+      const selection = window.getSelection()
+      if (selection) {
+        selection.removeAllRanges()
+        lastSelectionRanges.forEach((range) => selection.addRange(range))
+      }
+      lastSelectionRanges = []
+    }
+
     // TODO: Restore selection properly.
     //  Not only input and textarea elements can have selection.
     //  For example, contenteditable elements can have selection too.
@@ -295,6 +308,12 @@ export function Popup({element}: IProps) {
     function restoreFocus() {
       pdfElement?.focus()
     }
+  }
+
+  function preserveSelectionAndFocus() {
+    lastActiveElement = lastActiveElement ?? document.activeElement
+    lastSelectionRanges =
+      lastSelectionRanges.length > 0 ? lastSelectionRanges : getSelectionRanges()
   }
 }
 

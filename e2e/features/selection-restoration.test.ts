@@ -20,7 +20,7 @@ describe('Selection restoration', function () {
 
   it(`returns focus to the initially focused element`, async () => {
     // Given the focused button.
-    const page = await helper.openPage('control-elements.html')
+    const page = await helper.openPage('selection-restoration.html')
     await page.focus('#fourth-button')
 
     // When the popup is opened and closed.
@@ -30,8 +30,33 @@ describe('Selection restoration', function () {
     // Then the button should be focused.
     assert.strictEqual(await page.evaluate(() => document.activeElement?.id), 'fourth-button')
   })
-  //
-  // restores selection of the non-editable text
+
+  it(`restores selection of the non-editable text`, async () => {
+    // Given the selected text.
+    const page = await helper.openPage('selection-restoration.html')
+    await page.evaluate(() => {
+      const element = document.querySelector('#non-editable-text')
+      if (element) {
+        const range = document.createRange()
+        range.selectNodeContents(element)
+        const selection = window.getSelection()
+        if (selection) {
+          selection.removeAllRanges()
+          selection.addRange(range)
+        }
+      }
+    })
+
+    // When the popup is opened and closed.
+    await helper.selectTabForward()
+    await page.mouse.click(0, 0)
+
+    // Then the text should be selected.
+    assert.strictEqual(
+      await page.evaluate(() => window.getSelection()?.toString()),
+      `If you put off everything till you're sure of it, you'll never get anything done.`
+    )
+  })
   //   Given the selected text.
   //   When the popup is opened and closed.
   //   Then the text should be selected.
