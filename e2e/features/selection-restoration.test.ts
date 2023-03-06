@@ -76,11 +76,25 @@ describe('Selection restoration', function () {
     assert.strictEqual(await page.evaluate(() => window.getSelection()?.toString()), `Hel`)
   })
 
-  // restores selection of the text in "textarea" element
-  //   Given the selected text in the "textarea" element.
-  //   When the popup is opened and closed.
-  //   Then the text should be selected.
-  //
+  it(`restores selection of the text in "textarea" element`, async () => {
+    // Given the selected text in the "textarea" element.
+    const page = await helper.openPage('selection-restoration.html')
+    await page.focus('#textarea')
+    await page.keyboard.press('End')
+    await page.keyboard.down('Shift')
+    await page.keyboard.press('ArrowLeft')
+    await page.keyboard.press('ArrowLeft')
+    await page.keyboard.press('ArrowLeft')
+    await page.keyboard.up('Shift')
+
+    // When the popup is opened and closed.
+    await helper.selectTabForward()
+    await page.mouse.click(0, 0)
+
+    // Then the text should be selected.
+    assert.strictEqual(await page.evaluate(() => window.getSelection()?.toString()), `ld!`)
+  })
+
   // restores selection of the text in "contenteditable" element
   //   Given the selected text in the "contenteditable" element.
   //   When the popup is opened and closed.
