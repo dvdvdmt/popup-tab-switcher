@@ -14,6 +14,7 @@ import {createPopupStore} from './popup-store'
 import {PopupTab} from './popup-tab'
 import uuid from '../utils/uuid'
 import {getSelectionRanges} from './utils/get-slection-ranges'
+import {getInputElementSelection, IInputElementSelection} from './utils/get-input-element-selection'
 
 type ITab = chrome.tabs.Tab
 
@@ -28,6 +29,7 @@ export function Popup({element}: IProps) {
   // Stores the last active element before the popup was opened.
   let lastActiveElement: Element | null = null
   let lastSelectionRanges: Range[] = []
+  let lastInputElementSelection: IInputElementSelection | null = null
   let cleanUpListeners = () => {}
   let disposeAutoSwitchingTimeout: () => void = () => {}
 
@@ -47,7 +49,7 @@ export function Popup({element}: IProps) {
   createEffect(() => {
     log(`[render switcher]`)
     if (store.isOpen) {
-      preserveSelectionAndFocus()
+      saveSelectionAndFocusState()
       showOverlay()
     } else {
       element.style.display = 'none'
@@ -248,12 +250,26 @@ export function Popup({element}: IProps) {
     closePopup()
   }
 
+  // TODO: Move to SelectionAndFocus module.
   function restoreSelectionAndFocus() {
     log(`[restoreSelectionAndFocus lastActiveElement]`, lastActiveElement)
     if (!lastActiveElement) {
       return
     }
 
+    // Handle input and textarea elements.
+    if (lastInputElementSelection) {
+      const {element: inputElement, end, direction, start} = lastInputElementSelection
+      try {
+        inputElement.focus({preventScroll: true})
+        inputElement.setSelectionRange(start, end, direction)
+        // eslint-disable-next-line no-empty
+      } catch (e) {}
+      resetSelectionAndFocusState()
+      return
+    }
+
+    // Handle contenteditable elements.
     if (lastActiveElement instanceof HTMLElement) {
       lastActiveElement.focus({preventScroll: true})
     }
@@ -264,27 +280,9 @@ export function Popup({element}: IProps) {
         selection.removeAllRanges()
         lastSelectionRanges.forEach((range) => selection.addRange(range))
       }
-      lastSelectionRanges = []
     }
 
-    // TODO: Restore selection properly.
-    //  Not only input and textarea elements can have selection.
-    //  For example, contenteditable elements can have selection too.
-    if (
-      lastActiveElement instanceof HTMLInputElement ||
-      lastActiveElement instanceof HTMLTextAreaElement
-    ) {
-      const {selectionStart, selectionEnd, selectionDirection} = lastActiveElement
-      try {
-        lastActiveElement.setSelectionRange(
-          selectionStart,
-          selectionEnd,
-          selectionDirection as 'forward' | 'backward' | 'none'
-        )
-        // eslint-disable-next-line no-empty
-      } catch (e) {}
-    }
-    lastActiveElement = null
+    resetSelectionAndFocusState()
   }
 
   /**
@@ -310,10 +308,18 @@ export function Popup({element}: IProps) {
     }
   }
 
-  function preserveSelectionAndFocus() {
+  function saveSelectionAndFocusState() {
     lastActiveElement = lastActiveElement ?? document.activeElement
     lastSelectionRanges =
       lastSelectionRanges.length > 0 ? lastSelectionRanges : getSelectionRanges()
+    lastInputElementSelection =
+      lastInputElementSelection ?? getInputElementSelection(lastActiveElement)
+  }
+
+  function resetSelectionAndFocusState() {
+    lastActiveElement = null
+    lastSelectionRanges = []
+    lastInputElementSelection = null
   }
 }
 

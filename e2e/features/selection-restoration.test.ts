@@ -57,12 +57,25 @@ describe('Selection restoration', function () {
       `If you put off everything till you're sure of it, you'll never get anything done.`
     )
   })
-  //
-  // restores selection of the text in "input" element
-  //   Given the selected text in the "input" element.
-  //   When the popup is opened and closed.
-  //   Then the text should be selected.
-  //
+
+  it(`restores selection of the text in "input" element`, async () => {
+    // Given the selected text in the "input" element.
+    const page = await helper.openPage('selection-restoration.html')
+    await page.focus('#input')
+    await page.keyboard.down('Shift')
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.up('Shift')
+
+    // When the popup is opened and closed.
+    await helper.selectTabForward()
+    await page.mouse.click(0, 0)
+
+    // Then the text should be selected.
+    assert.strictEqual(await page.evaluate(() => window.getSelection()?.toString()), `Hel`)
+  })
+
   // restores selection of the text in "textarea" element
   //   Given the selected text in the "textarea" element.
   //   When the popup is opened and closed.
