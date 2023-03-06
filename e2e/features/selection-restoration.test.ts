@@ -1,5 +1,5 @@
 import assert from 'assert'
-import {closeTabs, startPuppeteer, stopPuppeteer, timeoutDurationMS} from '../utils/puppeteer-utils'
+import {startPuppeteer, stopPuppeteer, timeoutDurationMS} from '../utils/puppeteer-utils'
 import {PuppeteerPopupHelper} from '../utils/puppeteer-popup-helper'
 
 /**
@@ -16,7 +16,6 @@ describe('Selection restoration', function () {
   )
 
   after(stopPuppeteer)
-  beforeEach(closeTabs)
 
   it(`returns focus to the initially focused element`, async () => {
     // Given the focused button.
