@@ -95,12 +95,25 @@ describe('Selection restoration', function () {
     assert.strictEqual(await page.evaluate(() => window.getSelection()?.toString()), `ld!`)
   })
 
-  // restores selection of the text in "contenteditable" element
-  //   Given the selected text in the "contenteditable" element.
-  //   When the popup is opened and closed.
-  //   Then the text should be selected.
-  //
-  // restores selection of the text inside "iframe" element
+  it(`restores selection of the text in "contenteditable" element`, async () => {
+    // Given the selected text in the "contenteditable" element.
+    const page = await helper.openPage('selection-restoration.html')
+    await page.focus('#content-editable')
+    await page.keyboard.down('Shift')
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.up('Shift')
+
+    // When the popup is opened and closed.
+    await helper.selectTabForward()
+    await page.mouse.click(0, 0)
+
+    // Then the text should be selected.
+    assert.strictEqual(await page.evaluate(() => window.getSelection()?.toString()), `Con`)
+  })
+
+  // TODO: restores selection of the text inside "iframe" element
   //   Given the selected text inside the "iframe" element.
   //   When the popup is opened and closed.
   //   Then the text should be selected.
