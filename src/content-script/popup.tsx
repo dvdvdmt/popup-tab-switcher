@@ -3,18 +3,17 @@ import {For, render, Show} from 'solid-js/web'
 import {createEffect, onCleanup, onMount} from 'solid-js'
 import styles from './popup.scss'
 import {
-  handleMessage,
   contentScriptStarted,
+  contentScriptStopped,
+  handleMessage,
   Message,
   switchTab,
-  contentScriptStopped,
 } from '../utils/messages'
 import {log} from '../utils/logger'
 import {createPopupStore} from './popup-store'
 import {PopupTab} from './popup-tab'
 import uuid from '../utils/uuid'
-import {getSelectionRanges} from './utils/get-slection-ranges'
-import {getInputElementSelection, IInputElementSelection} from './utils/get-input-element-selection'
+import {SelectionAndFocus} from './selection-and-focus'
 
 type ITab = chrome.tabs.Tab
 
@@ -27,9 +26,7 @@ export function Popup({element}: IProps) {
   // Prevents auto switching when the popup is opened.
   let isSettingsDemo = false
   // Stores the last active element before the popup was opened.
-  let lastActiveElement: Element | null = null
-  let lastSelectionRanges: Range[] = []
-  let lastInputElementSelection: IInputElementSelection | null = null
+  const selectionAndFocus = new SelectionAndFocus()
   let cleanUpListeners = () => {}
   let disposeAutoSwitchingTimeout: () => void = () => {}
 
@@ -49,11 +46,11 @@ export function Popup({element}: IProps) {
   createEffect(() => {
     log(`[render switcher]`)
     if (store.isOpen) {
-      saveSelectionAndFocusState()
+      selectionAndFocus.saveState()
       showOverlay()
     } else {
       element.style.display = 'none'
-      restoreSelectionAndFocus()
+      selectionAndFocus.apply()
     }
   })
 
@@ -250,41 +247,6 @@ export function Popup({element}: IProps) {
     closePopup()
   }
 
-  // TODO: Move to SelectionAndFocus module.
-  function restoreSelectionAndFocus() {
-    log(`[restoreSelectionAndFocus lastActiveElement]`, lastActiveElement)
-    if (!lastActiveElement) {
-      return
-    }
-
-    // Handle input and textarea elements.
-    if (lastInputElementSelection) {
-      const {element: inputElement, end, direction, start} = lastInputElementSelection
-      try {
-        inputElement.focus({preventScroll: true})
-        inputElement.setSelectionRange(start, end, direction)
-        // eslint-disable-next-line no-empty
-      } catch (e) {}
-      resetSelectionAndFocusState()
-      return
-    }
-
-    // Handle contenteditable elements.
-    if (lastActiveElement instanceof HTMLElement) {
-      lastActiveElement.focus({preventScroll: true})
-    }
-
-    if (lastSelectionRanges.length > 0) {
-      const selection = window.getSelection()
-      if (selection) {
-        selection.removeAllRanges()
-        lastSelectionRanges.forEach((range) => selection.addRange(range))
-      }
-    }
-
-    resetSelectionAndFocusState()
-  }
-
   /**
    * When PDF file opens 'document.hasFocus() === false' which turns ON
    * the auto switching behaviour by timer.
@@ -306,20 +268,6 @@ export function Popup({element}: IProps) {
     function restoreFocus() {
       pdfElement?.focus()
     }
-  }
-
-  function saveSelectionAndFocusState() {
-    lastActiveElement = lastActiveElement ?? document.activeElement
-    lastSelectionRanges =
-      lastSelectionRanges.length > 0 ? lastSelectionRanges : getSelectionRanges()
-    lastInputElementSelection =
-      lastInputElementSelection ?? getInputElementSelection(lastActiveElement)
-  }
-
-  function resetSelectionAndFocusState() {
-    lastActiveElement = null
-    lastSelectionRanges = []
-    lastInputElementSelection = null
   }
 }
 
