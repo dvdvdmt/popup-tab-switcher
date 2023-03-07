@@ -76,12 +76,12 @@
       </div>
       <div>
         <h2>Editable iframe</h2>
-        <iframe id="editable-iframe" name="editable-iframe"></iframe>
+        <iframe id="iframe"></iframe>
         <script>
-          const editableIframe = document.getElementById('editable-iframe')
-          const doc = editableIframe.contentWindow.document
+          const editableIframe = document.getElementById('iframe')
+          const doc = editableIframe.contentDocument
           doc.open()
-          doc.write(`<input id="input" value="Text in the iframe" />`)
+          doc.write(`<input id="iframe-input" value="Text in the iframe" />`)
           doc.close()
         </script>
       </div>

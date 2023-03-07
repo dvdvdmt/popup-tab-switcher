@@ -112,8 +112,25 @@ describe('Selection restoration', function () {
     assert.strictEqual(await page.evaluate(() => window.getSelection()?.toString()), `Con`)
   })
 
-  // TODO: restores selection of the text inside "iframe" element
-  //   Given the selected text inside the "iframe" element.
-  //   When the popup is opened and closed.
-  //   Then the text should be selected.
+  it(`restores selection of the text inside "iframe" element`, async () => {
+    // Given the selected text inside the "iframe" element.
+    const page = await helper.openPage('selection-restoration.html')
+    const iframe = page.frames().find((frame) => frame.name() === 'iframe')!
+    await iframe.focus('#iframe-input')
+    await page.keyboard.down('Shift')
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.up('Shift')
+
+    // When the popup is opened and closed.
+    await helper.selectTabForward()
+    await page.mouse.click(0, 0)
+
+    // Then the text should be selected.
+    assert.strictEqual(await iframe.evaluate(() => window.getSelection()?.toString()), `Tex`)
+    // The previous assertion is not enough to check the selection inside the iframe.
+    // We need also check that the input is focused.
+    assert.strictEqual(await iframe.evaluate(() => document.activeElement?.id), 'iframe-input')
+  })
 })
