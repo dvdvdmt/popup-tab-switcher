@@ -74,6 +74,17 @@
         <h2>Content editable element</h2>
         <div class="text" id="content-editable" contenteditable>Content editable</div>
       </div>
+      <div>
+        <h2>Editable iframe</h2>
+        <iframe id="editable-iframe" name="editable-iframe"></iframe>
+        <script>
+          const editableIframe = document.getElementById('editable-iframe')
+          const doc = editableIframe.contentWindow.document
+          doc.open()
+          doc.write(`<input id="input" value="Text in the iframe" />`)
+          doc.close()
+        </script>
+      </div>
     </div>
   </body>
 </html>
