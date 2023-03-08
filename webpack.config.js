@@ -19,7 +19,7 @@ const conf = {
 
   entry: {
     background: './src/background.ts',
-    content: './src/content.ts',
+    content: './src/content-script/index.ts',
     settings: {
       import: './src/settings/index.js',
       filename: 'settings/index.js',
@@ -34,9 +34,20 @@ const conf = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
-        use: 'ts-loader',
         exclude: nodeModulesDir,
+        test: /\.tsx?$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            babelrc: false,
+            configFile: false,
+            presets: [
+              ['@babel/preset-env', {targets: 'last 2 chrome version'}],
+              'babel-preset-solid',
+              '@babel/preset-typescript',
+            ],
+          },
+        },
       },
       {
         test: /\.vue$/,
@@ -103,7 +114,7 @@ const conf = {
   },
 
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.ts', '.tsx', '.js'],
   },
 }
 

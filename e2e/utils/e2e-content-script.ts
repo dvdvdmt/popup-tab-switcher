@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill'
 import {
   IMessageFromContentScript,
   IMessageFromNewContentScript,
@@ -24,7 +23,7 @@ function messageFromNewMe(): IMessageFromNewContentScript {
 async function sendMessageToBackground(e: MessageEvent<IMessagePackage>): Promise<any> {
   let response: any
   try {
-    response = await browser.runtime.sendMessage(e.data.message)
+    response = await chrome.runtime.sendMessage(e.data.message)
   } catch (err) {
     response = false
   }

@@ -14,7 +14,8 @@ import {checkTab, ITab} from './utils/check-tab'
 import {log} from './utils/logger'
 import {ServiceFactory} from './service-factory'
 
-import Tab = Tabs.Tab
+type Tab = Tabs.Tab
+type ChromeTab = chrome.tabs.Tab
 
 let isTabActivationInProcess = false
 
@@ -96,7 +97,7 @@ async function switchToPreviousTab() {
   const registry = await ServiceFactory.getTabRegistry()
   const previousTab = registry.getPreviouslyActive()
   if (previousTab) {
-    await activateTab(previousTab)
+    await activateTab(previousTab as ChromeTab)
   }
 }
 
@@ -114,6 +115,9 @@ async function handleCommand(command: string) {
     return
   }
   if (await initializeContentScript(active)) {
+    // This forced activation solves the problem with document.contentType === 'application/pdf'
+    // when the document.hasFocus() returns false.
+    await activateTab(activeTab as ChromeTab)
     // send the command to the content script
     await browser.tabs.sendMessage(active.id, selectTab(command === Command.NEXT ? 1 : -1))
   } else {
@@ -187,16 +191,22 @@ async function handleTabRemove(tabId: number) {
     const currentTab = registry.getActive()
     if (currentTab) {
       log(`[handleTabRemove will activate tab]`, currentTab.id, currentTab.title)
-      await activateTab(currentTab)
+      await activateTab(currentTab as ChromeTab)
     }
   }
 }
 
 function messageHandlers(): Partial<IHandlers> {
   return {
-    [Message.INITIALIZED]: async (_m, sender) => {
+    [Message.ContentScriptStarted]: async (_m, sender) => {
+      log(`[ContentScriptStarted]`, sender.tab)
       const registry = await ServiceFactory.getTabRegistry()
       registry.addToInitialized(checkTab(sender.tab!))
+    },
+    [Message.ContentScriptStopped]: async (_m, sender) => {
+      log(`[ContentScriptStopped]`, sender.tab)
+      const registry = await ServiceFactory.getTabRegistry()
+      registry.removeFromInitialized(sender.tab!.id!)
     },
     [Message.SWITCH_TAB]: async ({selectedTab}) => {
       await activateTab(selectedTab)
@@ -213,7 +223,7 @@ function messageHandlers(): Partial<IHandlers> {
       if (isCodeExecutionForbidden(active)) {
         const previousNormalTab = registry.findBackward((tab) => !isCodeExecutionForbidden(tab))
         if (previousNormalTab) {
-          await activateTab(previousNormalTab)
+          await activateTab(previousNormalTab as ChromeTab)
         }
         return
       }
@@ -227,7 +237,7 @@ function messageHandlers(): Partial<IHandlers> {
       const settings = await ServiceFactory.getSettings()
       const registry = await ServiceFactory.getTabRegistry()
       return {
-        tabs: registry.getTabsToShow(),
+        tabs: registry.getTabsToShow() as chrome.tabs.Tab[],
         settings,
         zoomFactor: await browser.tabs.getZoom(),
       }
@@ -257,7 +267,7 @@ async function getActiveTab(): Promise<Tab | undefined> {
   return activeTab
 }
 
-async function activateTab({id, windowId}: ITab) {
+async function activateTab({id, windowId}: ChromeTab) {
   isTabActivationInProcess = true
   try {
     // The tab can already be removed from the browser, for example when a user quickly closes multiple tabs.

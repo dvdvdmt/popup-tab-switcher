@@ -17,7 +17,7 @@ declare module '*.svg' {
   export default content
 }
 
-declare module '*popup-tab-switcher.scss' {
+declare module '*.scss' {
   const content: string
   export default content
 }

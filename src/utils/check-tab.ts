@@ -1,6 +1,6 @@
-import {Tabs} from 'webextension-polyfill'
+import type {Tabs} from 'webextension-polyfill'
 
-import Tab = Tabs.Tab
+type Tab = Tabs.Tab
 
 /**
  * This interface guarantees the presence of potentially undefined fields in a tab object
@@ -13,6 +13,7 @@ export interface ITab extends Tab {
   windowId: number
 }
 
+// TODO: Remove this function because it misleads the consumers of the API
 export function checkTab(tab: Tab): ITab {
   if (!tab.id) {
     console.warn('The tab.id is empty', tab)

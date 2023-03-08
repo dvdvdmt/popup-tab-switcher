@@ -24,6 +24,6 @@ function getIsPageFocusedPromise(): Promise<true> {
       } else {
         testAgain(attempt + 1, resolve, reject)
       }
-    })
+    }, 10)
   }
 }

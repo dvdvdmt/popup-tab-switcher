@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Selection restoration playground</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        font-family: Avenir Next, Avenir, Noto Sans, Arial, Helvetica, Helvetica Neue, sans-serif;
+      }
+
+      body {
+        background-color: #f2f2f2;
+      }
+
+      h2 {
+        margin-top: 32px;
+        margin-bottom: 8px;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .section {
+        max-width: 768px;
+        margin: 0 auto;
+        padding: 0 10px;
+      }
+
+      .text {
+        padding: 4px 8px;
+        border: 1px solid lightgray;
+        border-radius: 4px;
+        min-height: 100px;
+        width: 100%;
+        background-color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="section">
+      <div>
+        <h2>Five buttons</h2>
+        <button>One</button>
+        <button>Two</button>
+        <button>Three</button>
+        <button id="fourth-button">Four</button>
+        <button>Five</button>
+      </div>
+      <div>
+        <h2>Non-editable text</h2>
+        <div class="text" id="non-editable-text">
+          If you put off everything till you're sure of it, you'll never get anything done.
+        </div>
+      </div>
+      <div>
+        <h2>Input element</h2>
+        <input id="input" type="text" value="Hello, world!" />
+      </div>
+      <div>
+        <h2>Textarea element</h2>
+        <textarea id="textarea">Hello world!</textarea>
+      </div>
+      <div>
+        <h2>Content editable element</h2>
+        <div class="text" id="content-editable" contenteditable>Content editable</div>
+      </div>
+      <div>
+        <h2>Editable iframe</h2>
+        <iframe id="iframe"></iframe>
+        <script>
+          const editableIframe = document.getElementById('iframe')
+          const doc = editableIframe.contentDocument
+          doc.open()
+          doc.write(`<input id="iframe-input" value="Text in the iframe" />`)
+          doc.close()
+        </script>
+      </div>
+    </div>
+  </body>
+</html>

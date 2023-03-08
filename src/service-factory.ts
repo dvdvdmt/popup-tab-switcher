@@ -1,16 +1,16 @@
 import browser from 'webextension-polyfill'
-import {getSettings, ISettings} from './utils/settings'
+import {getSettings, ISettingsService} from './utils/settings'
 import TabRegistry from './utils/tab-registry'
 import {checkTab, ITab} from './utils/check-tab'
 import {TabRegistryFactory} from './utils/tab-registry-factory'
 import {log} from './utils/logger'
 
 export class ServiceFactory {
-  private static settingsCache: ISettings | undefined
+  private static settingsCache: ISettingsService | undefined
 
   private static registryCache: TabRegistry | undefined
 
-  static async getSettings(reload = false): Promise<ISettings> {
+  static async getSettings(reload = false): Promise<ISettingsService> {
     if (!reload && ServiceFactory.settingsCache) {
       return ServiceFactory.settingsCache
     }

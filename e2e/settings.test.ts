@@ -1,12 +1,12 @@
 import assert from 'assert'
 import {Page} from 'puppeteer'
-import {defaultSettings, DefaultSettings} from '../src/utils/settings'
+import {defaultSettings, ISettings} from '../src/utils/settings'
 import {closeTabs, startPuppeteer, stopPuppeteer, timeoutDurationMS} from './utils/puppeteer-utils'
 import {PuppeteerPopupHelper} from './utils/puppeteer-popup-helper'
 
 declare global {
   interface Window {
-    settings: DefaultSettings
+    settings: ISettings
   }
 }
 
@@ -155,7 +155,7 @@ describe('settings', function TestSettings() {
     const settingsPage = await helper.openPage('settings')
     await setSettings(settingsPage)
     const page = await helper.openPage('page-with-long-title.html')
-    await helper.switchTab()
+    await helper.selectTabForward()
     let actual = await page.queryPopup('.card', getSettingsFromContentScript())
     assert.deepStrictEqual(
       actual,
@@ -168,6 +168,7 @@ describe('settings', function TestSettings() {
       'settings apply to the content script popup'
     )
 
+    await settingsPage.bringToFront()
     await settingsPage.click('#setDefaults')
     await page.bringToFront()
     await helper.selectTabForward()

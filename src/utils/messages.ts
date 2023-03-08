@@ -1,32 +1,33 @@
 /* eslint-disable no-console */
-import {Runtime} from 'webextension-polyfill'
+import type {Runtime} from 'webextension-polyfill'
 import {Command} from './constants'
-import {ITab} from './check-tab'
-import {IModel} from '../popup-tab-switcher'
+import {ISettings} from './settings'
 
-import MessageSender = Runtime.MessageSender
-import Port = Runtime.Port
+type MessageSender = Runtime.MessageSender
+type Port = Runtime.Port
+type ChromeTab = chrome.tabs.Tab
 
 export enum Message {
-  DEMO_SETTINGS = 'DEMO_SETTINGS',
   CLOSE_POPUP = 'CLOSE_POPUP',
-  SELECT_TAB = 'SELECT_TAB',
-  SWITCH_TAB = 'SWITCH_TAB',
   COMMAND = 'COMMAND',
-  E2E_SET_ZOOM = 'E2E_SET_ZOOM',
-  INITIALIZED = 'INITIALIZED',
-  GET_MODEL = 'GET_MODEL',
+  ContentScriptStarted = 'ContentScriptStarted',
+  ContentScriptStopped = 'ContentScriptStopped',
+  DEMO_SETTINGS = 'DEMO_SETTINGS',
+  E2E_IS_MESSAGING_READY = 'E2E_IS_MESSAGING_READY',
+  E2E_IS_PAGE_ACTIVE = 'E2E_IS_PAGE_ACTIVE',
   E2E_RELOAD_EXTENSION = 'E2E_RELOAD_EXTENSION',
   E2E_RELOAD_EXTENSION_FINISHED = 'E2E_RELOAD_EXTENSION_FINISHED',
-  E2E_IS_PAGE_ACTIVE = 'E2E_IS_PAGE_ACTIVE',
-  E2E_IS_MESSAGING_READY = 'E2E_IS_MESSAGING_READY',
+  E2E_SET_ZOOM = 'E2E_SET_ZOOM',
+  GET_MODEL = 'GET_MODEL',
+  SELECT_TAB = 'SELECT_TAB',
+  SWITCH_TAB = 'SWITCH_TAB',
 }
 
 export function demoSettings() {
   return {type: Message.DEMO_SETTINGS} as const
 }
 
-export function switchTab(selectedTab: ITab) {
+export function switchTab(selectedTab: ChromeTab) {
   return {type: Message.SWITCH_TAB, selectedTab} as const
 }
 
@@ -65,8 +66,12 @@ export function e2eReloadExtensionFinished() {
   return {type: Message.E2E_RELOAD_EXTENSION_FINISHED} as const
 }
 
-export function initialized() {
-  return {type: Message.INITIALIZED} as const
+export function contentScriptStarted() {
+  return {type: Message.ContentScriptStarted} as const
+}
+
+export function contentScriptStopped() {
+  return {type: Message.ContentScriptStopped} as const
 }
 
 export function getModel() {
@@ -74,24 +79,31 @@ export function getModel() {
 }
 
 interface IMessageTypeToObjectMap {
-  [Message.DEMO_SETTINGS]: ReturnType<typeof demoSettings>
-  [Message.SWITCH_TAB]: ReturnType<typeof switchTab>
-  [Message.SELECT_TAB]: ReturnType<typeof selectTab>
   [Message.CLOSE_POPUP]: ReturnType<typeof closePopup>
   [Message.COMMAND]: ReturnType<typeof command>
-  [Message.E2E_SET_ZOOM]: ReturnType<typeof e2eSetZoom>
-  [Message.E2E_IS_PAGE_ACTIVE]: ReturnType<typeof e2eIsPageActive>
+  [Message.ContentScriptStarted]: ReturnType<typeof contentScriptStarted>
+  [Message.ContentScriptStopped]: ReturnType<typeof contentScriptStopped>
+  [Message.DEMO_SETTINGS]: ReturnType<typeof demoSettings>
   [Message.E2E_IS_MESSAGING_READY]: ReturnType<typeof e2eIsMessagingReady>
+  [Message.E2E_IS_PAGE_ACTIVE]: ReturnType<typeof e2eIsPageActive>
   [Message.E2E_RELOAD_EXTENSION]: ReturnType<typeof e2eReloadExtension>
   [Message.E2E_RELOAD_EXTENSION_FINISHED]: ReturnType<typeof e2eReloadExtensionFinished>
-  [Message.INITIALIZED]: ReturnType<typeof initialized>
+  [Message.E2E_SET_ZOOM]: ReturnType<typeof e2eSetZoom>
   [Message.GET_MODEL]: ReturnType<typeof getModel>
+  [Message.SELECT_TAB]: ReturnType<typeof selectTab>
+  [Message.SWITCH_TAB]: ReturnType<typeof switchTab>
 }
 
 export type IMessage = IMessageTypeToObjectMap[keyof IMessageTypeToObjectMap]
 
+export interface IGetModelResponse {
+  settings: ISettings
+  tabs: chrome.tabs.Tab[]
+  zoomFactor: number
+}
+
 export type IMessageResponse<Message extends IMessage> = Message extends ReturnType<typeof getModel>
-  ? IModel
+  ? IGetModelResponse
   : Message extends ReturnType<typeof e2eIsPageActive>
   ? boolean
   : Message extends ReturnType<typeof e2eIsMessagingReady>

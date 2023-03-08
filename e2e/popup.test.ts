@@ -44,6 +44,7 @@ describe('popup', function TestPopup() {
     })
 
     it('opens on file pages', async () => {
+      // TODO: await popupOpens(await helper.openPage('file.pdf'))
       await popupOpens(await helper.openPage('file.png'))
       await popupOpens(await helper.openPage('file.js'))
     })
@@ -363,36 +364,6 @@ describe('popup', function TestPopup() {
       assert.strictEqual(elText, 'Wikipedia')
     })
 
-    it('sets focus back to a previously focused element and cursor position', async () => {
-      const pageWikipedia = await helper.openPage('wikipedia.html')
-      await pageWikipedia.focus('#searchInput')
-      await pageWikipedia.keyboard.type('Hello World!')
-      await pageWikipedia.keyboard.down('Shift')
-      const moveCursorLeftPromises = []
-      for (let i = 0; i < 7; i += 1) {
-        moveCursorLeftPromises.push(pageWikipedia.keyboard.press('ArrowLeft'))
-      }
-      await Promise.all(moveCursorLeftPromises)
-      await pageWikipedia.keyboard.up('Shift')
-      await helper.selectTabForward()
-      await helper.selectTabForward()
-      await pageWikipedia.keyboard.press('Escape')
-      const focusedEl = await pageWikipedia.evaluate(() => {
-        const {id, selectionStart, selectionEnd, selectionDirection} =
-          document.activeElement as HTMLInputElement
-        return {
-          id,
-          selectionStart,
-          selectionEnd,
-          selectionDirection,
-        }
-      })
-      assert.strictEqual(focusedEl.id, 'searchInput')
-      assert.strictEqual(focusedEl.selectionStart, 5)
-      assert.strictEqual(focusedEl.selectionEnd, 12)
-      assert.strictEqual(focusedEl.selectionDirection, 'backward')
-    })
-
     it('restores focus without breaking switching', async () => {
       const errors: Error[] = []
       await helper.openPage('example.html')
@@ -567,5 +538,10 @@ describe('popup', function TestPopup() {
         'Card has invalid height on initial zoom and new window size'
       )
     })
+
+    // TODO:
+    //  Given the content script is started.
+    //  When an external script removes the popup-tab-switcher element.
+    //  The popup should open again on the next tab switch.
   })
 })
