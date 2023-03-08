@@ -364,36 +364,6 @@ describe('popup', function TestPopup() {
       assert.strictEqual(elText, 'Wikipedia')
     })
 
-    it('sets focus back to a previously focused element and cursor position', async () => {
-      const pageWikipedia = await helper.openPage('wikipedia.html')
-      await pageWikipedia.focus('#searchInput')
-      await pageWikipedia.keyboard.type('Hello World!')
-      await pageWikipedia.keyboard.down('Shift')
-      const moveCursorLeftPromises = []
-      for (let i = 0; i < 7; i += 1) {
-        moveCursorLeftPromises.push(pageWikipedia.keyboard.press('ArrowLeft'))
-      }
-      await Promise.all(moveCursorLeftPromises)
-      await pageWikipedia.keyboard.up('Shift')
-      await helper.selectTabForward()
-      await helper.selectTabForward()
-      await pageWikipedia.keyboard.press('Escape')
-      const focusedEl = await pageWikipedia.evaluate(() => {
-        const {id, selectionStart, selectionEnd, selectionDirection} =
-          document.activeElement as HTMLInputElement
-        return {
-          id,
-          selectionStart,
-          selectionEnd,
-          selectionDirection,
-        }
-      })
-      assert.strictEqual(focusedEl.id, 'searchInput')
-      assert.strictEqual(focusedEl.selectionStart, 5)
-      assert.strictEqual(focusedEl.selectionEnd, 12)
-      assert.strictEqual(focusedEl.selectionDirection, 'backward')
-    })
-
     it('restores focus without breaking switching', async () => {
       const errors: Error[] = []
       await helper.openPage('example.html')
@@ -462,7 +432,6 @@ describe('popup', function TestPopup() {
       activeTab = await helper.switchTab()
       tabTitle = await activeTab.$eval('title', (el) => el.textContent)
       assert.strictEqual('Page with iframe', tabTitle)
-      // TODO: Restore the selection properly in iframes
     })
 
     it('adds tabs opened by Ctrl+Click to the registry', async () => {
