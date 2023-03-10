@@ -9,6 +9,7 @@ import {
   waitFor,
 } from './utils/puppeteer-utils'
 import {e2eReloadExtension, e2eSetZoom} from '../src/utils/messages'
+import {contentScript} from './selectors/content-script'
 
 let helper: PuppeteerPopupHelper
 
@@ -28,7 +29,7 @@ describe('popup', function TestPopup() {
 
     async function popupOpens(page: HelperPage) {
       await helper.selectTabForward()
-      await page.isVisible('#popup-tab-switcher')
+      await page.isVisible(contentScript.popup)
     }
 
     it('opens on "Alt+Y"', async () => {
@@ -53,7 +54,7 @@ describe('popup', function TestPopup() {
       const page = await helper.openPage('wikipedia.html')
       await popupOpens(page)
       await page.keyboard.up('Alt')
-      const display = await page.$eval('#popup-tab-switcher', (popup) =>
+      const display = await page.$eval(contentScript.popup, (popup) =>
         getComputedStyle(popup).getPropertyValue('display')
       )
       assert.strictEqual(display, 'none', 'popup hidden')
@@ -68,7 +69,7 @@ describe('popup', function TestPopup() {
       })
 
       const display = await pageWikipedia.$eval(
-        '#popup-tab-switcher',
+        contentScript.popup,
         (el) => getComputedStyle(el).display
       )
       assert.strictEqual(display, 'none', 'The popup is closed')
@@ -256,7 +257,7 @@ describe('popup', function TestPopup() {
       const pageStOverflow = await helper.openPage('stackoverflow.html')
       await helper.selectTabForward()
       await pageStOverflow.keyboard.press('Escape')
-      const isPopupClosed = await pageStOverflow.isNotVisible('#popup-tab-switcher')
+      const isPopupClosed = await pageStOverflow.isNotVisible(contentScript.popup)
       assert(isPopupClosed, 'hides on pressing Esc button')
       await pageStOverflow.keyboard.up('Alt')
       const activeTab = await helper.getActivePage()
