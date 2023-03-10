@@ -364,6 +364,7 @@ describe('popup', function TestPopup() {
       assert.strictEqual(elText, 'Wikipedia')
     })
 
+    // TODO: move to selection and focus restoration tests
     it('restores focus without breaking switching', async () => {
       const errors: Error[] = []
       await helper.openPage('example.html')
