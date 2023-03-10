@@ -2,6 +2,7 @@ import assert from 'assert'
 import {describe, it} from 'mocha'
 import TabRegistry from './tab-registry'
 
+// TODO: Move to TypeScript
 describe('Tab registry', () => {
   it('Maintains the right order of recently active tabs', () => {
     const tabActivations = [
