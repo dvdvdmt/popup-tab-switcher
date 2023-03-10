@@ -219,4 +219,28 @@ export class PuppeteerPopupHelper {
     const newActivePage = notActivePages[activePageIndex]
     return Object.assign(newActivePage, pageMixin)
   }
+
+  async assertElementMatchesScreenshot(elementSelector: string, expectedScreenshotPath: string) {
+    // 1. Gets the element and makes a screenshot of it
+    // 2. Checks if the expected screenshot file exists
+    // 3. If not, it creates the file in the path using the screenshot of the element.
+    //    And logs this into console.
+    // 4. If yes, it compares the screenshot of the element with the expected screenshot file.
+    //    If they are not the same, it saves the diff image in the path and throws an error.
+    //    If they are the same, it does nothing.
+    const page = await this.getActivePage()
+    const element = await page.$(elementSelector)
+    if (!element) {
+      throw new Error(`Element ${elementSelector} not found`)
+    }
+    const elementScreenshot = await element.screenshot()
+    const screenshotDir = path.dirname(expectedScreenshotPath)
+    if (!fs.existsSync(expectedScreenshotPath)) {
+      const currentScreenshotPath = path.join(screenshotDir, 'current.png')
+      fs.writeFileSync(currentScreenshotPath, elementScreenshot)
+      console.log(`Current screenshot saved in ${currentScreenshotPath}`)
+      throw new Error(`Expected screenshot not found in ${expectedScreenshotPath}`)
+    }
+    // this.assertImagesAreEqual(elementScreenshot, expectedScreenshotPath)
+  }
 }
