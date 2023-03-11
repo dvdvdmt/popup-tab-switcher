@@ -33,7 +33,7 @@ describe('Popup view', function () {
     await helper.selectTabForward()
 
     // It should look as expected.
-    const screenshotPath = path.resolve(__dirname, 'expected.png')
+    const screenshotPath = path.join(__dirname, 'popup-view.expected.png')
     await helper.assertElementMatchesScreenshot(contentScript.popup, screenshotPath)
   })
 })
