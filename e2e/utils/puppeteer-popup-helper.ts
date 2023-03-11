@@ -241,12 +241,9 @@ export class PuppeteerPopupHelper {
     }
     const elementScreenshot = (await element.screenshot()) as Buffer
     const screenshotDir = path.dirname(expectedScreenshotPath)
-    const currentScreenshotPath = path.join(screenshotDir, 'current.png')
+    const screenshotName = path.basename(expectedScreenshotPath, '.expected.png')
+    const currentScreenshotPath = path.join(screenshotDir, `${screenshotName}.current.png`)
     if (!fs.existsSync(expectedScreenshotPath)) {
-      console.log(
-        `[assertElementMatchesScreenshot elementScreenshot.length]`,
-        elementScreenshot.length
-      )
       fs.writeFileSync(currentScreenshotPath, elementScreenshot)
       console.log(`Current screenshot saved in ${currentScreenshotPath}`)
       throw new Error(`Expected screenshot not found in ${expectedScreenshotPath}`)
@@ -260,7 +257,7 @@ export class PuppeteerPopupHelper {
       threshold: 0.001,
     })
     if (diffCount > 0) {
-      const diffPath = path.join(path.dirname(expectedScreenshotPath), 'diff.png')
+      const diffPath = path.join(path.dirname(expectedScreenshotPath), `${screenshotName}.diff.png`)
       fs.writeFileSync(currentScreenshotPath, elementScreenshot)
       fs.writeFileSync(diffPath, PNG.sync.write(diff))
       throw new Error(`Images are different. Diff image saved in ${diffPath}`)
