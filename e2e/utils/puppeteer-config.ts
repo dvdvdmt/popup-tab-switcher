@@ -7,7 +7,7 @@ export const config: Parameters<typeof puppeteer.launch>[0] = {
   executablePath: process.env.PUPPETEER_EXEC_PATH,
   headless: false,
   slowMo: process.env.CI ? 120 : 20,
-  defaultViewport: null,
+  defaultViewport: {width: 1280, height: 720, deviceScaleFactor: 1},
   args: [
     `--disable-extensions-except=${pathToExtension}`,
     `--load-extension=${pathToExtension}`,

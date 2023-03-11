@@ -1,6 +1,8 @@
 import path from 'path'
 import {Browser, Page} from 'puppeteer'
 import * as fs from 'fs'
+import {PNG} from 'pngjs'
+import pixelmatch from 'pixelmatch'
 import {IMessage} from '../../src/utils/messages'
 
 export const settingsPageUrl =
@@ -233,14 +235,35 @@ export class PuppeteerPopupHelper {
     if (!element) {
       throw new Error(`Element ${elementSelector} not found`)
     }
-    const elementScreenshot = await element.screenshot()
+    const elementSize = await element.boundingBox()
+    if (!elementSize) {
+      throw new Error(`Element ${elementSelector} not visible`)
+    }
+    const elementScreenshot = (await element.screenshot()) as Buffer
     const screenshotDir = path.dirname(expectedScreenshotPath)
+    const currentScreenshotPath = path.join(screenshotDir, 'current.png')
     if (!fs.existsSync(expectedScreenshotPath)) {
-      const currentScreenshotPath = path.join(screenshotDir, 'current.png')
+      console.log(
+        `[assertElementMatchesScreenshot elementScreenshot.length]`,
+        elementScreenshot.length
+      )
       fs.writeFileSync(currentScreenshotPath, elementScreenshot)
       console.log(`Current screenshot saved in ${currentScreenshotPath}`)
       throw new Error(`Expected screenshot not found in ${expectedScreenshotPath}`)
     }
-    // this.assertImagesAreEqual(elementScreenshot, expectedScreenshotPath)
+    const expectedScreenshot = fs.readFileSync(expectedScreenshotPath)
+    const {width, height} = elementSize
+    const elementImg = PNG.sync.read(elementScreenshot)
+    const expectedImg = PNG.sync.read(expectedScreenshot)
+    const diff = new PNG({width, height})
+    const diffCount = pixelmatch(elementImg.data, expectedImg.data, diff.data, width, height, {
+      threshold: 0.001,
+    })
+    if (diffCount > 0) {
+      const diffPath = path.join(path.dirname(expectedScreenshotPath), 'diff.png')
+      fs.writeFileSync(currentScreenshotPath, elementScreenshot)
+      fs.writeFileSync(diffPath, PNG.sync.write(diff))
+      throw new Error(`Images are different. Diff image saved in ${diffPath}`)
+    }
   }
 }
