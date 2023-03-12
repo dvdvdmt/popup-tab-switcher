@@ -91,7 +91,7 @@ const newSettings = {
   },
 }
 
-async function setSettings(page: Page) {
+async function setSettingsManually(page: Page) {
   await input(page, '#textScrollDelay', `${newSettings.textScrollDelay}`)
   await input(page, '#textScrollCoefficient', `${newSettings.textScrollCoefficient}`)
   await input(page, '#autoSwitchingTimeout', `${newSettings.autoSwitchingTimeout}`)
@@ -126,7 +126,7 @@ describe('settings', function TestSettings() {
 
   it('modifies and resets', async () => {
     const settingsPage = await helper.openPage('settings')
-    await setSettings(settingsPage)
+    await setSettingsManually(settingsPage)
     let actual = await getSettingsFromPage(settingsPage)
     assert.deepStrictEqual(actual, newSettings, 'settings in form are different')
     actual = await settingsPage.evaluate(() => window.e2e.getSettings())
@@ -153,7 +153,7 @@ describe('settings', function TestSettings() {
     }
 
     const settingsPage = await helper.openPage('settings')
-    await setSettings(settingsPage)
+    await setSettingsManually(settingsPage)
     const page = await helper.openPage('page-with-long-title.html')
     await helper.selectTabForward()
     let actual = await page.queryPopup('.card', getSettingsFromContentScript())

@@ -7,6 +7,7 @@ type MessageSender = Runtime.MessageSender
 type Port = Runtime.Port
 type ChromeTab = chrome.tabs.Tab
 
+// TODO: Rename Message entries to consistent PascalCase
 export enum Message {
   CLOSE_POPUP = 'CLOSE_POPUP',
   COMMAND = 'COMMAND',
@@ -17,6 +18,7 @@ export enum Message {
   E2E_IS_PAGE_ACTIVE = 'E2E_IS_PAGE_ACTIVE',
   E2E_RELOAD_EXTENSION = 'E2E_RELOAD_EXTENSION',
   E2E_RELOAD_EXTENSION_FINISHED = 'E2E_RELOAD_EXTENSION_FINISHED',
+  E2ESetSettings = 'E2ESetSettings',
   E2E_SET_ZOOM = 'E2E_SET_ZOOM',
   GET_MODEL = 'GET_MODEL',
   SELECT_TAB = 'SELECT_TAB',
@@ -48,6 +50,10 @@ export function command(cmd: Command) {
 
 export function e2eSetZoom(zoomFactor: number) {
   return {type: Message.E2E_SET_ZOOM, zoomFactor} as const
+}
+
+export function e2eSetSettings(settings: Partial<ISettings>) {
+  return {type: Message.E2ESetSettings, settings} as const
 }
 
 export function e2eIsPageActive() {
@@ -88,6 +94,7 @@ interface IMessageTypeToObjectMap {
   [Message.E2E_IS_PAGE_ACTIVE]: ReturnType<typeof e2eIsPageActive>
   [Message.E2E_RELOAD_EXTENSION]: ReturnType<typeof e2eReloadExtension>
   [Message.E2E_RELOAD_EXTENSION_FINISHED]: ReturnType<typeof e2eReloadExtensionFinished>
+  [Message.E2ESetSettings]: ReturnType<typeof e2eSetSettings>
   [Message.E2E_SET_ZOOM]: ReturnType<typeof e2eSetZoom>
   [Message.GET_MODEL]: ReturnType<typeof getModel>
   [Message.SELECT_TAB]: ReturnType<typeof selectTab>
