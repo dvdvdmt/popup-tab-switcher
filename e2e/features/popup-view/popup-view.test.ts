@@ -33,7 +33,7 @@ describe('Popup view', function () {
 
     // It should look as expected.
     const screenshotPath = path.join(__dirname, 'popup-view.expected.png')
-    await helper.assertElementMatchesScreenshot(contentScript.popup, screenshotPath)
+    await helper.assertElementMatchesScreenshot(contentScript.root, screenshotPath)
   })
 
   it(`looks as expected on custom settings`, async () => {
@@ -52,6 +52,6 @@ describe('Popup view', function () {
 
     // It should look as expected.
     const screenshotPath = path.join(__dirname, 'popup-view-customized.expected.png')
-    await helper.assertElementMatchesScreenshot(contentScript.popup, screenshotPath)
+    await helper.assertElementMatchesScreenshot(contentScript.root, screenshotPath)
   })
 })

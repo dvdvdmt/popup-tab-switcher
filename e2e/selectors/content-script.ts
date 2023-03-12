@@ -1,1 +1,1 @@
-export const contentScript = {popup: '#popup-tab-switcher'}
+export const contentScript = {root: '#popup-tab-switcher', card: '[data-test=card]'}
