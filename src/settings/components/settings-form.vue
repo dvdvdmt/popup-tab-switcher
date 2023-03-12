@@ -12,7 +12,11 @@
         <i class="settings__icon settings__icon_label material-icons">brightness_3</i>
         Dark theme
       </label>
-      <m-switch id="isDarkTheme" v-model="settings.isDarkTheme"></m-switch>
+      <m-switch
+        id="isDarkTheme"
+        v-model="settings.isDarkTheme"
+        data-test="darkModeToggle"
+      ></m-switch>
     </div>
     <div class="settings__row mdc-form-field" title="Sets the popup width">
       <label for="popupWidth" class="settings__label">
