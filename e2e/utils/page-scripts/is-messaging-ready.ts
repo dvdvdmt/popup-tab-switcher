@@ -23,6 +23,6 @@ export function waitUntilMessagingIsReady(): Promise<void> {
       } else {
         testAgain(attempt + 1, resolve, reject)
       }
-    })
+    }, 10)
   }
 }
