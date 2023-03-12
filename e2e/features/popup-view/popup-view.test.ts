@@ -21,7 +21,6 @@ describe('Popup view', function () {
   it(`looks as expected on default settings`, async () => {
     // Given the browser has many tabs.
     await helper.openPage('selection-restoration.html')
-    // await helper.openPage('file.pdf')
     await helper.openPage('file.png')
     await helper.openPage('stackoverflow.html')
     await helper.openPage('wikipedia.html')
@@ -37,7 +36,22 @@ describe('Popup view', function () {
     await helper.assertElementMatchesScreenshot(contentScript.popup, screenshotPath)
   })
 
-  // TODO: add a test for custom settings (background mode, width 500).
-  // it(`looks as expected on custom settings`, async () => {
-  // })
+  it(`looks as expected on custom settings`, async () => {
+    // Given the browser has many tabs and extension configured with custom settings.
+    await helper.openPage('selection-restoration.html')
+    await helper.openPage('file.png')
+    await helper.openPage('stackoverflow.html')
+    await helper.openPage('wikipedia.html')
+    await helper.openPage('page-with-long-title.html')
+    await helper.openPage('page-with-popup-tab-switcher.html')
+    const page = await helper.openPage('example.html')
+    await page.evaluate(() => window.e2e.setSettings({isDarkTheme: true, popupWidth: 605}))
+
+    // When the popup is opened.
+    await helper.selectTabForward()
+
+    // It should look as expected.
+    const screenshotPath = path.join(__dirname, 'popup-view-customized.expected.png')
+    await helper.assertElementMatchesScreenshot(contentScript.popup, screenshotPath)
+  })
 })

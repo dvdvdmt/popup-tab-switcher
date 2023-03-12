@@ -33,7 +33,7 @@ export const defaultSettings: ISettings = {
 }
 
 export interface ISettingsService extends ISettings {
-  update(settings: ISettings): Promise<void>
+  update(settings: Partial<ISettings>): Promise<void>
   reset(): Promise<void>
 }
 
