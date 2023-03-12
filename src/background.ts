@@ -75,6 +75,11 @@ async function initForE2ETests(handlers: Partial<IHandlers>) {
     [Message.E2E_SET_ZOOM]: ({zoomFactor}) => {
       browser.tabs.setZoom(zoomFactor)
     },
+    [Message.E2ESetSettings]: async ({settings}) => {
+      log(`[Settings received]`, settings)
+      const currentSettings = await ServiceFactory.getSettings()
+      await currentSettings.update(settings)
+    },
     [Message.E2E_RELOAD_EXTENSION]: async () => {
       await browser.runtime.reload()
     },
