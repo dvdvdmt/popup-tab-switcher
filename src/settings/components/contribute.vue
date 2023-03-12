@@ -4,10 +4,6 @@
       You can say thanks or help me one of the following ways:
     </p>
     <div class="contribute__actions">
-      <m-button class="contribute__action" :href="extensionUrl" target="_blank" outlined>
-        <i slot="icon" class="material-icons">star</i>
-        Give me 5 stars
-      </m-button>
       <m-button
         class="contribute__action"
         href="https://github.com/dvdvdmt/popup-tab-switcher/issues"
@@ -19,21 +15,16 @@
       </m-button>
       <m-button
         class="contribute__action"
-        href="mailto:dvdvdmt.work@gmail.com?subject=Popup Tab Switcher. <Your question>"
+        href="mailto:dvdvdmt@gmail.com?subject=Popup Tab Switcher. <Your question>"
         target="_blank"
         outlined
       >
         <i slot="icon" class="material-icons">email</i>
         Contact me
       </m-button>
-      <m-button
-        class="contribute__action"
-        href="https://www.paypal.me/dvdvdmt/3usd"
-        target="_blank"
-        raised
-      >
-        <i slot="icon" class="material-icons">local_cafe</i>
-        Buy me a coffee
+      <m-button class="contribute__action" :href="extensionUrl" target="_blank" raised>
+        <i slot="icon" class="material-icons">star</i>
+        Give me 5 stars
       </m-button>
     </div>
     <div class="contribute__share">
