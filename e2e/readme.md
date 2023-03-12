@@ -36,19 +36,13 @@ There are two ways of communication between extension and Puppeteer. The first o
 key to allow sending messages using `runtime.sendMessage(extensionId, payload)` right from the
 PageScript.
 
-```plantuml
-@startuml
-Puppeteer -> PageScript: evaluate getSettings
-PageScript -> Background: runtime.sendMessage(extensionId, getSettings)
-note left
-The ability to send messages
-right from page scripts
-should be turned on in manifest.json
-by externally_connectable key
-end note
-PageScript <-- Background: runtime.onExternalMessage settings
-Puppeteer <-- PageScript: settings
-@enduml
+```mermaid
+sequenceDiagram
+  Puppeteer ->> PageScript: evaluate getSettings
+  PageScript ->> Background: runtime.sendMessage(extensionId, getSettings)
+  Note left of PageScript: The ability to send messages<br>right from page scripts<br>should be turned on in manifest.json<br>by externally_connectable key
+  Background ->> PageScript: runtime.onExternalMessage settings
+  PageScript ->> Puppeteer: settings
 ```
 
 The problem with `externally_connectable` is that it requires specification of a web-page domain to
@@ -57,20 +51,15 @@ specified in `externally_connectable.matches`.
 
 To overcome this restriction `window.postMessage` mechanism could be used.
 
-```plantuml
-@startuml
-Puppeteer -> PageScript: evaluate getSettings
-PageScript -> ContentScript: window.postMessage getSettings
-note right
-The ContentScript that is listening for postMessage
-is injected to the page by background script
-or it is already present in case of the settings page
-end note
-ContentScript -> Background: port.sendMessage getSettings
-ContentScript <-- Background: port.onMessage settings
-PageScript <-- ContentScript: window.postMessage settings
-Puppeteer <-- PageScript: window.onMessage settings
-@enduml
+```mermaid
+sequenceDiagram
+  Puppeteer ->> PageScript: evaluate getSettings
+  PageScript ->> ContentScript: window.postMessage getSettings
+  Note right of PageScript: The ContentScript that is listening for postMessage<br>is injected to the page by background script<br>or it is already present in case of the settings page
+  ContentScript ->> Background: port.sendMessage getSettings
+  Background ->> ContentScript: port.onMessage settings
+  ContentScript ->> PageScript: window.postMessage settings
+  PageScript ->> Puppeteer: window.onMessage settings
 ```
 
 The problem with `window.postMessage` mechanism is that you can't differentiate between messages
