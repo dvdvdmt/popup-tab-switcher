@@ -50,4 +50,15 @@ describe('Settings view', function () {
     const screenshotPath = path.join(__dirname, 'contribute-view-default.expected.png')
     await helper.assertElementMatchesScreenshot(settingsPage.root, screenshotPath)
   })
+
+  it(`contribute page in dark mode looks as expected`, async () => {
+    // Given the contribute page is open with dark mode enabled.
+    const page = await helper.openPage('settings')
+    await page.click(settingsPage.darkModeToggle)
+    await page.click(settingsPage.contributeTab)
+
+    // It should look as expected.
+    const screenshotPath = path.join(__dirname, 'contribute-view-dark.expected.png')
+    await helper.assertElementMatchesScreenshot(settingsPage.root, screenshotPath)
+  })
 })
