@@ -40,4 +40,14 @@ describe('Settings view', function () {
     const screenshotPath = path.join(__dirname, 'settings-view-dark.expected.png')
     await helper.assertElementMatchesScreenshot(settingsPage.root, screenshotPath)
   })
+
+  it(`contribute page on defaults looks as expected`, async () => {
+    // Given the contribute page is open with default settings.
+    const page = await helper.openPage('settings')
+    await page.click(settingsPage.contributeTab)
+
+    // It should look as expected.
+    const screenshotPath = path.join(__dirname, 'contribute-view-default.expected.png')
+    await helper.assertElementMatchesScreenshot(settingsPage.root, screenshotPath)
+  })
 })
