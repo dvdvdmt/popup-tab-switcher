@@ -36,4 +36,8 @@ describe('Popup view', function () {
     const screenshotPath = path.join(__dirname, 'popup-view.expected.png')
     await helper.assertElementMatchesScreenshot(contentScript.popup, screenshotPath)
   })
+
+  // TODO: add a test for custom settings (background mode, width 500).
+  // it(`looks as expected on custom settings`, async () => {
+  // })
 })
