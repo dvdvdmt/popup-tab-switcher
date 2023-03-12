@@ -59,11 +59,7 @@ export function Popup({element}: IProps) {
       <style>{styles}</style>
       <Show when={store.isOpen}>
         <div class="overlay">
-          <div
-            class="card"
-            classList={{card_dark: store.settings.isDarkTheme}}
-            data-test-id="pts__card"
-          >
+          <div class="card" classList={{card_dark: store.settings.isDarkTheme}} data-test="card">
             <For each={store.tabs}>
               {(tab, index) => (
                 <PopupTab

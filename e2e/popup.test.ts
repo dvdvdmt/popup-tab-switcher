@@ -29,7 +29,7 @@ describe('popup', function TestPopup() {
 
     async function popupOpens(page: HelperPage) {
       await helper.selectTabForward()
-      await page.isVisible(contentScript.popup)
+      await page.isVisible(contentScript.root)
     }
 
     it('opens on "Alt+Y"', async () => {
@@ -54,7 +54,7 @@ describe('popup', function TestPopup() {
       const page = await helper.openPage('wikipedia.html')
       await popupOpens(page)
       await page.keyboard.up('Alt')
-      const display = await page.$eval(contentScript.popup, (popup) =>
+      const display = await page.$eval(contentScript.root, (popup) =>
         getComputedStyle(popup).getPropertyValue('display')
       )
       assert.strictEqual(display, 'none', 'popup hidden')
@@ -69,7 +69,7 @@ describe('popup', function TestPopup() {
       })
 
       const display = await pageWikipedia.$eval(
-        contentScript.popup,
+        contentScript.root,
         (el) => getComputedStyle(el).display
       )
       assert.strictEqual(display, 'none', 'The popup is closed')
@@ -257,7 +257,7 @@ describe('popup', function TestPopup() {
       const pageStOverflow = await helper.openPage('stackoverflow.html')
       await helper.selectTabForward()
       await pageStOverflow.keyboard.press('Escape')
-      const isPopupClosed = await pageStOverflow.isNotVisible(contentScript.popup)
+      const isPopupClosed = await pageStOverflow.isNotVisible(contentScript.root)
       assert(isPopupClosed, 'hides on pressing Esc button')
       await pageStOverflow.keyboard.up('Alt')
       const activeTab = await helper.getActivePage()
@@ -451,7 +451,7 @@ describe('popup', function TestPopup() {
 
     it(`preserves look on different zoom levels and window sizes`, async () => {
       async function getCardRect(page: HelperPage) {
-        return page.queryPopup(`[data-test-id=pts__card]`, ([el]) => {
+        return page.queryPopup(contentScript.card, ([el]) => {
           const rect = el.getBoundingClientRect()
           return {width: rect.width, height: rect.height}
         })
