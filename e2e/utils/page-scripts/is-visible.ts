@@ -7,7 +7,6 @@ function getElementFromPoint({x, y}: IPoint) {
   // Penetrates shadow roots
   let el = document.elementFromPoint(x, y)
   while (el?.shadowRoot) {
-    // @ts-expect-error The ShadowRoot must have elementFromPoint method (https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot#:~:text=ShadowRoot.elementFromPoint())
     el = el.shadowRoot.elementFromPoint(x, y)
   }
   return el
