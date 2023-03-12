@@ -464,7 +464,7 @@ describe('popup', function TestPopup() {
       const cardZoomedWidth = cardInitialWidth / zoomFactor
       const cardZoomedHeight = cardInitialHeight / zoomFactor
       const page = await helper.openPage('example.html')
-      await helper.resizeWindow(windowInitialWidth, windowInitialHeight)
+      await page.resizeWindow(windowInitialWidth, windowInitialHeight)
       await helper.selectTabForward()
       let cardRect = await getCardRect(page)
 
@@ -481,7 +481,7 @@ describe('popup', function TestPopup() {
 
       const newWidth = 600
       const newHeight = 600
-      await helper.resizeWindow(newWidth, newHeight)
+      await page.resizeWindow(newWidth, newHeight)
       cardRect = await getCardRect(page)
 
       assert.strictEqual(
@@ -495,7 +495,7 @@ describe('popup', function TestPopup() {
         'Card has invalid height on initial zoom and new window size'
       )
 
-      await helper.resizeWindow(windowInitialWidth, cardInitialHeight)
+      await page.resizeWindow(windowInitialWidth, cardInitialHeight)
       await helper.sendMessage(e2eSetZoom(zoomFactor))
       await waitFor(200)
       cardRect = await getCardRect(page)
@@ -511,7 +511,7 @@ describe('popup', function TestPopup() {
         'Card has invalid height on double zoom and initial window size'
       )
 
-      await helper.resizeWindow(windowInitialWidth, cardInitialHeight)
+      await page.resizeWindow(windowInitialWidth, cardInitialHeight)
       cardRect = await getCardRect(page)
 
       assert.strictEqual(

@@ -40,6 +40,16 @@ const pageMixin = {
       }
     }, selector)
   },
+
+  async resizeWindow(this: Page, width: number, height: number): Promise<void> {
+    const session = await this.target().createCDPSession()
+    await this.setViewport({height, width})
+    const {windowId} = (await session.send('Browser.getWindowForTarget')) as {windowId: number}
+    await session.send('Browser.setWindowBounds', {
+      bounds: {height, width},
+      windowId,
+    })
+  },
 }
 
 function isBlank(page: Page) {
@@ -153,17 +163,6 @@ export class PuppeteerPopupHelper {
   async sendMessage(message: IMessage) {
     const page = await this.getActivePage()
     await page.evaluate((m) => window.e2e.sendMessage(m), message)
-  }
-
-  async resizeWindow(width: number, height: number) {
-    const page = await this.getActivePage()
-    const session = await page.target().createCDPSession()
-    await page.setViewport({height, width})
-    const {windowId} = (await session.send('Browser.getWindowForTarget')) as {windowId: number}
-    await session.send('Browser.setWindowBounds', {
-      bounds: {height, width},
-      windowId,
-    })
   }
 
   newPagePromise() {
