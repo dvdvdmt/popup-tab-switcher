@@ -1,5 +1,9 @@
 <template>
-  <div class="settings mdc-typography" v-bind:class="{settings_dark: settings.isDarkTheme}">
+  <div
+    class="settings mdc-typography"
+    v-bind:class="{settings_dark: settings.isDarkTheme}"
+    data-test="settings"
+  >
     <m-tab-bar
       class="settings__nav-bar"
       :tabs="tabs"
