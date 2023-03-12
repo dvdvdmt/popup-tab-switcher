@@ -67,30 +67,27 @@ async function initForE2ETests(handlers: Partial<IHandlers>) {
     await executeContentScript(checkTab(active))
   }
 
-  // eslint-disable-next-line no-param-reassign
-  handlers[Message.COMMAND] = async ({command}) => {
-    log(`[Command received]`, command)
-    await handleCommand(command)
-  }
-  // eslint-disable-next-line no-param-reassign
-  handlers[Message.E2E_SET_ZOOM] = ({zoomFactor}) => {
-    browser.tabs.setZoom(zoomFactor)
-  }
-  // eslint-disable-next-line no-param-reassign
-  handlers[Message.E2E_RELOAD_EXTENSION] = async () => {
-    await browser.runtime.reload()
-  }
-  // eslint-disable-next-line no-param-reassign
-  handlers[Message.E2E_IS_MESSAGING_READY] = async () => true
-  // eslint-disable-next-line no-param-reassign
-  handlers[Message.E2E_IS_PAGE_ACTIVE] = async (_message, sender) => {
-    const activeTab = await getActiveTab()
-    const sourceTab = sender.tab
-    if (sourceTab && activeTab) {
-      return sourceTab.id === activeTab.id && sourceTab.windowId === activeTab.windowId
-    }
-    return false
-  }
+  Object.assign(handlers, {
+    [Message.COMMAND]: async ({command}) => {
+      log(`[Command received]`, command)
+      await handleCommand(command)
+    },
+    [Message.E2E_SET_ZOOM]: ({zoomFactor}) => {
+      browser.tabs.setZoom(zoomFactor)
+    },
+    [Message.E2E_RELOAD_EXTENSION]: async () => {
+      await browser.runtime.reload()
+    },
+    [Message.E2E_IS_MESSAGING_READY]: async () => true,
+    [Message.E2E_IS_PAGE_ACTIVE]: async (_message, sender) => {
+      const activeTab = await getActiveTab()
+      const sourceTab = sender.tab
+      if (sourceTab && activeTab) {
+        return sourceTab.id === activeTab.id && sourceTab.windowId === activeTab.windowId
+      }
+      return false
+    },
+  } as Partial<IHandlers>)
 }
 
 async function switchToPreviousTab() {
