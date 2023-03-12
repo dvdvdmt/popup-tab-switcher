@@ -1,5 +1,5 @@
 <template>
-  <button class="mdc-tab" role="tab" aria-selected="true" tabindex="0">
+  <button class="mdc-tab" role="tab" aria-selected="true" tabindex="0" :data-test="id">
     <span class="mdc-tab__content">
       <span class="mdc-tab__icon material-icons" aria-hidden="true"><slot name="icon"></slot></span>
       <span class="mdc-tab__text-label"><slot></slot></span>
@@ -14,5 +14,11 @@
 <script>
 export default {
   name: 'm-tab',
+  props: {
+    id: {
+      type: String,
+      default: '',
+    },
+  },
 }
 </script>

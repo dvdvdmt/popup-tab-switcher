@@ -3,7 +3,7 @@
     <div class="mdc-tab-scroller">
       <div class="mdc-tab-scroller__scroll-area">
         <div class="mdc-tab-scroller__scroll-content">
-          <m-tab v-for="(tab, index) in tabs" :key="index">
+          <m-tab v-for="(tab, index) in tabs" :key="index" :id="tab.id">
             <template slot="icon">{{ tab.icon }}</template>
             {{ tab.id }}
           </m-tab>
