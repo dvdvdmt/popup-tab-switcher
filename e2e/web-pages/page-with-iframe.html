@@ -1,21 +1,22 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
-  >
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Page with iframe</title>
-</head>
-<body>
-<iframe id="iframe" name="iframe"></iframe>
-<script>
-  const iframe = document.getElementById('iframe');
-  const doc = document.getElementById('iframe').contentWindow.document;
-  doc.open();
-  doc.write(`<input id="input">`);
-  doc.close();
-</script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Page with iframe</title>
+  </head>
+  <body>
+    <iframe id="iframe" name="iframe"></iframe>
+    <script>
+      const iframe = document.getElementById('iframe')
+      const doc = document.getElementById('iframe').contentDocument
+      doc.open()
+      doc.write(`<input id="input">`)
+      doc.close()
+    </script>
+  </body>
 </html>
