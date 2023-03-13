@@ -17,7 +17,9 @@ import {ServiceFactory} from './service-factory'
 type Tab = Tabs.Tab
 type ChromeTab = chrome.tabs.Tab
 
-let isTabActivationInProcess = false
+// NOTE: This is somehow related to the test "focuses previously active window on a tab closing".
+// TODO: Describe the problem in more details.
+let tabIdToBeActivated: undefined | number
 
 initListeners()
 
@@ -132,7 +134,7 @@ async function handleCommand(command: string) {
 }
 
 async function handleWindowActivation(windowId: number) {
-  log(`[handleWindowActivation]`, windowId)
+  log(`[handleWindowActivation start]`, windowId)
   // Do not react on windows without ids.
   // This happens on each window activation in some Linux window managers.
   if (windowId === browser.windows.WINDOW_ID_NONE) {
@@ -143,12 +145,11 @@ async function handleWindowActivation(windowId: number) {
 
 async function handleTabActivation(info?: Tabs.OnActivatedActiveInfoType) {
   const registry = await ServiceFactory.getTabRegistry()
-  if (isTabActivationInProcess) {
-    log(
-      `[handleTabActivation is skipped because previous tab activation is in process]`,
-      info?.tabId,
-      registry.titles()
-    )
+  log(`[handleTabActivation info]`, info)
+  const isNotTheTargetTab = tabIdToBeActivated && tabIdToBeActivated !== info?.tabId
+  if (isNotTheTargetTab) {
+    log(`[handleTabActivation is skipped because previous tab activation is in process]`)
+    log(`[current registry]`, registry.titles())
     return
   }
   const active = await getActiveTab()
@@ -161,7 +162,8 @@ async function handleTabActivation(info?: Tabs.OnActivatedActiveInfoType) {
       registry.push(checkTab(active))
     }
   }
-  log(`[handleTabActivation end]`, info?.tabId, active?.id, registry.titles())
+  log(`[handleTabActivation end]`, active?.id)
+  log(`[current registry]`, registry.titles())
 }
 
 async function handleTabCreation(tab: Tab) {
@@ -171,7 +173,8 @@ async function handleTabCreation(tab: Tab) {
   } else {
     registry.pushUnderTop(checkTab(tab))
   }
-  log(`[handleTabCreation end]`, tab.id, registry.titles())
+  log(`[handleTabCreation end]`, tab.id)
+  log(`[current registry]`, registry.titles())
 }
 
 async function handleTabUpdate(tabId: number, changeInfo: Tabs.OnUpdatedChangeInfoType, tab: Tab) {
@@ -185,7 +188,8 @@ async function handleTabUpdate(tabId: number, changeInfo: Tabs.OnUpdatedChangeIn
 
 async function handleTabRemove(tabId: number) {
   const registry = await ServiceFactory.getTabRegistry()
-  log(`[handleTabRemove start]`, tabId, registry.titles())
+  log(`[handleTabRemove start]`, tabId)
+  log(`[current registry]`, registry.titles())
   registry.remove(tabId)
   const settings = await ServiceFactory.getSettings()
   const isSwitchingNeeded = settings.isSwitchingToPreviouslyUsedTab
@@ -270,7 +274,8 @@ async function getActiveTab(): Promise<Tab | undefined> {
 }
 
 async function activateTab({id, windowId}: ChromeTab) {
-  isTabActivationInProcess = true
+  log(`[tab activation is started]`, {id, windowId})
+  tabIdToBeActivated = id
   try {
     // The tab can already be removed from the browser, for example when a user quickly closes multiple tabs.
     // To handle this situation without an error we can use debounce technique.
@@ -281,7 +286,8 @@ async function activateTab({id, windowId}: ChromeTab) {
   } catch (e) {
     console.error(`Can not activate the tab id: ${id}, windowId: ${windowId}`, e)
   } finally {
-    isTabActivationInProcess = false
+    tabIdToBeActivated = undefined
+    log(`[tab activation is finished]`, {id, windowId})
   }
 }
 
