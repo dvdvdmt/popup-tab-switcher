@@ -56,7 +56,7 @@ async function initForE2ETests(handlers: Partial<IHandlers>) {
   async function executeContentScript(tab: ITab) {
     if (isAllowedUrl(tab.url)) {
       await browser.scripting.executeScript({
-        target: {tabId: tab.id, allFrames: true},
+        target: {tabId: tab.id},
         files: ['e2e-content-script.js'],
       })
     }

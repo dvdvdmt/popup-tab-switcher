@@ -45,7 +45,7 @@ export function sendMessage<Message extends IMessage>(
       id,
       message,
     }
-    window.postMessage(messageFrom, '*')
+    window.parent.postMessage(messageFrom, '*')
   })
 }
 
