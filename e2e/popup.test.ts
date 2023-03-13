@@ -429,10 +429,10 @@ describe('popup', function TestPopup() {
       const frame = await pageWithIframe.$('iframe').then((handle) => handle?.contentFrame())
       await frame?.focus('input')
       let activeTab = await helper.switchTab()
-      let tabTitle = await activeTab.$eval('title', (el) => el.textContent)
+      let tabTitle = await activeTab.title()
       assert.strictEqual('Wikipedia', tabTitle)
       activeTab = await helper.switchTab()
-      tabTitle = await activeTab.$eval('title', (el) => el.textContent)
+      tabTitle = await activeTab.title()
       assert.strictEqual('Page with iframe', tabTitle)
     })
 
