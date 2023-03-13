@@ -1,6 +1,7 @@
 import assert from 'assert'
 import {startPuppeteer, stopPuppeteer, timeoutDurationMS} from '../utils/puppeteer-utils'
 import {PuppeteerPopupHelper} from '../utils/puppeteer-popup-helper'
+import {contentScript} from '../selectors/content-script'
 
 /**
  * The focus or selection of the text on a page should be restored after the popup is closed.
@@ -24,6 +25,7 @@ describe('Selection restoration', function () {
 
     // When the popup is opened and closed.
     await helper.selectTabForward()
+    await page.isVisible(contentScript.root)
     await page.keyboard.press('Escape')
 
     // Then the button should be focused.
@@ -48,6 +50,7 @@ describe('Selection restoration', function () {
 
     // When the popup is opened and closed.
     await helper.selectTabForward()
+    await page.isVisible(contentScript.root)
     await page.mouse.click(0, 0)
 
     // Then the text should be selected.
@@ -69,6 +72,7 @@ describe('Selection restoration', function () {
 
     // When the popup is opened and closed.
     await helper.selectTabForward()
+    await page.isVisible(contentScript.root)
     await page.mouse.click(0, 0)
 
     // Then the text should be selected.
@@ -88,6 +92,7 @@ describe('Selection restoration', function () {
 
     // When the popup is opened and closed.
     await helper.selectTabForward()
+    await page.isVisible(contentScript.root)
     await page.mouse.click(0, 0)
 
     // Then the text should be selected.
@@ -106,6 +111,7 @@ describe('Selection restoration', function () {
 
     // When the popup is opened and closed.
     await helper.selectTabForward()
+    await page.isVisible(contentScript.root)
     await page.mouse.click(0, 0)
 
     // Then the text should be selected.
@@ -125,6 +131,7 @@ describe('Selection restoration', function () {
 
     // When the popup is opened and closed.
     await helper.selectTabForward()
+    await page.isVisible(contentScript.root)
     await page.mouse.click(0, 0)
 
     // Then the text should be selected.
