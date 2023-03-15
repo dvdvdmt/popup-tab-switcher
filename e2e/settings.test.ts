@@ -224,7 +224,7 @@ describe('settings', function TestSettings() {
     await pageWikipedia.bringToFront()
     await pageWikipedia.close()
     const activeTab = await helper.getActivePage()
-    const tabTitle = await activeTab.$eval('title', (el) => el.textContent)
+    const tabTitle = await activeTab.title()
     assert.strictEqual(tabTitle, 'Example', 'switched to the nearest tab')
   })
 
@@ -236,7 +236,7 @@ describe('settings', function TestSettings() {
     await helper.openPage('example.html')
     await helper.switchTab()
     const activeTab = await helper.getActivePage()
-    const tabTitle = await activeTab.$eval('title', (el) => el.textContent)
+    const tabTitle = await activeTab.title()
     assert.strictEqual(tabTitle, 'Example', 'does not leave the current tab')
   })
 
