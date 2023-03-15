@@ -54,29 +54,6 @@ const conf = {
         use: 'vue-loader',
       },
       {
-        test: /\.svg$/,
-        exclude: settingsDir,
-        type: 'asset/source',
-        use: 'svgo-loader',
-      },
-      {
-        test: /\.svg$/,
-        include: settingsDir,
-        use: [
-          'svg-sprite-loader',
-          {
-            loader: 'svgo-loader',
-            options: {
-              plugins: [
-                {removeTitle: true},
-                {convertColors: {shorthex: false}},
-                {convertPathData: false},
-              ],
-            },
-          },
-        ],
-      },
-      {
         test: /\.scss$/,
         include: settingsDir,
         // type: 'asset/resource',
