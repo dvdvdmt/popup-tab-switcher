@@ -24,6 +24,10 @@ const conf = {
       import: './src/settings/index.js',
       filename: 'settings/index.js',
     },
+    settingsSolid: {
+      import: './src/settings/solid-js-index.ts',
+      filename: 'settings/solid-js-index.js',
+    },
   },
 
   output: {
