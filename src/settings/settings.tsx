@@ -1,3 +1,5 @@
+import styles from './settings.module.scss'
+
 export function Settings() {
-  return <div>Test SolidJS</div>
+  return <div class={styles.settings}>Test SolidJS</div>
 }

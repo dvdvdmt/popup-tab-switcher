@@ -60,10 +60,35 @@ const conf = {
       {
         test: /\.scss$/,
         include: settingsDir,
+        exclude: /module\.scss/,
         // type: 'asset/resource',
         use: [
           'vue-style-loader',
           'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              additionalData: sassGlobals,
+              sassOptions: {
+                includePaths: [nodeModulesDir, stylesDir],
+              },
+            },
+          },
+        ],
+      },
+      {
+        test: /\.module\.scss$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                localIdentName: '[local]__[hash:base64:5]',
+              },
+              importLoaders: 1,
+            },
+          },
           {
             loader: 'sass-loader',
             options: {
