@@ -52,7 +52,8 @@ export default {
   },
   methods: {
     demoSettings() {
-      browser.runtime.sendMessage(demoSettings())
+      // TODO: Enable it after the migration to SolidJS
+      // browser.runtime.sendMessage(demoSettings())
     },
     setDefaults() {
       this.settings.reset()
