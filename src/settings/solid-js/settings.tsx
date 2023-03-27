@@ -1,20 +1,30 @@
-import {render} from 'solid-js/web'
+import {Match, render, Switch} from 'solid-js/web'
 import styles from './settings.module.scss'
 import {ServiceFactory} from '../../service-factory'
-import {ISettings} from '../../utils/settings'
+import {ISettingsService} from '../../utils/settings'
+import {createSettingsStore, PageTab} from './settings-store'
+import {MTabBar} from './m-tab-bar'
 
 interface ISettingsProps {
-  settings: ISettings
+  settingsService: ISettingsService
 }
 
 export function Settings(props: ISettingsProps) {
-  const {settings} = props
+  const {store, pageTabs, setCurrentPageTab} = createSettingsStore(props)
   return (
     <div
       class={`${styles.settings} mdc-typography`}
-      classList={{[styles.settings_dark]: settings.isDarkTheme}}
+      classList={{[styles.settings_dark]: store.settings.isDarkTheme}}
     >
-      Test SolidJS
+      <MTabBar tabs={pageTabs} onTabActivated={setCurrentPageTab} />
+      <Switch fallback={<div>Not Found</div>}>
+        <Match when={PageTab.Settings === store.currentPageTabId}>
+          <div>Settings</div>
+        </Match>
+        <Match when={PageTab.Contribute === store.currentPageTabId}>
+          <div>Contribute</div>
+        </Match>
+      </Switch>
     </div>
   )
 }
@@ -24,7 +34,7 @@ export async function initSettings() {
   window.settings = settings
   // TODO: Render the app right into the body element
   const appRootElement = document.createElement('div')
-  render(() => <Settings settings={settings} />, appRootElement)
+  render(() => <Settings settingsService={settings} />, appRootElement)
 
   document.body.appendChild(appRootElement)
 }
