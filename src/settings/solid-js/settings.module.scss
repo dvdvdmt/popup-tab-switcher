@@ -1,9 +1,9 @@
-@import '~@material/typography/mdc-typography';
-@import '~@material/textfield/mixins';
-@import '~@material/tab/mixins';
-@import '~@material/tab-indicator/mixins';
-@import '~@material/button/mixins';
-@import '../styles/mixins';
+@import 'node_modules/@material/typography/mdc-typography';
+@import 'node_modules/@material/textfield/mixins';
+@import 'node_modules/@material/tab/mixins';
+@import 'node_modules/@material/tab-indicator/mixins';
+@import 'node_modules/@material/button/mixins';
+@import 'src/styles/mixins';
 
 body {
   margin: 0;
