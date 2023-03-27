@@ -1,7 +1,7 @@
 import {render} from 'solid-js/web'
 import styles from './settings.module.scss'
-import {ServiceFactory} from '../service-factory'
-import {ISettings} from '../utils/settings'
+import {ServiceFactory} from '../../service-factory'
+import {ISettings} from '../../utils/settings'
 
 interface ISettingsProps {
   settings: ISettings

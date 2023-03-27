@@ -1,3 +1,3 @@
-import {initSettings} from './settings'
+import {initSettings} from './solid-js/settings'
 
 initSettings()
