@@ -1,4 +1,6 @@
-import {For} from 'solid-js'
+import {For, onMount} from 'solid-js'
+// eslint-disable-next-line import/no-extraneous-dependencies
+import {MDCTabBar} from '@material/tab-bar/index'
 
 export interface IPageTab {
   id: string
@@ -11,16 +13,16 @@ interface IMTabBarProps {
 }
 
 export function MTabBar(props: IMTabBarProps) {
-  // const {store} = createMTabBarStore(props)
+  let rootRef: HTMLDivElement
+  onMount(() => {
+    const mdcTabBar = MDCTabBar.attachTo(rootRef)
+    mdcTabBar.activateTab(0)
+  })
   return (
-    // <div class="mdc-tab-bar" role="tablist" @MDCTabBar:activated="onActivated">
-    <div class="mdc-tab-bar" role="tablist">
+    <div ref={rootRef!} class="mdc-tab-bar" role="tablist">
       <div class="mdc-tab-scroller">
         <div class="mdc-tab-scroller__scroll-area">
           <div class="mdc-tab-scroller__scroll-content">
-            {/* // <m-tab v-for="(tab, index) in tabs" :key="index" :id="tab.id"> */}
-            {/* // <template slot="icon">{{ tab.icon }}</template> */}
-            {/* </m-tab> */}
             <For each={props.tabs}>
               {(tab) => (
                 <button
@@ -35,13 +37,9 @@ export function MTabBar(props: IMTabBarProps) {
                 >
                   <span class="mdc-tab__content">
                     <span class="mdc-tab__icon material-icons" aria-hidden="true">
-                      {/* <slot name="icon"></slot> */}
                       {tab.icon}
                     </span>
-                    <span class="mdc-tab__text-label">
-                      {/* <slot></slot> */}
-                      {tab.id}
-                    </span>
+                    <span class="mdc-tab__text-label">{tab.id}</span>
                   </span>
                   <span class="mdc-tab-indicator">
                     <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
