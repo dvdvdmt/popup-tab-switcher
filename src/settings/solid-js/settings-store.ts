@@ -1,6 +1,6 @@
 import {createStore} from 'solid-js/store'
 import {ISettings, ISettingsService} from '../../utils/settings'
-import {IPageTab} from './m-tab-bar'
+import {IPageTab} from './components/m-tab-bar'
 
 interface ISettingsStoreProps {
   settingsService: ISettingsService

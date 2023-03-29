@@ -3,7 +3,7 @@ import styles from './settings.module.scss'
 import {ServiceFactory} from '../../service-factory'
 import {ISettingsService} from '../../utils/settings'
 import {createSettingsStore, PageTab} from './settings-store'
-import {MTabBar} from './m-tab-bar'
+import {MTabBar} from './components/m-tab-bar'
 
 interface ISettingsProps {
   settingsService: ISettingsService
