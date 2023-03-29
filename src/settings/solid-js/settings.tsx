@@ -20,7 +20,7 @@ export function Settings(props: ISettingsProps) {
       <MTabBar tabs={pageTabs} onTabActivated={setCurrentPageTab} />
       <Switch fallback={<div>Not Found</div>}>
         <Match when={PageTab.Settings === store.currentPageTabId}>
-          <SettingsForm />
+          <SettingsForm store={store} />
         </Match>
         <Match when={PageTab.Contribute === store.currentPageTabId}>
           <div>Contribute</div>

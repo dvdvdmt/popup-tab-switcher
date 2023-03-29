@@ -1,14 +1,16 @@
 import {createStore} from 'solid-js/store'
 import {ISettings, ISettingsService} from '../../utils/settings'
 import {IPageTab} from './components/m-tab-bar'
+import areShortcutsSet from '../../utils/are-shortcuts-set'
 
 interface ISettingsStoreProps {
   settingsService: ISettingsService
 }
 
-interface ISettingsStore {
+export interface ISettingsStore {
   settings: ISettings
   currentPageTabId: string
+  isKeyboardShortcutsEnabled: boolean
 }
 
 export const enum PageTab {
@@ -21,9 +23,15 @@ export function createSettingsStore({settingsService}: ISettingsStoreProps) {
     {id: PageTab.Settings, icon: 'settings'},
     {id: PageTab.Contribute, icon: 'favorite'},
   ]
+
   const [store, setStore] = createStore<ISettingsStore>({
     settings: settingsService,
     currentPageTabId: PageTab.Settings,
+    isKeyboardShortcutsEnabled: true,
+  })
+
+  areShortcutsSet().then(async (enabled) => {
+    setStore({isKeyboardShortcutsEnabled: enabled})
   })
 
   return {store, pageTabs, setCurrentPageTab}
