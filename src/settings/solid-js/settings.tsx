@@ -4,6 +4,7 @@ import {ServiceFactory} from '../../service-factory'
 import {ISettingsService} from '../../utils/settings'
 import {createSettingsStore, PageTab} from './settings-store'
 import {MTabBar} from './components/m-tab-bar'
+import {SettingsForm} from './settings-form'
 
 interface ISettingsProps {
   settingsService: ISettingsService
@@ -19,7 +20,7 @@ export function Settings(props: ISettingsProps) {
       <MTabBar tabs={pageTabs} onTabActivated={setCurrentPageTab} />
       <Switch fallback={<div>Not Found</div>}>
         <Match when={PageTab.Settings === store.currentPageTabId}>
-          <div>Settings</div>
+          <SettingsForm />
         </Match>
         <Match when={PageTab.Contribute === store.currentPageTabId}>
           <div>Contribute</div>
