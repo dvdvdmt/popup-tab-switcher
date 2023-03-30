@@ -59,6 +59,7 @@ body {
     }
 
     .mdc-tab {
+      // TODO: Investigate why the white color is not applied to the tab-icon
       @include mdc-tab-text-label-color(rgba(map_get($colors, on-surface), 0.6));
       @include mdc-tab-active-text-label-color(map_get($colors, primary));
       @include mdc-tab-icon-color(rgba(map_get($colors, on-surface), 0.54));

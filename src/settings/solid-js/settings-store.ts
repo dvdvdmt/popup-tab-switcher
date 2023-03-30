@@ -30,13 +30,15 @@ export function createSettingsStore({settingsService}: ISettingsStoreProps) {
     isKeyboardShortcutsEnabled: true,
   })
 
-  areShortcutsSet().then(async (enabled) => {
-    setStore({isKeyboardShortcutsEnabled: enabled})
-  })
+  areShortcutsSet().then(setKeyboardShortcutsEnabled)
 
-  return {store, pageTabs, setCurrentPageTab}
+  return {store, setStore, pageTabs, setCurrentPageTab, setKeyboardShortcutsEnabled}
 
   function setCurrentPageTab(tabId: string) {
     setStore({currentPageTabId: tabId})
+  }
+
+  function setKeyboardShortcutsEnabled(enabled: boolean) {
+    setStore({isKeyboardShortcutsEnabled: enabled})
   }
 }
