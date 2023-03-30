@@ -1,15 +1,27 @@
 import {Show} from 'solid-js/web'
 import {ISettingsStore} from './settings-store'
+import {MBanner} from './components/m-banner/m-banner'
 
 interface IProps {
   store: ISettingsStore
+  setKeyboardShortcutsEnabled: (enabled: boolean) => void
 }
 
 export function SettingsForm(props: IProps) {
   return (
     <form class="settings__form">
       <Show when={!props.store.isKeyboardShortcutsEnabled}>
-        <div>You need to set shortcuts!</div>
+        <MBanner
+          icon="report_problem"
+          message="Keyboard shortcuts for the extension are not configured. You should set them in Chrome settings"
+          actionMessage="Set up shortcuts"
+          onAction={() => {
+            console.log('onAction')
+          }}
+          onDismiss={() => {
+            props.setKeyboardShortcutsEnabled(true)
+          }}
+        />
       </Show>
       <h1>Settings Form</h1>
     </form>
