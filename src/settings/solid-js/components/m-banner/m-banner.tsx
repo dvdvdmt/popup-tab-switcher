@@ -19,7 +19,7 @@ export function MBanner(props: IProps) {
         <button type="button" class={styles.button} onClick={props.onDismiss}>
           dismiss
         </button>
-        <a type="button" class={styles.button} onClick={props.onAction}>
+        <a type="button" class={styles.button_raised} onClick={props.onAction}>
           {props.actionMessage}
         </a>
       </div>
