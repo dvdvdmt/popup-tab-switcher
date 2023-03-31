@@ -29,45 +29,47 @@ body {
   color: var(--mdc-theme-text-primary-on-background);
 
   &_dark {
-    --settings-background-color: #{$color-gray-shark};
+    // To preserve original names of nested classes
+    :global {
+      --settings-background-color: #{$color-gray-shark};
 
-    $theme-dark: (
-      'primary': darken(white, 20%),
-      'secondary': $color-blue-mariner-light,
-      'background': $color-gray-shark,
-      'surface': $color-gray-shark,
-    );
+      $theme-dark: (
+        'primary': darken(white, 20%),
+        'secondary': $color-blue-mariner-light,
+        'background': $color-gray-shark,
+        'surface': $color-gray-shark,
+      );
 
-    $colors: get-theme-colors($theme-dark);
-    @include theme-colors-as-custom-properties($colors);
+      $colors: get-theme-colors($theme-dark);
+      @include theme-colors-as-custom-properties($colors);
 
-    .mdc-button {
-      @include mdc-button-ink-color(map_get($colors, primary));
+      .mdc-button {
+        @include mdc-button-ink-color(map_get($colors, primary));
 
-      &--raised {
-        @include mdc-button-ink-color(map_get($colors, surface));
-        @include mdc-button-container-fill-color(map_get($colors, primary));
+        &--raised {
+          @include mdc-button-ink-color(map_get($colors, surface));
+          @include mdc-button-container-fill-color(map_get($colors, primary));
+        }
       }
-    }
 
-    .mdc-text-field {
-      @include mdc-text-field-ink-color(rgba(map_get($colors, on-surface), 0.87));
-      @include mdc-text-field-caret-color(map_get($colors, primary));
-      @include mdc-text-field-outline-color(rgba(map_get($colors, on-surface), 0.24));
-      @include mdc-text-field-hover-outline-color(rgba(map_get($colors, on-surface), 0.87));
-      @include mdc-text-field-focused-outline-color(map_get($colors, primary));
-    }
+      .mdc-text-field {
+        @include mdc-text-field-ink-color(rgba(map_get($colors, on-surface), 0.87));
+        @include mdc-text-field-caret-color(map_get($colors, primary));
+        @include mdc-text-field-outline-color(rgba(map_get($colors, on-surface), 0.24));
+        @include mdc-text-field-hover-outline-color(rgba(map_get($colors, on-surface), 0.87));
+        @include mdc-text-field-focused-outline-color(map_get($colors, primary));
+      }
 
-    .mdc-tab {
-      // TODO: Investigate why the white color is not applied to the tab-icon
-      @include mdc-tab-text-label-color(rgba(map_get($colors, on-surface), 0.6));
-      @include mdc-tab-active-text-label-color(map_get($colors, primary));
-      @include mdc-tab-icon-color(rgba(map_get($colors, on-surface), 0.54));
-      @include mdc-tab-active-icon-color(map_get($colors, primary));
-    }
+      .mdc-tab {
+        @include mdc-tab-text-label-color(rgba(map_get($colors, on-surface), 0.6));
+        @include mdc-tab-active-text-label-color(map_get($colors, primary));
+        @include mdc-tab-icon-color(rgba(map_get($colors, on-surface), 0.54));
+        @include mdc-tab-active-icon-color(map_get($colors, primary));
+      }
 
-    .mdc-tab-indicator {
-      @include mdc-tab-indicator-underline-color(map_get($colors, primary));
+      .mdc-tab-indicator {
+        @include mdc-tab-indicator-underline-color(map_get($colors, primary));
+      }
     }
   }
 }
