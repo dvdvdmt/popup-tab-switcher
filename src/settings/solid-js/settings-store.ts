@@ -25,14 +25,21 @@ export function createSettingsStore({settingsService}: ISettingsStoreProps) {
   ]
 
   const [store, setStore] = createStore<ISettingsStore>({
-    settings: settingsService,
+    settings: settingsService.getSettingsObject(), // Store can work only with plain objects.
     currentPageTabId: PageTab.Settings,
     isKeyboardShortcutsEnabled: true,
   })
 
   areShortcutsSet().then(setKeyboardShortcutsEnabled)
 
-  return {store, setStore, pageTabs, setCurrentPageTab, setKeyboardShortcutsEnabled}
+  return {
+    store,
+    setStore,
+    pageTabs,
+    setCurrentPageTab,
+    setKeyboardShortcutsEnabled,
+    setSettingsOptions,
+  }
 
   function setCurrentPageTab(tabId: string) {
     setStore({currentPageTabId: tabId})
@@ -40,5 +47,11 @@ export function createSettingsStore({settingsService}: ISettingsStoreProps) {
 
   function setKeyboardShortcutsEnabled(enabled: boolean) {
     setStore({isKeyboardShortcutsEnabled: enabled})
+  }
+
+  function setSettingsOptions(options: Partial<ISettings>) {
+    settingsService.update(options).then(() => {
+      setStore('settings', options)
+    })
   }
 }

@@ -3,6 +3,8 @@
 @import 'node_modules/@material/tab/mixins';
 @import 'node_modules/@material/tab-indicator/mixins';
 @import 'node_modules/@material/button/mixins';
+@import 'node_modules/@material/form-field/dist/mdc.form-field';
+
 @import 'src/styles/mixins';
 
 body {
@@ -79,6 +81,8 @@ body {
 }
 
 .settings__row {
+  @extend .mdc-form-field;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
