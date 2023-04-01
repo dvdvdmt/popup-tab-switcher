@@ -16,7 +16,10 @@ export function SettingsForm(props: IProps) {
           message="Keyboard shortcuts for the extension are not configured. You should set them in Chrome settings"
           actionMessage="Set up shortcuts"
           onAction={() => {
-            console.log('onAction')
+            chrome.tabs.create({
+              active: true,
+              url: 'chrome://extensions/shortcuts#:~:text=Popup%20Tab%20Switcher',
+            })
           }}
           onDismiss={() => {
             props.setKeyboardShortcutsEnabled(true)
