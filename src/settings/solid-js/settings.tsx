@@ -11,7 +11,7 @@ interface ISettingsProps {
 }
 
 export function Settings(props: ISettingsProps) {
-  const {store, pageTabs, setCurrentPageTab, setKeyboardShortcutsEnabled} =
+  const {store, pageTabs, setCurrentPageTab, setKeyboardShortcutsEnabled, setSettingsOptions} =
     createSettingsStore(props)
   return (
     <div
@@ -21,7 +21,11 @@ export function Settings(props: ISettingsProps) {
       <MTabBar tabs={pageTabs} onTabActivated={setCurrentPageTab} />
       <Switch fallback={<div>Not Found</div>}>
         <Match when={PageTab.Settings === store.currentPageTabId}>
-          <SettingsForm store={store} setKeyboardShortcutsEnabled={setKeyboardShortcutsEnabled} />
+          <SettingsForm
+            store={store}
+            setKeyboardShortcutsEnabled={setKeyboardShortcutsEnabled}
+            setSettingsOptions={setSettingsOptions}
+          />
         </Match>
         <Match when={PageTab.Contribute === store.currentPageTabId}>
           <div>Contribute</div>

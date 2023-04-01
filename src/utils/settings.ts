@@ -35,6 +35,7 @@ export const defaultSettings: ISettings = {
 export interface ISettingsService extends ISettings {
   update(settings: Partial<ISettings>): Promise<void>
   reset(): Promise<void>
+  getSettingsObject(): ISettings
 }
 
 export async function getSettings(storage: LocalStorageArea): Promise<ISettingsService> {
@@ -49,6 +50,22 @@ export async function getSettings(storage: LocalStorageArea): Promise<ISettingsS
     async reset() {
       Object.assign(this, defaultSettings)
       await storage.set({settings: defaultSettings})
+    },
+    getSettingsObject(this: ISettingsService): ISettings {
+      return {
+        textScrollDelay: this.textScrollDelay,
+        textScrollCoefficient: this.textScrollCoefficient,
+        autoSwitchingTimeout: this.autoSwitchingTimeout,
+        numberOfTabsToShow: this.numberOfTabsToShow,
+        isDarkTheme: this.isDarkTheme,
+        popupWidth: this.popupWidth,
+        tabHeight: this.tabHeight,
+        fontSize: this.fontSize,
+        iconSize: this.iconSize,
+        opacity: this.opacity,
+        isSwitchingToPreviouslyUsedTab: this.isSwitchingToPreviouslyUsedTab,
+        isStayingOpen: this.isStayingOpen,
+      }
     },
   }
 }
