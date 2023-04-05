@@ -32,6 +32,7 @@ export function SettingsForm(props: IProps) {
         />
       </Show>
       <div class={styles.settings__row} title="Turns on or off the dark theme">
+        {/* TODO: remove all '-new' postfixes */}
         <label for="isDarkTheme-new" class={styles.settings__label}>
           <i class="settings__icon settings__icon_label material-icons">brightness_3</i>
           Dark theme
