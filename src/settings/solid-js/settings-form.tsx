@@ -4,6 +4,7 @@ import {MBanner} from './components/m-banner/m-banner'
 import styles from './settings.module.scss'
 import {MSwitch} from './components/m-switch'
 import {ISettings} from '../../utils/settings'
+import {MTextField} from './components/m-text-field/m-text-field'
 
 interface IProps {
   store: ISettingsStore
@@ -41,6 +42,18 @@ export function SettingsForm(props: IProps) {
           onToggle={() => {
             props.setSettingsOptions({isDarkTheme: !props.store.settings.isDarkTheme})
           }}
+        />
+      </div>
+      <div class={styles.settings__row} title="Sets the popup width">
+        <label for="popupWidth-new" class={styles.settings__label}>
+          <i class="settings__icon settings__icon_label material-icons">border_horizontal</i>
+          Popup width
+        </label>
+        <MTextField
+          id="popupWidth-new"
+          type="number"
+          suffix="px"
+          value={props.store.settings.popupWidth}
         />
       </div>
     </form>
