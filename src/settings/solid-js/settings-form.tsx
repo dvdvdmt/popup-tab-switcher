@@ -4,7 +4,7 @@ import {MBanner} from './components/m-banner/m-banner'
 import styles from './settings.module.scss'
 import {MSwitch} from './components/m-switch'
 import {ISettings} from '../../utils/settings'
-import {MTextField} from './components/m-text-field/m-text-field'
+import {MNumberInput} from './components/m-text-field/m-number-input'
 
 interface IProps {
   store: ISettingsStore
@@ -50,11 +50,71 @@ export function SettingsForm(props: IProps) {
           <i class="settings__icon settings__icon_label material-icons">border_horizontal</i>
           Popup width
         </label>
-        <MTextField
+        <MNumberInput
           id="popupWidth-new"
-          type="number"
           suffix="px"
           value={props.store.settings.popupWidth}
+          onInput={(value) => {
+            props.setSettingsOptions({popupWidth: value})
+          }}
+        />
+      </div>
+      <div class={styles.settings__row} title="Sets the popup height">
+        <label for="tabHeight-new" class={styles.settings__label}>
+          <i class="settings__icon settings__icon_label material-icons">format_line_spacing</i>
+          Tab height
+        </label>
+        <MNumberInput
+          id="tabHeight-new"
+          suffix="px"
+          value={props.store.settings.tabHeight}
+          onInput={(value) => {
+            props.setSettingsOptions({tabHeight: value})
+          }}
+        />
+      </div>
+      <div
+        class={styles.settings__row}
+        title="Specifies how many recently used tabs to show in the popup"
+      >
+        <label for="numberOfTabsToShow-new" class={styles.settings__label}>
+          <i class="settings__icon settings__icon_label material-icons">format_list_numbered</i>
+          Max number of tabs
+        </label>
+        <MNumberInput
+          id="numberOfTabsToShow-new"
+          value={props.store.settings.numberOfTabsToShow}
+          onInput={(value) => {
+            props.setSettingsOptions({numberOfTabsToShow: value})
+          }}
+        />
+      </div>
+      <div class={styles.settings__row} title="Sets the size of the tab title text">
+        <label for="fontSize-new" class={styles.settings__label}>
+          <i class="settings__icon settings__icon_label material-icons">format_size</i>
+          Font size
+        </label>
+        <MNumberInput
+          id="fontSize-new"
+          suffix="px"
+          value={props.store.settings.fontSize}
+          onInput={(value) => {
+            props.setSettingsOptions({fontSize: value})
+          }}
+        />
+      </div>
+      <div class={styles.settings__row} title="Sets the size of the tab icon">
+        <label for="iconSize-new" class={styles.settings__label}>
+          <i class="settings__icon settings__icon_label material-icons">crop_original</i>
+          Icon size
+        </label>
+        <MNumberInput
+          id="iconSize-new"
+          suffix="px"
+          value={props.store.settings.iconSize}
+          onInput={(value) => {
+            props.setSettingsOptions({iconSize: value})
+          }}
         />
       </div>
     </form>
