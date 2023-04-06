@@ -43,9 +43,9 @@ export async function getSettings(storage: LocalStorageArea): Promise<ISettingsS
   return {
     ...defaultSettings,
     ...stored,
-    async update(newSettings) {
+    async update(this: ISettingsService, newSettings: Partial<ISettings>) {
       Object.assign(this, newSettings)
-      await storage.set({settings: newSettings})
+      await storage.set({settings: this.getSettingsObject()})
     },
     async reset() {
       Object.assign(this, defaultSettings)
