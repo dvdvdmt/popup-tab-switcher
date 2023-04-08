@@ -4,10 +4,10 @@ import styles from './m-text-field.module.scss'
 interface IProps {
   value: number
   id: string
+  onInput: (value: number) => void
   suffix?: string
   min?: number
   max?: number
-  onInput?: (value: number) => void
 }
 
 export function MNumberInput(props: IProps) {
@@ -30,7 +30,7 @@ export function MNumberInput(props: IProps) {
         onInput={() => {
           const value = normalizeValue(inputElement.value, previousValue, min, max)
           previousValue = value
-          props.onInput?.(value)
+          props.onInput(value)
           inputElement.value = value.toString()
         }}
       />
