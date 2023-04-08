@@ -117,6 +117,103 @@ export function SettingsForm(props: IProps) {
           }}
         />
       </div>
+      <div class={styles.settings__row} title="Sets popup opacity (0 - invisible, 100 - visible)">
+        <label for="opacity-new" class={styles.settings__label}>
+          <i class="settings__icon settings__icon_label material-icons">opacity</i>
+          Opacity
+        </label>
+        <MNumberInput
+          id="opacity-new"
+          value={props.store.settings.opacity}
+          suffix="%"
+          min={0}
+          max={100}
+          onInput={(value) => {
+            props.setSettingsOptions({opacity: value})
+          }}
+        />
+      </div>
+      <div
+        class={styles.settings__row}
+        title="If a page has no focus (address bar or search field is focused, etc.) then the extension starts a timer by the end of which it will switch a user to the selected tab. This timer restarts on each selection command (Alt+Y or Alt+Shift+Y by default)"
+      >
+        <label for="autoSwitchingTimeout-new" class={styles.settings__label}>
+          <i class="settings__icon settings__icon_label material-icons">timelapse</i>
+          Auto switching timeout
+        </label>
+        <MNumberInput
+          id="autoSwitchingTimeout-new"
+          suffix="ms"
+          value={props.store.settings.autoSwitchingTimeout}
+          onInput={(value) => {
+            props.setSettingsOptions({autoSwitchingTimeout: value})
+          }}
+        />
+      </div>
+      <div
+        class={styles.settings__row}
+        title="If a tab title is wider than the popup then its overflowing part will be hidden. When such a tab is selected its text will be scrolled. This option delays the start of the scrolling"
+      >
+        <label for="textScrollDelay-new" class={styles.settings__label}>
+          <i class="settings__icon settings__icon_label material-icons">timer</i>
+          Text scroll delay
+        </label>
+        <MNumberInput
+          id="textScrollDelay-new"
+          suffix="ms"
+          value={props.store.settings.textScrollDelay}
+          onInput={(value) => {
+            props.setSettingsOptions({textScrollDelay: value})
+          }}
+        />
+      </div>
+      <div class={styles.settings__row} title="Sets the speed of a selected tab text scrolling">
+        <label for="textScrollCoefficient-new" class={styles.settings__label}>
+          <i class="settings__icon settings__icon_label material-icons">text_rotation_none</i>
+          Text scroll speed
+        </label>
+        <MNumberInput
+          id="textScrollCoefficient-new"
+          value={props.store.settings.textScrollCoefficient}
+          onInput={(value) => {
+            props.setSettingsOptions({textScrollCoefficient: value})
+          }}
+        />
+      </div>
+      <div
+        class={styles.settings__row}
+        title="Switch to a previously active tab when the current one closes"
+      >
+        <label for="isSwitchingToPreviouslyUsedTab-new" class={styles.settings__label}>
+          <i class="settings__icon settings__icon_label material-icons">low_priority</i>
+          Switch to a previously used tab
+        </label>
+        <MSwitch
+          id="isSwitchingToPreviouslyUsedTab-new"
+          isOn={props.store.settings.isSwitchingToPreviouslyUsedTab}
+          onToggle={() => {
+            props.setSettingsOptions({
+              isSwitchingToPreviouslyUsedTab: !props.store.settings.isSwitchingToPreviouslyUsedTab,
+            })
+          }}
+        />
+      </div>
+      <div
+        class={styles.settings__row}
+        title="The switcher stays open and stops switching tabs on a modifier key release"
+      >
+        <label for="isStayingOpen-new" class={styles.settings__label}>
+          <i class="settings__icon settings__icon_label material-icons">flip_to_front</i>
+          Stay open
+        </label>
+        <MSwitch
+          id="isStayingOpen-new"
+          isOn={props.store.settings.isStayingOpen}
+          onToggle={() => {
+            props.setSettingsOptions({isStayingOpen: !props.store.settings.isStayingOpen})
+          }}
+        />
+      </div>
     </form>
   )
 }
