@@ -5,15 +5,15 @@ interface IProps {
   value: number
   id: string
   suffix?: string
-  min?: string
-  max?: string
+  min?: number
+  max?: number
   onInput?: (value: number) => void
 }
 
 export function MNumberInput(props: IProps) {
-  const initialValue = props.value
-  const min = props.min ? props.min : '0'
-  const max = props.max ? props.max : Infinity
+  let previousValue = props.value
+  const min = props.min ? props.min : 0
+  const max = props.max ? props.max : 10000
   let inputElement: HTMLInputElement
   return (
     <div class={`mdc-text-field mdc-text-field--outlined mdc-text-field--no-label ${styles.field}`}>
@@ -28,8 +28,10 @@ export function MNumberInput(props: IProps) {
         max={max}
         value={props.value}
         onInput={() => {
-          const value = parseNumber(inputElement.value, initialValue)
+          const value = normalizeValue(inputElement.value, previousValue, min, max)
+          previousValue = value
           props.onInput?.(value)
+          inputElement.value = value.toString()
         }}
       />
       <Show when={props.suffix}>
@@ -43,8 +45,22 @@ export function MNumberInput(props: IProps) {
   )
 }
 
-// Parses a number from a string. Returns default value if the string is not a number.
-function parseNumber(value: string, defaultValue = 0): number {
+/**
+ * Parses a number from a string and normalizes it to be within the given range.
+ */
+function normalizeValue(value: string, previousValue: number, min: number, max: number): number {
+  if (!value) {
+    return min
+  }
   const parsed = Number(value)
-  return Number.isNaN(parsed) ? defaultValue : parsed // normalize the value
+  if (Number.isNaN(parsed)) {
+    return previousValue
+  }
+  if (parsed < min) {
+    return min
+  }
+  if (parsed > max) {
+    return previousValue
+  }
+  return parsed
 }
