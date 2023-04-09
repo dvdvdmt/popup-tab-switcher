@@ -5,11 +5,13 @@ import styles from './settings.module.scss'
 import {MSwitch} from './components/m-switch'
 import {ISettings} from '../../utils/settings'
 import {MNumberInput} from './components/m-text-field/m-number-input'
+import {MButton} from './components/m-button'
 
 interface IProps {
   store: ISettingsStore
   setKeyboardShortcutsEnabled: (enabled: boolean) => void
   setSettingsOptions: (options: Partial<ISettings>) => void
+  restoreDefaultSettings: () => void
 }
 
 export function SettingsForm(props: IProps) {
@@ -213,6 +215,9 @@ export function SettingsForm(props: IProps) {
             props.setSettingsOptions({isStayingOpen: !props.store.settings.isStayingOpen})
           }}
         />
+      </div>
+      <div class="settings__row settings__row_buttons">
+        <MButton icon="restore" text="Set defaults" onClick={props.restoreDefaultSettings} />
       </div>
     </form>
   )
