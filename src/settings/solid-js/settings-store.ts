@@ -39,6 +39,7 @@ export function createSettingsStore({settingsService}: ISettingsStoreProps) {
     setCurrentPageTab,
     setKeyboardShortcutsEnabled,
     setSettingsOptions,
+    restoreDefaultSettings,
   }
 
   function setCurrentPageTab(tabId: string) {
@@ -52,6 +53,12 @@ export function createSettingsStore({settingsService}: ISettingsStoreProps) {
   function setSettingsOptions(options: Partial<ISettings>) {
     settingsService.update(options).then(() => {
       setStore('settings', options)
+    })
+  }
+
+  function restoreDefaultSettings() {
+    settingsService.reset().then(() => {
+      setStore('settings', settingsService.getSettingsObject())
     })
   }
 }

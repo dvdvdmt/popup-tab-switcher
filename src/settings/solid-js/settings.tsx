@@ -11,8 +11,14 @@ interface ISettingsProps {
 }
 
 export function Settings(props: ISettingsProps) {
-  const {store, pageTabs, setCurrentPageTab, setKeyboardShortcutsEnabled, setSettingsOptions} =
-    createSettingsStore(props)
+  const {
+    store,
+    pageTabs,
+    setCurrentPageTab,
+    setKeyboardShortcutsEnabled,
+    setSettingsOptions,
+    restoreDefaultSettings,
+  } = createSettingsStore(props)
   return (
     <div
       class={`${styles.settings} mdc-typography`}
@@ -25,6 +31,7 @@ export function Settings(props: ISettingsProps) {
             store={store}
             setKeyboardShortcutsEnabled={setKeyboardShortcutsEnabled}
             setSettingsOptions={setSettingsOptions}
+            restoreDefaultSettings={restoreDefaultSettings}
           />
         </Match>
         <Match when={PageTab.Contribute === store.currentPageTabId}>
