@@ -8,9 +8,10 @@ interface IProps {
   unelevated?: boolean
   outlined?: boolean
   href?: string
+  target?: string
   icon?: string
   text: string
-  onClick: () => void
+  onClick?: () => void
 }
 
 export function MButton(props: IProps) {
@@ -61,7 +62,7 @@ function MButtonWithIcon(props: IPropsWithRef) {
       }}
       onClick={(event) => {
         event.preventDefault()
-        props.onClick()
+        props.onClick?.()
       }}
     >
       <i class="settings__icon material-icons">{props.icon}</i>
