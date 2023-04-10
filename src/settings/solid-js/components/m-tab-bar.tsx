@@ -10,13 +10,15 @@ export interface IPageTab {
 interface IMTabBarProps {
   tabs: IPageTab[]
   onTabActivated: (tabId: string) => void
+  initialTabId: string
 }
 
 export function MTabBar(props: IMTabBarProps) {
   let rootRef: HTMLDivElement
   onMount(() => {
     const mdcTabBar = MDCTabBar.attachTo(rootRef)
-    mdcTabBar.activateTab(0)
+    const initialTabIdx = props.tabs.findIndex((tab) => tab.id === props.initialTabId)
+    mdcTabBar.activateTab(initialTabIdx)
   })
   return (
     <div ref={rootRef!} class="mdc-tab-bar" role="tablist">

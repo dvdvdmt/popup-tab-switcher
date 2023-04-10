@@ -26,7 +26,7 @@ export function createSettingsStore({settingsService}: ISettingsStoreProps) {
 
   const [store, setStore] = createStore<ISettingsStore>({
     settings: settingsService.getSettingsObject(), // Store can work only with plain objects.
-    currentPageTabId: PageTab.Settings,
+    currentPageTabId: PageTab.Contribute,
     isKeyboardShortcutsEnabled: true,
   })
 

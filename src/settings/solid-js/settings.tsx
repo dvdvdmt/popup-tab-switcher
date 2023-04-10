@@ -5,6 +5,7 @@ import {ISettingsService} from '../../utils/settings'
 import {createSettingsStore, PageTab} from './settings-store'
 import {MTabBar} from './components/m-tab-bar'
 import {SettingsForm} from './settings-form'
+import {Contribute} from './contribute/contribute'
 
 interface ISettingsProps {
   settingsService: ISettingsService
@@ -24,7 +25,11 @@ export function Settings(props: ISettingsProps) {
       class={`${styles.settings} mdc-typography`}
       classList={{[styles.settings_dark]: store.settings.isDarkTheme}}
     >
-      <MTabBar tabs={pageTabs} onTabActivated={setCurrentPageTab} />
+      <MTabBar
+        tabs={pageTabs}
+        initialTabId={store.currentPageTabId}
+        onTabActivated={setCurrentPageTab}
+      />
       <Switch fallback={<div>Not Found</div>}>
         <Match when={PageTab.Settings === store.currentPageTabId}>
           <SettingsForm
@@ -35,7 +40,7 @@ export function Settings(props: ISettingsProps) {
           />
         </Match>
         <Match when={PageTab.Contribute === store.currentPageTabId}>
-          <div>Contribute</div>
+          <Contribute />
         </Match>
       </Switch>
     </div>
