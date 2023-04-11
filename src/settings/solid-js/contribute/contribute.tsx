@@ -1,5 +1,6 @@
 import {MButton} from '../components/m-button'
 import styles from './contribute.module.scss'
+import {CopyLinkButton} from './copy-link-button'
 
 export function Contribute() {
   return (
@@ -25,9 +26,10 @@ export function Contribute() {
       <div class={styles.shareActions}>
         <p class={styles.callToAction}>or share with others</p>
         <div class={styles.shareLinks}>
+          <CopyLinkButton class={styles.iconButton} textToCopy="test 23334" />
           {/* <copy-link-button :link="extensionUrl" /> */}
           <a
-            class="mdc-icon-button"
+            class={styles.iconButton}
             //* :href='shareOnFacebookUrl' */
             target="_blank"
           >
@@ -41,7 +43,7 @@ export function Contribute() {
             </svg>
           </a>
           <a
-            class="mdc-icon-button"
+            class={styles.iconButton}
             // :href="shareOnTwitterUrl"
             target="_blank"
           >
@@ -55,7 +57,7 @@ export function Contribute() {
             </svg>
           </a>
           <a
-            class="mdc-icon-button"
+            class={styles.iconButton}
             // :href="shareOnVkontakteUrl"
             target="_blank"
           >
