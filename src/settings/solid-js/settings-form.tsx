@@ -216,7 +216,7 @@ export function SettingsForm(props: IProps) {
           }}
         />
       </div>
-      <div class="settings__row settings__row_buttons">
+      <div class={styles.bottomActions}>
         <MButton icon="restore" text="Set defaults" onClick={props.restoreDefaultSettings} />
       </div>
     </form>

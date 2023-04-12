@@ -7,10 +7,14 @@
 
 @import 'src/styles/mixins';
 
-body {
-  margin: 0;
-  user-select: none;
-  width: 340px;
+:global {
+  @import 'node_modules/material-components-web/dist/material-components-web';
+
+  body {
+    margin: 0;
+    user-select: none;
+    width: 340px;
+  }
 }
 
 .settings {
@@ -88,14 +92,12 @@ body {
   align-items: center;
   padding: 5px 16px 5px 10px;
   height: 40px;
+}
 
-  &_buttons {
-    flex-direction: row-reverse;
+.bottomActions {
+  @extend .settings__row;
 
-    &:hover {
-      background-color: unset;
-    }
-  }
+  flex-direction: row-reverse;
 }
 
 .settings__icon {
