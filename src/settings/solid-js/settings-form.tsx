@@ -5,7 +5,7 @@ import styles from './settings.module.scss'
 import {MSwitch} from './components/m-switch'
 import {ISettings} from '../../utils/settings'
 import {MNumberInput} from './components/m-text-field/m-number-input'
-import {MButton} from './components/m-button'
+import {MButton} from './components/m-button/m-button'
 
 interface IProps {
   store: ISettingsStore
@@ -36,7 +36,7 @@ export function SettingsForm(props: IProps) {
       <div class={styles.settings__row} title="Turns on or off the dark theme">
         {/* TODO: remove all '-new' postfixes */}
         <label for="isDarkTheme-new" class={styles.settings__label} data-test="darkModeToggle">
-          <i class="settings__icon settings__icon_label material-icons">brightness_3</i>
+          <i class={styles.iconInLabel}>brightness_3</i>
           Dark theme
         </label>
         <MSwitch
@@ -49,7 +49,7 @@ export function SettingsForm(props: IProps) {
       </div>
       <div class={styles.settings__row} title="Sets the popup width">
         <label for="popupWidth-new" class={styles.settings__label}>
-          <i class="settings__icon settings__icon_label material-icons">border_horizontal</i>
+          <i class={styles.iconInLabel}>border_horizontal</i>
           Popup width
         </label>
         <MNumberInput
@@ -63,7 +63,7 @@ export function SettingsForm(props: IProps) {
       </div>
       <div class={styles.settings__row} title="Sets the popup height">
         <label for="tabHeight-new" class={styles.settings__label}>
-          <i class="settings__icon settings__icon_label material-icons">format_line_spacing</i>
+          <i class={styles.iconInLabel}>format_line_spacing</i>
           Tab height
         </label>
         <MNumberInput
@@ -80,7 +80,7 @@ export function SettingsForm(props: IProps) {
         title="Specifies how many recently used tabs to show in the popup"
       >
         <label for="numberOfTabsToShow-new" class={styles.settings__label}>
-          <i class="settings__icon settings__icon_label material-icons">format_list_numbered</i>
+          <i class={styles.iconInLabel}>format_list_numbered</i>
           Max number of tabs
         </label>
         <MNumberInput
@@ -93,7 +93,7 @@ export function SettingsForm(props: IProps) {
       </div>
       <div class={styles.settings__row} title="Sets the size of the tab title text">
         <label for="fontSize-new" class={styles.settings__label}>
-          <i class="settings__icon settings__icon_label material-icons">format_size</i>
+          <i class={styles.iconInLabel}>format_size</i>
           Font size
         </label>
         <MNumberInput
@@ -107,7 +107,7 @@ export function SettingsForm(props: IProps) {
       </div>
       <div class={styles.settings__row} title="Sets the size of the tab icon">
         <label for="iconSize-new" class={styles.settings__label}>
-          <i class="settings__icon settings__icon_label material-icons">crop_original</i>
+          <i class={styles.iconInLabel}>crop_original</i>
           Icon size
         </label>
         <MNumberInput
@@ -121,7 +121,7 @@ export function SettingsForm(props: IProps) {
       </div>
       <div class={styles.settings__row} title="Sets popup opacity (0 - invisible, 100 - visible)">
         <label for="opacity-new" class={styles.settings__label}>
-          <i class="settings__icon settings__icon_label material-icons">opacity</i>
+          <i class={styles.iconInLabel}>opacity</i>
           Opacity
         </label>
         <MNumberInput
@@ -140,7 +140,7 @@ export function SettingsForm(props: IProps) {
         title="If a page has no focus (address bar or search field is focused, etc.) then the extension starts a timer by the end of which it will switch a user to the selected tab. This timer restarts on each selection command (Alt+Y or Alt+Shift+Y by default)"
       >
         <label for="autoSwitchingTimeout-new" class={styles.settings__label}>
-          <i class="settings__icon settings__icon_label material-icons">timelapse</i>
+          <i class={styles.iconInLabel}>timelapse</i>
           Auto switching timeout
         </label>
         <MNumberInput
@@ -157,7 +157,7 @@ export function SettingsForm(props: IProps) {
         title="If a tab title is wider than the popup then its overflowing part will be hidden. When such a tab is selected its text will be scrolled. This option delays the start of the scrolling"
       >
         <label for="textScrollDelay-new" class={styles.settings__label}>
-          <i class="settings__icon settings__icon_label material-icons">timer</i>
+          <i class={styles.iconInLabel}>timer</i>
           Text scroll delay
         </label>
         <MNumberInput
@@ -171,7 +171,7 @@ export function SettingsForm(props: IProps) {
       </div>
       <div class={styles.settings__row} title="Sets the speed of a selected tab text scrolling">
         <label for="textScrollCoefficient-new" class={styles.settings__label}>
-          <i class="settings__icon settings__icon_label material-icons">text_rotation_none</i>
+          <i class={styles.iconInLabel}>text_rotation_none</i>
           Text scroll speed
         </label>
         <MNumberInput
@@ -187,7 +187,7 @@ export function SettingsForm(props: IProps) {
         title="Switch to a previously active tab when the current one closes"
       >
         <label for="isSwitchingToPreviouslyUsedTab-new" class={styles.settings__label}>
-          <i class="settings__icon settings__icon_label material-icons">low_priority</i>
+          <i class={styles.iconInLabel}>low_priority</i>
           Switch to a previously used tab
         </label>
         <MSwitch
@@ -205,7 +205,7 @@ export function SettingsForm(props: IProps) {
         title="The switcher stays open and stops switching tabs on a modifier key release"
       >
         <label for="isStayingOpen-new" class={styles.settings__label}>
-          <i class="settings__icon settings__icon_label material-icons">flip_to_front</i>
+          <i class={styles.iconInLabel}>flip_to_front</i>
           Stay open
         </label>
         <MSwitch

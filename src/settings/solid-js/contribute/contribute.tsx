@@ -1,4 +1,4 @@
-import {MButton} from '../components/m-button'
+import {MButton} from '../components/m-button/m-button'
 import styles from './contribute.module.scss'
 import {CopyLinkButton} from './copy-link-button'
 

@@ -1,0 +1,23 @@
+@import 'node_modules/material-components-web/dist/material-components-web';
+@import '../../icon.module';
+
+.button {
+  @extend .mdc-button;
+  gap: 6px;
+}
+
+.buttonRaised {
+  @extend .mdc-button--raised;
+}
+
+.buttonOutlined {
+  @extend .mdc-button--outlined;
+}
+
+.buttonUnelevated {
+  @extend .mdc-button--unelevated;
+}
+
+.icon {
+  @extend .materialIcon;
+}
