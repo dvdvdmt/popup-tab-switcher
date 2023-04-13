@@ -6,6 +6,7 @@
 @import 'node_modules/@material/form-field/dist/mdc.form-field';
 
 @import 'src/styles/mixins';
+@import './icon.module.scss';
 
 :global {
   @import 'node_modules/material-components-web/dist/material-components-web';
@@ -100,12 +101,11 @@
   flex-direction: row-reverse;
 }
 
-.settings__icon {
-  margin-right: 6px;
+.iconInLabel {
+  @extend .materialIcon;
 
-  &_label {
-    color: var(--mdc-theme-text-icon-on-background);
-  }
+  margin-right: 6px;
+  color: var(--mdc-theme-text-icon-on-background);
 }
 
 .settings__label {
