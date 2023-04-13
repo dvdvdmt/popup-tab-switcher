@@ -24,6 +24,7 @@ export function Settings(props: ISettingsProps) {
     <div
       class={`${styles.settings} mdc-typography`}
       classList={{[styles.settings_dark]: store.settings.isDarkTheme}}
+      data-test="settings"
     >
       <MTabBar
         tabs={pageTabs}

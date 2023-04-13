@@ -32,7 +32,7 @@ export function MTabBar(props: IMTabBarProps) {
                   role="tab"
                   aria-selected="true"
                   tabindex="0"
-                  data-test="id"
+                  data-test={tab.id}
                   onClick={() => {
                     props.onTabActivated(tab.id)
                   }}
