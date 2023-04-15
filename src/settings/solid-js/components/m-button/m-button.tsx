@@ -35,7 +35,8 @@ function MHyperlinkButton(props: IPropsWithRef) {
   return (
     <a
       ref={props.ref as HTMLAnchorElement}
-      class={styles.button}
+      // the mdc-button class is needed to preserve ripple effect
+      class={`mdc-button ${styles.button}`}
       classList={{
         [styles.buttonRaised]: props.raised,
         [styles.buttonUnelevated]: props.unelevated,
@@ -55,7 +56,7 @@ function MButtonWithIcon(props: IPropsWithRef) {
   return (
     <button
       ref={props.ref as HTMLButtonElement}
-      class={styles.button}
+      class={`mdc-button ${styles.button}`}
       classList={{
         [styles.buttonRaised]: props.raised,
         [styles.buttonUnelevated]: props.unelevated,

@@ -12,7 +12,6 @@ const settingsDir = path.join(srcDir, 'settings')
 const stylesDir = path.join(srcDir, 'styles')
 const nodeModulesDir = path.join(__dirname, 'node_modules')
 const e2eDir = path.join(__dirname, 'e2e')
-const sassGlobals = '@import "variables";'
 const conf = {
   mode: 'development',
   devtool: false,
@@ -68,7 +67,6 @@ const conf = {
           {
             loader: 'sass-loader',
             options: {
-              additionalData: sassGlobals,
               sassOptions: {
                 includePaths: [nodeModulesDir, stylesDir],
               },
@@ -92,7 +90,6 @@ const conf = {
           {
             loader: 'sass-loader',
             options: {
-              additionalData: sassGlobals,
               sassOptions: {
                 includePaths: [nodeModulesDir, stylesDir],
               },
@@ -108,7 +105,6 @@ const conf = {
           {
             loader: 'sass-loader',
             options: {
-              additionalData: sassGlobals,
               sassOptions: {
                 includePaths: [stylesDir],
               },

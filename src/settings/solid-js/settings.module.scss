@@ -5,11 +5,14 @@
 @import 'node_modules/@material/button/mixins';
 @import 'node_modules/@material/form-field/dist/mdc.form-field';
 
+@import 'src/styles/variables';
 @import 'src/styles/mixins';
 @import './icon.module.scss';
 
 :global {
-  @import 'node_modules/material-components-web/dist/material-components-web';
+  // Ripple animations won't work without setting :global on each keyframe
+  // https://github.com/css-modules/css-modules/issues/115#issuecomment-1507948321
+  @import './material';
 
   body {
     margin: 0;
@@ -49,15 +52,6 @@
 
       $colors: get-theme-colors($theme-dark);
       @include theme-colors-as-custom-properties($colors);
-
-      .mdc-button {
-        @include mdc-button-ink-color(map_get($colors, primary));
-
-        &--raised {
-          @include mdc-button-ink-color(map_get($colors, surface));
-          @include mdc-button-container-fill-color(map_get($colors, primary));
-        }
-      }
 
       .mdc-text-field {
         @include mdc-text-field-ink-color(rgba(map_get($colors, on-surface), 0.87));
