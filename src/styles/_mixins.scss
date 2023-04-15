@@ -83,8 +83,16 @@
   @return $mdc-theme-property-values;
 }
 
+@function hex-to-rgb($hex) {
+  $r: red($hex);
+  $g: green($hex);
+  $b: blue($hex);
+  @return $r, $g, $b;
+}
+
 @mixin theme-colors-as-custom-properties($mdc-theme-colors) {
   @each $style in map-keys($mdc-theme-colors) {
     --mdc-theme-#{$style}: #{map-get($mdc-theme-colors, $style)};
+    --mdc-theme-#{$style}-rgb: #{hex-to-rgb(map-get($mdc-theme-colors, $style))};
   }
 }

@@ -1,10 +1,56 @@
-/**
- * @license
- * Copyright Google LLC All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://github.com/material-components/material-components-web/blob/master/LICENSE
- */
+:root {
+  /* Actual definitions of the variables are generated in settings.module.scss */
+  --settings-background-color: white;
+  --mdc-theme-primary: #366ad3;
+  --mdc-theme-primary-rgb: 54, 106, 211;
+  --mdc-theme-secondary: #2274e1;
+  --mdc-theme-secondary-rgb: 34, 116, 225;
+  --mdc-theme-background: white;
+  --mdc-theme-background-rgb: 255, 255, 255;
+  --mdc-theme-surface: white;
+  --mdc-theme-surface-rgb: 255, 255, 255;
+  --mdc-theme-error: #b00020;
+  --mdc-theme-error-rgb: 176, 0, 32;
+  --mdc-theme-on-primary: #fff;
+  --mdc-theme-on-primary-rgb: 255, 255, 255;
+  --mdc-theme-on-secondary: #fff;
+  --mdc-theme-on-secondary-rgb: 255, 255, 255;
+  --mdc-theme-on-surface: #000;
+  --mdc-theme-on-surface-rgb: 0, 0, 0;
+  --mdc-theme-on-error: #fff;
+  --mdc-theme-on-error-rgb: 255, 255, 255;
+  --mdc-theme-text-primary-on-background: rgba(0, 0, 0, 0.87);
+  --mdc-theme-text-primary-on-background-rgb: 0, 0, 0;
+  --mdc-theme-text-secondary-on-background: rgba(0, 0, 0, 0.54);
+  --mdc-theme-text-secondary-on-background-rgb: 0, 0, 0;
+  --mdc-theme-text-hint-on-background: rgba(0, 0, 0, 0.38);
+  --mdc-theme-text-hint-on-background-rgb: 0, 0, 0;
+  --mdc-theme-text-disabled-on-background: rgba(0, 0, 0, 0.38);
+  --mdc-theme-text-disabled-on-background-rgb: 0, 0, 0;
+  --mdc-theme-text-icon-on-background: rgba(0, 0, 0, 0.38);
+  --mdc-theme-text-icon-on-background-rgb: 0, 0, 0;
+  --mdc-theme-text-primary-on-light: rgba(0, 0, 0, 0.87);
+  --mdc-theme-text-primary-on-light-rgb: 0, 0, 0;
+  --mdc-theme-text-secondary-on-light: rgba(0, 0, 0, 0.54);
+  --mdc-theme-text-secondary-on-light-rgb: 0, 0, 0;
+  --mdc-theme-text-hint-on-light: rgba(0, 0, 0, 0.38);
+  --mdc-theme-text-hint-on-light-rgb: 0, 0, 0;
+  --mdc-theme-text-disabled-on-light: rgba(0, 0, 0, 0.38);
+  --mdc-theme-text-disabled-on-light-rgb: 0, 0, 0;
+  --mdc-theme-text-icon-on-light: rgba(0, 0, 0, 0.38);
+  --mdc-theme-text-icon-on-light-rgb: 0, 0, 0;
+  --mdc-theme-text-primary-on-dark: white;
+  --mdc-theme-text-primary-on-dark-rgb: 255, 255, 255;
+  --mdc-theme-text-secondary-on-dark: rgba(255, 255, 255, 0.7);
+  --mdc-theme-text-secondary-on-dark-rgb: 255, 255, 255;
+  --mdc-theme-text-hint-on-dark: rgba(255, 255, 255, 0.5);
+  --mdc-theme-text-hint-on-dark-rgb: 255, 255, 255;
+  --mdc-theme-text-disabled-on-dark: rgba(255, 255, 255, 0.5);
+  --mdc-theme-text-disabled-on-dark-rgb: 255, 255, 255;
+  --mdc-theme-text-icon-on-dark: rgba(255, 255, 255, 0.5);
+  --mdc-theme-text-icon-on-dark-rgb: 255, 255, 255;
+}
+
 .mdc-button {
   font-family: Roboto, sans-serif;
   -moz-osx-font-smoothing: grayscale;
@@ -8150,11 +8196,11 @@ a.mdc-list-item {
 }
 
 .mdc-tab .mdc-tab__text-label {
-  color: rgba(0, 0, 0, 0.6);
+  color: rgba(var(--mdc-theme-on-surface-rgb), 0.6);
 }
 
 .mdc-tab .mdc-tab__icon {
-  color: rgba(0, 0, 0, 0.54);
+  color: rgba(var(--mdc-theme-on-surface-rgb), 0.54);
   fill: currentColor;
 }
 
@@ -8326,14 +8372,10 @@ a.mdc-list-item {
 }
 
 .mdc-tab--active .mdc-tab__text-label {
-  color: #6200ee;
-  /* @alternate */
   color: var(--mdc-theme-primary, #6200ee);
 }
 
 .mdc-tab--active .mdc-tab__icon {
-  color: #6200ee;
-  /* @alternate */
   color: var(--mdc-theme-primary, #6200ee);
   fill: currentColor;
 }
@@ -8462,8 +8504,6 @@ a.mdc-list-item {
 }
 
 .mdc-tab-indicator .mdc-tab-indicator__content--underline {
-  border-color: #6200ee;
-  /* @alternate */
   border-color: var(--mdc-theme-primary, #6200ee);
 }
 
@@ -8844,7 +8884,7 @@ a.mdc-list-item {
 }
 
 .mdc-text-field:not(.mdc-text-field--disabled) .mdc-text-field__icon {
-  color: rgba(0, 0, 0, 0.54);
+  color: rgba(var(--mdc-theme-on-surface-rgb), 0.54);
 }
 
 .mdc-text-field:not(.mdc-text-field--disabled) {
