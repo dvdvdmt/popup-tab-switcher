@@ -53,14 +53,6 @@
       $colors: get-theme-colors($theme-dark);
       @include theme-colors-as-custom-properties($colors);
 
-      .mdc-text-field {
-        @include mdc-text-field-ink-color(rgba(map_get($colors, on-surface), 0.87));
-        @include mdc-text-field-caret-color(map_get($colors, primary));
-        @include mdc-text-field-outline-color(rgba(map_get($colors, on-surface), 0.24));
-        @include mdc-text-field-hover-outline-color(rgba(map_get($colors, on-surface), 0.87));
-        @include mdc-text-field-focused-outline-color(map_get($colors, primary));
-      }
-
       .mdc-tab {
         @include mdc-tab-text-label-color(rgba(map_get($colors, on-surface), 0.6));
         @include mdc-tab-active-text-label-color(map_get($colors, primary));

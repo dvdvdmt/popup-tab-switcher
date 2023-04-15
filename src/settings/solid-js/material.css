@@ -6732,7 +6732,8 @@ a.mdc-list-item {
   .mdc-select__selected-text:hover
   ~ .mdc-notched-outline
   .mdc-notched-outline__trailing {
-  border-color: rgba(0, 0, 0, 0.87);
+  border-color: var(--mdc-theme-on-surface, black);
+  opacity: 0.87;
 }
 
 .mdc-select--outlined:not(.mdc-select--disabled).mdc-select--focused
@@ -9045,7 +9046,8 @@ a.mdc-list-item {
 .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading,
 .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch,
 .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
-  border-color: rgba(0, 0, 0, 0.38);
+  border-color: var(--mdc-theme-on-surface, black);
+  opacity: 0.24;
 }
 
 .mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused)
