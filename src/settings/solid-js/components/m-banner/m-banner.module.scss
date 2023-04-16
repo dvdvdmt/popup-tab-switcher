@@ -1,48 +1,49 @@
-@import '~@material/elevation/mixins';
-@import '~@material/theme/mixins';
-@import '~@material/rtl/mixins';
-@import '~@material/typography/dist/mdc.typography';
-@import '~@material/button/dist/mdc.button';
-@import './mixins';
-@import './variables';
-@import '../../icon.module';
+@use 'src/settings/global-styles/material' as *;
+@use '../../icon.module' as *;
 
 .banner {
-  @include mdc-banner-base;
-  @include mdc-banner-fill-color(surface);
-  @include mdc-elevation(1);
-  @include mdc-banner-container-layout;
+  background-color: var(--mdc-theme-surface);
+  box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  padding: var(--mdc-layout-grid-margin-tablet);
+  gap: var(--mdc-layout-grid-margin-tablet);
 
   position: sticky;
   top: 0;
   z-index: 10;
-  display: block;
-  padding: 0;
 }
 
 .content {
-  @include mdc-banner-content-layout;
+  display: flex;
+  gap: var(--mdc-layout-grid-margin-tablet);
 }
 
 .icon {
-  @include mdc-banner-icon;
   @extend .materialIcon;
-
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
   font-size: 40px;
 }
 
 .actions {
-  @include mdc-banner-actions-layout;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  min-height: 52px;
   justify-content: flex-end;
+  width: 100%;
+  gap: 6px;
 }
 
 .button {
-  @include mdc-rtl-reflexive-box(margin, left, 8px);
   @extend .mdc-button;
-
-  &:first-child {
-    @include mdc-rtl-reflexive-box(margin, left, 0);
-  }
 }
 
 .button_raised {
