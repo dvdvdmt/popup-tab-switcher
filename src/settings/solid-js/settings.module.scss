@@ -1,6 +1,6 @@
-@import 'src/styles/variables';
-@import 'src/styles/mixins';
-@import './icon.module.scss';
+@use 'src/styles/variables' as *;
+@use 'src/styles/mixins' as *;
+@use './icon.module' as *;
 
 :global {
   // Ripple animations won't work without setting :global on each keyframe
