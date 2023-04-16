@@ -163,8 +163,8 @@ module.exports = (env) => {
         to: 'settings',
       },
       {
-        from: 'src/settings/fonts/',
-        to: 'settings/fonts',
+        from: 'src/settings/global-styles/',
+        to: 'settings/global-styles',
       },
     ],
   }

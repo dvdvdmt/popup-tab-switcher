@@ -1,3 +1,9 @@
+/*
+The file should be global and should not be a part of the CSS-modules.
+If it will become a part of CSS-modules then all the animations will stop working
+more info here: https://github.com/css-modules/css-modules/issues/115#issuecomment-1507948321
+*/
+
 :root {
   /* Actual definitions of the variables are generated in settings.module.scss */
   --settings-background-color: white;
@@ -282,7 +288,7 @@ svg.mdc-button__icon {
   font-size: 0.8125rem;
 }
 
-@keyframes :global(mdc-ripple-fg-radius-in) {
+@keyframes mdc-ripple-fg-radius-in {
   from {
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transform: translate(var(--mdc-ripple-fg-translate-start, 0)) scale(1);
@@ -292,7 +298,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(mdc-ripple-fg-opacity-in) {
+@keyframes mdc-ripple-fg-opacity-in {
   from {
     animation-timing-function: linear;
     opacity: 0;
@@ -302,7 +308,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(mdc-ripple-fg-opacity-out) {
+@keyframes mdc-ripple-fg-opacity-out {
   from {
     animation-timing-function: linear;
     opacity: var(--mdc-ripple-fg-opacity, 0);
@@ -760,7 +766,7 @@ svg.mdc-button__icon {
   --mdc-ripple-fg-opacity: 0.12;
 }
 
-@keyframes :global(mdc-checkbox-unchecked-checked-checkmark-path) {
+@keyframes mdc-checkbox-unchecked-checked-checkmark-path {
   0%,
   50% {
     stroke-dashoffset: 29.7833385;
@@ -773,7 +779,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(mdc-checkbox-unchecked-indeterminate-mixedmark) {
+@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark {
   0%,
   68.2% {
     transform: scaleX(0);
@@ -786,7 +792,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(mdc-checkbox-checked-unchecked-checkmark-path) {
+@keyframes mdc-checkbox-checked-unchecked-checkmark-path {
   from {
     animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
     opacity: 1;
@@ -798,7 +804,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(mdc-checkbox-checked-indeterminate-checkmark) {
+@keyframes mdc-checkbox-checked-indeterminate-checkmark {
   from {
     animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
     transform: rotate(0deg);
@@ -810,7 +816,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(mdc-checkbox-indeterminate-checked-checkmark) {
+@keyframes mdc-checkbox-indeterminate-checked-checkmark {
   from {
     animation-timing-function: cubic-bezier(0.14, 0, 0, 1);
     transform: rotate(45deg);
@@ -822,7 +828,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(mdc-checkbox-checked-indeterminate-mixedmark) {
+@keyframes mdc-checkbox-checked-indeterminate-mixedmark {
   from {
     animation-timing-function: ease-in;
     transform: rotate(-45deg);
@@ -834,7 +840,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(mdc-checkbox-indeterminate-checked-mixedmark) {
+@keyframes mdc-checkbox-indeterminate-checked-mixedmark {
   from {
     animation-timing-function: cubic-bezier(0.14, 0, 0, 1);
     transform: rotate(0deg);
@@ -846,7 +852,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(mdc-checkbox-indeterminate-unchecked-mixedmark) {
+@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark {
   0% {
     animation-timing-function: linear;
     transform: scaleX(1);
@@ -885,7 +891,7 @@ svg.mdc-button__icon {
   background-color: var(--mdc-theme-secondary, #018786);
 }
 
-@keyframes :global(mdc-checkbox-fade-in-background-0) {
+@keyframes mdc-checkbox-fade-in-background-0 {
   0% {
     border-color: rgba(0, 0, 0, 0.54);
     background-color: transparent;
@@ -896,7 +902,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(mdc-checkbox-fade-out-background-0) {
+@keyframes mdc-checkbox-fade-out-background-0 {
   0%,
   80% {
     border-color: var(--mdc-theme-secondary, #018786);
@@ -1611,7 +1617,7 @@ svg.mdc-button__icon {
   --mdc-ripple-fg-opacity: 0.2;
 }
 
-@keyframes :global(mdc-chip-entry) {
+@keyframes mdc-chip-entry {
   from {
     transform: scale(0.8);
     opacity: 0.4;
@@ -2690,7 +2696,7 @@ svg.mdc-button__icon {
   animation: mdc-floating-label-shake-float-above-standard 250ms 1;
 }
 
-@keyframes :global(mdc-floating-label-shake-float-above-standard) {
+@keyframes mdc-floating-label-shake-float-above-standard {
   0% {
     transform: translateX(calc(0 - 0%)) translateY(-50%) scale(0.75);
   }
@@ -3954,7 +3960,7 @@ svg.mdc-button__icon {
   opacity: 0;
 }
 
-@keyframes :global(primary-indeterminate-translate) {
+@keyframes primary-indeterminate-translate {
   0% {
     transform: translateX(0);
   }
@@ -3971,7 +3977,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(primary-indeterminate-scale) {
+@keyframes primary-indeterminate-scale {
   0% {
     transform: scaleX(0.08);
   }
@@ -3988,7 +3994,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(secondary-indeterminate-translate) {
+@keyframes secondary-indeterminate-translate {
   0% {
     animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);
     transform: translateX(0);
@@ -4006,7 +4012,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(secondary-indeterminate-scale) {
+@keyframes secondary-indeterminate-scale {
   0% {
     animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);
     transform: scaleX(0.08);
@@ -4024,13 +4030,13 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(buffering) {
+@keyframes buffering {
   to {
     transform: translateX(-10px);
   }
 }
 
-@keyframes :global(primary-indeterminate-translate-reverse) {
+@keyframes primary-indeterminate-translate-reverse {
   0% {
     transform: translateX(0);
   }
@@ -4047,7 +4053,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(secondary-indeterminate-translate-reverse) {
+@keyframes secondary-indeterminate-translate-reverse {
   0% {
     animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);
     transform: translateX(0);
@@ -4065,7 +4071,7 @@ svg.mdc-button__icon {
   }
 }
 
-@keyframes :global(buffering-reverse) {
+@keyframes buffering-reverse {
   to {
     transform: translateX(10px);
   }
@@ -5605,7 +5611,7 @@ a.mdc-list-item {
   --mdc-ripple-fg-opacity: 0.12;
 }
 
-@keyframes :global(mdc-select-float-native-control) {
+@keyframes mdc-select-float-native-control {
   0% {
     transform: translateY(8px);
     opacity: 0;
@@ -6494,7 +6500,7 @@ a.mdc-list-item {
   --mdc-ripple-fg-opacity: 0.12;
 }
 
-@keyframes :global(mdc-floating-label-shake-float-above-select-outlined-leading-icon) {
+@keyframes mdc-floating-label-shake-float-above-select-outlined-leading-icon {
   0% {
     transform: translateX(calc(0 - 32px)) translateY(-130%) scale(0.75);
   }
@@ -6511,7 +6517,7 @@ a.mdc-list-item {
   }
 }
 
-@keyframes :global(mdc-floating-label-shake-float-above-select-outlined-leading-icon-rtl) {
+@keyframes mdc-floating-label-shake-float-above-select-outlined-leading-icon-rtl {
   0% {
     transform: translateX(calc(0 - -32px)) translateY(-130%) scale(0.75);
   }
@@ -6528,7 +6534,7 @@ a.mdc-list-item {
   }
 }
 
-@keyframes :global(mdc-slider-emphasize) {
+@keyframes mdc-slider-emphasize {
   0% {
     animation-timing-function: ease-out;
   }
@@ -9395,7 +9401,7 @@ a.mdc-list-item {
   border-bottom: none;
 }
 
-@keyframes :global(mdc-floating-label-shake-float-above-text-field-dense) {
+@keyframes mdc-floating-label-shake-float-above-text-field-dense {
   0% {
     transform: translateX(calc(0 - 0%)) translateY(-70%) scale(0.8);
   }
@@ -9412,7 +9418,7 @@ a.mdc-list-item {
   }
 }
 
-@keyframes :global(mdc-floating-label-shake-float-above-text-field-outlined) {
+@keyframes mdc-floating-label-shake-float-above-text-field-outlined {
   0% {
     transform: translateX(calc(0 - 0%)) translateY(-130%) scale(0.75);
   }
@@ -9429,7 +9435,7 @@ a.mdc-list-item {
   }
 }
 
-@keyframes :global(mdc-floating-label-shake-float-above-text-field-outlined-dense) {
+@keyframes mdc-floating-label-shake-float-above-text-field-outlined-dense {
   0% {
     transform: translateX(calc(0 - 0%)) translateY(-120%) scale(0.8);
   }
@@ -9446,7 +9452,7 @@ a.mdc-list-item {
   }
 }
 
-@keyframes :global(mdc-floating-label-shake-float-above-text-field-outlined-leading-icon) {
+@keyframes mdc-floating-label-shake-float-above-text-field-outlined-leading-icon {
   0% {
     transform: translateX(0) translateY(-130%) scale(0.75);
   }
@@ -9463,7 +9469,7 @@ a.mdc-list-item {
   }
 }
 
-@keyframes :global(mdc-floating-label-shake-float-above-text-field-outlined-leading-icon-dense) {
+@keyframes mdc-floating-label-shake-float-above-text-field-outlined-leading-icon-dense {
   0% {
     transform: translateX(calc(0 - 21px)) translateY(-120%) scale(0.8);
   }
@@ -9480,7 +9486,7 @@ a.mdc-list-item {
   }
 }
 
-@keyframes :global(mdc-floating-label-shake-float-above-text-field-outlined-leading-icon-rtl) {
+@keyframes mdc-floating-label-shake-float-above-text-field-outlined-leading-icon-rtl {
   0% {
     transform: translateX(0) translateY(-130%) scale(0.75);
   }
@@ -9497,7 +9503,7 @@ a.mdc-list-item {
   }
 }
 
-@keyframes :global(mdc-floating-label-shake-float-above-text-field-outlined-leading-icon-dense-rtl) {
+@keyframes mdc-floating-label-shake-float-above-text-field-outlined-leading-icon-dense-rtl {
   0% {
     transform: translateX(calc(0 - -21px)) translateY(-120%) scale(0.8);
   }
@@ -9514,7 +9520,7 @@ a.mdc-list-item {
   }
 }
 
-@keyframes :global(mdc-floating-label-shake-float-above-textarea) {
+@keyframes mdc-floating-label-shake-float-above-textarea {
   0% {
     transform: translateX(calc(0 - 0%)) translateY(-130%) scale(0.75);
   }
