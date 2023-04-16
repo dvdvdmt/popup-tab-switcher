@@ -1,7 +1,7 @@
 @use 'src/styles/variables' as *;
 @use 'src/styles/mixins' as *;
 @use './icon.module' as *;
-@use '../global-styles/material' as *;
+@use 'src/settings/global-styles/material' as *;
 
 :global {
   body {
