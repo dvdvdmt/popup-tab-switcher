@@ -16,11 +16,10 @@ export function MNumberInput(props: IProps) {
   const max = props.max ? props.max : 10000
   let inputElement: HTMLInputElement
   return (
-    <div class={`mdc-text-field mdc-text-field--outlined mdc-text-field--no-label ${styles.field}`}>
+    <div class={styles.field}>
       <input
         ref={inputElement!}
-        class={`mdc-text-field__input ${styles.input}`}
-        classList={{'mdc-text-field__input--suffix': !!props.suffix}}
+        class={props.suffix ? styles.inputWithSuffix : styles.input}
         id={props.id}
         type="number"
         name={props.id}
@@ -37,9 +36,9 @@ export function MNumberInput(props: IProps) {
       <Show when={props.suffix}>
         <div class={styles.suffix}>{props.suffix}</div>
       </Show>
-      <div class="mdc-notched-outline">
-        <div class="mdc-notched-outline__leading"></div>
-        <div class="mdc-notched-outline__trailing"></div>
+      <div class={styles.outline}>
+        <div class={styles.outlineLeading}></div>
+        <div class={styles.outlineTrailing}></div>
       </div>
     </div>
   )
