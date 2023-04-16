@@ -1,4 +1,4 @@
-@import '../../node_modules/@material/theme/functions';
+@use 'node_modules/@material/theme/mdc-theme' as *;
 
 @function mdc-theme-ink-color-for-fill_($text-style, $fill-color) {
   $mdc-theme-text-colors: (
