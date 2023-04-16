@@ -1,12 +1,9 @@
 @use 'src/styles/variables' as *;
 @use 'src/styles/mixins' as *;
 @use './icon.module' as *;
+@use '../global-styles/material' as *;
 
 :global {
-  // Ripple animations won't work without setting :global on each keyframe
-  // https://github.com/css-modules/css-modules/issues/115#issuecomment-1507948321
-  @import './material';
-
   body {
     margin: 0;
     user-select: none;
