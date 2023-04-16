@@ -1,11 +1,3 @@
-// TODO: Revise the imports
-@import 'node_modules/@material/typography/mdc-typography';
-@import 'node_modules/@material/textfield/mixins';
-@import 'node_modules/@material/tab/mixins';
-@import 'node_modules/@material/tab-indicator/mixins';
-@import 'node_modules/@material/button/mixins';
-@import 'node_modules/@material/form-field/dist/mdc.form-field';
-
 @import 'src/styles/variables';
 @import 'src/styles/mixins';
 @import './icon.module.scss';
