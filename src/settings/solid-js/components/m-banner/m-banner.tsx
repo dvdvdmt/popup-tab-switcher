@@ -1,4 +1,5 @@
 import styles from './m-banner.module.scss'
+import {MButton} from '../m-button/m-button'
 
 interface IProps {
   actionMessage: string
@@ -12,16 +13,12 @@ export function MBanner(props: IProps) {
   return (
     <div class={styles.banner}>
       <div class={styles.content}>
-        <div class={`${styles.icon} material-icons`}>{props.icon}</div>
+        <div class={styles.icon}>{props.icon}</div>
         <div class={styles.message}>{props.message}</div>
       </div>
       <div class={styles.actions}>
-        <button type="button" class={styles.button} onClick={props.onDismiss}>
-          dismiss
-        </button>
-        <a type="button" class={styles.button_raised} onClick={props.onAction}>
-          {props.actionMessage}
-        </a>
+        <MButton text="dismiss" onClick={props.onDismiss} />
+        <MButton text={props.actionMessage} onClick={props.onAction} raised />
       </div>
     </div>
   )

@@ -36,19 +36,9 @@
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  min-height: 52px;
   justify-content: flex-end;
   width: 100%;
   gap: 6px;
-}
-
-.button {
-  @extend .mdc-button;
-}
-
-.button_raised {
-  @extend .button;
-  @extend .mdc-button--raised;
 }
 
 .message {
