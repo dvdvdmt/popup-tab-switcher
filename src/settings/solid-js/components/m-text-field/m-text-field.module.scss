@@ -1,4 +1,8 @@
 @use 'src/settings/global-styles/material' as *;
+// TODO
+//  Consider composing from global class names like that:
+//  composes: globalClassName from global
+//  This will eliminate the need to import global styles in every component which results in a lot of duplicated code.
 
 .field {
   @extend .mdc-text-field;
