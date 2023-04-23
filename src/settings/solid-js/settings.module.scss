@@ -1,6 +1,5 @@
 @use 'src/styles/variables' as *;
 @use 'src/styles/mixins' as *;
-@use 'src/settings/global-styles/material' as *;
 
 :global {
   body {
@@ -50,7 +49,7 @@
 }
 
 .settings__row {
-  @extend .mdc-form-field;
+  composes: mdc-form-field from global;
 
   display: flex;
   justify-content: space-between;
@@ -60,7 +59,7 @@
 }
 
 .bottomActions {
-  @extend .settings__row;
+  composes: settings__row;
 
   flex-direction: row-reverse;
 }
