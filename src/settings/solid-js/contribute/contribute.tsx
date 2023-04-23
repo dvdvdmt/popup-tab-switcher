@@ -4,6 +4,8 @@ import {CopyLinkButton} from './copy-link-button'
 
 // TODO: Fix share buttons
 export function Contribute() {
+  const linkToTheExtension =
+    'https://chrome.google.com/webstore/detail/popup-tab-switcher/cehdjppppegalmaffcdffkkpmoflfhkc'
   return (
     <div class={`${styles.contribute} mdc-typography mdc-typography--body1`}>
       <p class={styles.callToAction}>You can say thanks or help me one of the following ways:</p>
@@ -27,8 +29,7 @@ export function Contribute() {
       <div class={styles.shareActions}>
         <p class={styles.callToAction}>or share with others</p>
         <div class={styles.shareLinks}>
-          <CopyLinkButton class="mdc-icon-button" textToCopy="test 23334" />
-          {/* <copy-link-button :link="extensionUrl" /> */}
+          <CopyLinkButton class="mdc-icon-button" textToCopy={linkToTheExtension} />
           <a
             class="mdc-icon-button"
             //* :href='shareOnFacebookUrl' */
