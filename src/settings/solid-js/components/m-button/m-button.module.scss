@@ -1,5 +1,3 @@
-@import '../../icon.module';
-
 .button {
   composes: mdc-button from global;
   gap: 6px;
@@ -18,6 +16,5 @@
 }
 
 .icon {
-  // TODO: Move this to global styles and use "composes".
-  @extend .materialIcon;
+  composes: materialIcon from global;
 }

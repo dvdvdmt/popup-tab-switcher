@@ -1,5 +1,4 @@
 @use 'src/settings/global-styles/material' as *;
-@use '../../icon.module' as *;
 
 .banner {
   background-color: var(--mdc-theme-surface);
@@ -25,7 +24,7 @@
 }
 
 .icon {
-  @extend .materialIcon;
+  composes: materialIcon from global;
   flex-shrink: 0;
   width: 40px;
   height: 40px;

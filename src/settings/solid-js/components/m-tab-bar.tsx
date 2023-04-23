@@ -1,7 +1,6 @@
 import {For, onMount} from 'solid-js'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {MDCTabBar} from '@material/tab-bar/index'
-import styles from '../icon.module.scss'
 
 export interface IPageTab {
   id: string
@@ -39,7 +38,7 @@ export function MTabBar(props: IMTabBarProps) {
                   }}
                 >
                   <span class="mdc-tab__content">
-                    <span class={`mdc-tab__icon ${styles.materialIcon}`} aria-hidden="true">
+                    <span class={`mdc-tab__icon materialIcon`} aria-hidden="true">
                       {tab.icon}
                     </span>
                     <span class="mdc-tab__text-label">{tab.id}</span>
