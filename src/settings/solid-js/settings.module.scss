@@ -1,5 +1,5 @@
 @use 'src/styles/variables' as *;
-@use 'src/styles/mixins' as *;
+@use 'src/styles/color-theme-builder' as *;
 
 :global {
   body {
@@ -27,20 +27,17 @@
   color: var(--mdc-theme-text-primary-on-background);
 
   &_dark {
-    // To preserve original names of nested classes
-    :global {
-      --settings-background-color: #{$color-gray-shark};
+    --settings-background-color: #{$color-gray-shark};
 
-      $theme-dark: (
-        'primary': darken(white, 20%),
-        'secondary': $color-blue-mariner-light,
-        'background': $color-gray-shark,
-        'surface': $color-gray-shark,
-      );
+    $theme-dark: (
+      'primary': darken(white, 20%),
+      'secondary': $color-blue-mariner-light,
+      'background': $color-gray-shark,
+      'surface': $color-gray-shark,
+    );
 
-      $colors: get-theme-colors($theme-dark);
-      @include theme-colors-as-custom-properties($colors);
-    }
+    $colors: get-theme-colors($theme-dark);
+    @include theme-colors-as-custom-properties($colors);
   }
 }
 
