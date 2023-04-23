@@ -1,7 +1,3 @@
-// TODO: replace all granular imports in css-modules with this one.
-//  It contains all the styles we need.
-@import 'node_modules/material-components-web/dist/material-components-web';
-
 .contribute {
   margin-top: 40px;
 }
@@ -29,8 +25,4 @@
 .shareLinks {
   display: flex;
   justify-content: center;
-}
-
-.iconButton {
-  @extend .mdc-icon-button;
 }
