@@ -1,28 +1,23 @@
-// TODO
-//  Consider composing from global class names like that:
-//  composes: globalClassName from global
-//  This will eliminate the need to import global styles in every component which results in a lot of duplicated code.
-
-@import 'node_modules/material-components-web/dist/material-components-web';
 @import '../../icon.module';
 
 .button {
-  @extend .mdc-button;
+  composes: mdc-button from global;
   gap: 6px;
 }
 
 .buttonRaised {
-  @extend .mdc-button--raised;
+  composes: mdc-button--raised from global;
 }
 
 .buttonOutlined {
-  @extend .mdc-button--outlined;
+  composes: mdc-button--outlined from global;
 }
 
 .buttonUnelevated {
-  @extend .mdc-button--unelevated;
+  composes: mdc-button--unelevated from global;
 }
 
 .icon {
+  // TODO: Move this to global styles and use "composes".
   @extend .materialIcon;
 }
