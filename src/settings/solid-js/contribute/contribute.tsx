@@ -2,6 +2,7 @@ import {MButton} from '../components/m-button/m-button'
 import styles from './contribute.module.scss'
 import {CopyLinkButton} from './copy-link-button'
 
+// TODO: Fix share buttons
 export function Contribute() {
   return (
     <div class={`${styles.contribute} mdc-typography mdc-typography--body1`}>
@@ -26,10 +27,10 @@ export function Contribute() {
       <div class={styles.shareActions}>
         <p class={styles.callToAction}>or share with others</p>
         <div class={styles.shareLinks}>
-          <CopyLinkButton class={styles.iconButton} textToCopy="test 23334" />
+          <CopyLinkButton class="mdc-icon-button" textToCopy="test 23334" />
           {/* <copy-link-button :link="extensionUrl" /> */}
           <a
-            class={styles.iconButton}
+            class="mdc-icon-button"
             //* :href='shareOnFacebookUrl' */
             target="_blank"
           >
@@ -43,7 +44,7 @@ export function Contribute() {
             </svg>
           </a>
           <a
-            class={styles.iconButton}
+            class="mdc-icon-button"
             // :href="shareOnTwitterUrl"
             target="_blank"
           >
@@ -57,7 +58,7 @@ export function Contribute() {
             </svg>
           </a>
           <a
-            class={styles.iconButton}
+            class="mdc-icon-button"
             // :href="shareOnVkontakteUrl"
             target="_blank"
           >
