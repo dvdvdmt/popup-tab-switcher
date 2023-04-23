@@ -1,6 +1,5 @@
 @use 'src/styles/variables' as *;
 @use 'src/styles/mixins' as *;
-@use './icon.module' as *;
 @use 'src/settings/global-styles/material' as *;
 
 :global {
@@ -67,7 +66,7 @@
 }
 
 .iconInLabel {
-  @extend .materialIcon;
+  composes: materialIcon from global;
 
   margin-right: 6px;
   color: var(--mdc-theme-text-icon-on-background);
