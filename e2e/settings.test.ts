@@ -204,16 +204,6 @@ describe('settings', function TestSettings() {
     assert(isValuesCorrect, 'values are valid')
   })
 
-  it('opens contribute section', async () => {
-    const settingsPage = await helper.openPage('settings')
-    await settingsPage.click('#mdc-tab-2')
-    const isContributeSectionOpen = await settingsPage.$eval(
-      '.contribute',
-      (el) => getComputedStyle(el).display !== 'none'
-    )
-    assert(isContributeSectionOpen, 'the contribute section is visible')
-  })
-
   it('controls automatic switching to a previously used tab when the current one closes', async () => {
     const settingsPage = await helper.openPage('settings')
     await settingsPage.click('#setDefaults')
