@@ -4,6 +4,7 @@ import {Show} from 'solid-js/web'
 interface IProps {
   textToCopy: string
   class?: string
+  testId?: string
 }
 
 export function CopyLinkButton(props: IProps) {
@@ -11,7 +12,12 @@ export function CopyLinkButton(props: IProps) {
   const [isCopied, setIsCopied] = createSignal(false)
   onCleanup(disposeTimeout)
   return (
-    <button class={props.class} onClick={copyLink} title="Copy link to extension">
+    <button
+      class={props.class}
+      onClick={copyLink}
+      data-test={props.testId}
+      title="Copy link to extension"
+    >
       <Show when={isCopied()} fallback={<LinkIcon />}>
         <LinkIconCopied />
       </Show>

@@ -6,6 +6,22 @@ import {CopyLinkButton} from './copy-link-button'
 export function Contribute() {
   const linkToTheExtension =
     'https://chrome.google.com/webstore/detail/popup-tab-switcher/cehdjppppegalmaffcdffkkpmoflfhkc'
+  const shareOnFacebookUrl = `https://www.facebook.com/sharer/sharer.php?${createQuery({
+    u: linkToTheExtension,
+  })}`
+  const extensionName = 'Popup Tab Switcher'
+  const extensionDescription = 'The extension that makes switching between tabs much simpler'
+  const shareOnTwitterUrl = `https://twitter.com/intent/tweet?${createQuery({
+    url: linkToTheExtension,
+    text: extensionDescription,
+    via: 'dvdvdmt',
+    hashtags: 'chromeextension',
+  })}`
+  const shareOnVKUrl = `https://vk.com/share.php?${createQuery({
+    url: linkToTheExtension,
+    title: extensionName,
+    comment: `${extensionName}. ${extensionDescription}`,
+  })}`
   return (
     <div class={`${styles.contribute} mdc-typography mdc-typography--body1`}>
       <p class={styles.callToAction}>You can say thanks or help me one of the following ways:</p>
@@ -29,12 +45,12 @@ export function Contribute() {
       <div class={styles.shareActions}>
         <p class={styles.callToAction}>or share with others</p>
         <div class={styles.shareLinks}>
-          <CopyLinkButton class="mdc-icon-button" textToCopy={linkToTheExtension} />
-          <a
+          <CopyLinkButton
             class="mdc-icon-button"
-            //* :href='shareOnFacebookUrl' */
-            target="_blank"
-          >
+            textToCopy={linkToTheExtension}
+            testId="contribute__copyLink_button"
+          />
+          <a class="mdc-icon-button" href={shareOnFacebookUrl} target="_blank" rel="noreferrer">
             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               {/* facebook icon */}
               <path
@@ -44,11 +60,7 @@ export function Contribute() {
               />
             </svg>
           </a>
-          <a
-            class="mdc-icon-button"
-            // :href="shareOnTwitterUrl"
-            target="_blank"
-          >
+          <a class="mdc-icon-button" href={shareOnTwitterUrl} target="_blank" rel="noreferrer">
             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               {/* twitter icon */}
               <path
@@ -58,11 +70,7 @@ export function Contribute() {
               />
             </svg>
           </a>
-          <a
-            class="mdc-icon-button"
-            // :href="shareOnVkontakteUrl"
-            target="_blank"
-          >
+          <a class="mdc-icon-button" href={shareOnVKUrl} target="_blank" rel="noreferrer">
             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               {/* vkontakte icon */}
               <path
@@ -76,4 +84,8 @@ export function Contribute() {
       </div>
     </div>
   )
+}
+
+function createQuery(query: Record<string, string>): string {
+  return new URLSearchParams(query).toString()
 }
