@@ -32,23 +32,11 @@ describe(`Sharing`, function () {
     const copiedText = await page.evaluate(() => navigator.clipboard.readText())
     assert(copiedText, 'The link to the extension should be copied to the clipboard.')
 
-    // For some reason the Puppeteer returns 'clipboard-read' string instead of the copied text.
-    // It would be nice to report this to the Puppeteer team (https://github.com/puppeteer/puppeteer/issues).
+    // For some reason the Puppeteer returns the last copied string instead of the "Copy button" text.
     // assert.strictEqual(
     //   copiedText,
     //   'https://chrome.google.com/webstore/detail/popup-tab-switcher/cehdjppppegalmaffcdffkkpmoflfhkc'
     // )
-
-    // This works as expected.
-    // const page = await browser.newPage()
-    // await page.goto('https://jsfiddle.net/exd1569b/')
-    // const frame = await page.frames().find((f) => f.name() === 'result')!
-    // await frame.waitForSelector('#copy-button')
-    // // console.log(frame.url())
-    // const context = browser.defaultBrowserContext()
-    // await context.overridePermissions(page.url(), ['clipboard-read', 'clipboard-write'])
-    // await frame.click('#copy-button')
-    // const copiedText = await page.evaluate(() => navigator.clipboard.readText())
-    // console.log(copiedText)
+    // Here is the report of this issue https://github.com/puppeteer/puppeteer/issues/10103
   })
 })
