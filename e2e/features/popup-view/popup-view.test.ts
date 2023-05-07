@@ -2,6 +2,7 @@ import path from 'path'
 import {startPuppeteer, stopPuppeteer, timeoutDurationMS} from '../../utils/puppeteer-utils'
 import {PuppeteerPopupHelper} from '../../utils/puppeteer-popup-helper'
 import {contentScript} from '../../selectors/content-script'
+import {setSettings} from '../../../src/utils/messages'
 
 /**
  * Contains visual tests of the popup component.
@@ -44,8 +45,8 @@ describe('Popup view', function () {
     await helper.openPage('wikipedia.html')
     await helper.openPage('page-with-long-title.html')
     await helper.openPage('page-with-popup-tab-switcher.html')
-    const page = await helper.openPage('example.html')
-    await page.evaluate(() => window.e2e.setSettings({isDarkTheme: true, popupWidth: 605}))
+    await helper.openPage('example.html')
+    await helper.sendMessage(setSettings({isDarkTheme: true, popupWidth: 605}))
 
     // When the popup is opened.
     await helper.selectTabForward()

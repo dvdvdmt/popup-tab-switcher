@@ -18,7 +18,7 @@ export enum Message {
   E2E_IS_PAGE_ACTIVE = 'E2E_IS_PAGE_ACTIVE',
   E2E_RELOAD_EXTENSION = 'E2E_RELOAD_EXTENSION',
   E2E_RELOAD_EXTENSION_FINISHED = 'E2E_RELOAD_EXTENSION_FINISHED',
-  E2ESetSettings = 'E2ESetSettings',
+  SetSettings = 'SetSettings',
   E2E_SET_ZOOM = 'E2E_SET_ZOOM',
   GET_MODEL = 'GET_MODEL',
   SELECT_TAB = 'SELECT_TAB',
@@ -52,8 +52,8 @@ export function e2eSetZoom(zoomFactor: number) {
   return {type: Message.E2E_SET_ZOOM, zoomFactor} as const
 }
 
-export function e2eSetSettings(settings: Partial<ISettings>) {
-  return {type: Message.E2ESetSettings, settings} as const
+export function setSettings(settings?: Partial<ISettings>) {
+  return {type: Message.SetSettings, settings} as const
 }
 
 export function e2eIsPageActive() {
@@ -94,7 +94,7 @@ interface IMessageTypeToObjectMap {
   [Message.E2E_IS_PAGE_ACTIVE]: ReturnType<typeof e2eIsPageActive>
   [Message.E2E_RELOAD_EXTENSION]: ReturnType<typeof e2eReloadExtension>
   [Message.E2E_RELOAD_EXTENSION_FINISHED]: ReturnType<typeof e2eReloadExtensionFinished>
-  [Message.E2ESetSettings]: ReturnType<typeof e2eSetSettings>
+  [Message.SetSettings]: ReturnType<typeof setSettings>
   [Message.E2E_SET_ZOOM]: ReturnType<typeof e2eSetZoom>
   [Message.GET_MODEL]: ReturnType<typeof getModel>
   [Message.SELECT_TAB]: ReturnType<typeof selectTab>

@@ -7,7 +7,7 @@ import {
 } from '../../utils/puppeteer-utils'
 import {PuppeteerPopupHelper} from '../../utils/puppeteer-popup-helper'
 import {settingsPage} from '../../selectors/settings-page'
-import {defaultSettings} from '../../../src/utils/settings'
+import {setSettings} from '../../../src/utils/messages'
 
 /**
  * Contains visual tests of the settings component.
@@ -26,10 +26,7 @@ describe('Settings view', function () {
 
   afterEach(async () => {
     // reset settings to default
-    const page = await helper.getActivePage()
-    await page.evaluate((settings) => {
-      window.e2e.setSettings(settings)
-    }, defaultSettings)
+    await helper.sendMessage(setSettings())
   })
 
   it(`settings page on defaults looks as expected`, async () => {

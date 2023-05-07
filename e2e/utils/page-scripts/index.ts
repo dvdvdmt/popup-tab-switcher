@@ -11,13 +11,11 @@ import {isPageFocused} from './is-page-focused'
 import {log} from '../../../src/utils/logger'
 import {isTabActive} from './is-tab-active'
 import {waitUntilMessagingIsReady} from './is-messaging-ready'
-import {setSettings} from './set-settings'
 
 declare global {
   interface Window {
     e2e: {
       getSettings: typeof getSettings
-      setSettings: typeof setSettings
       isPageFocused: typeof isPageFocused
       isVisible: typeof isVisible
       waitUntilMessagingIsReady: typeof waitUntilMessagingIsReady
@@ -35,7 +33,6 @@ if (!window.e2e) {
   initMessageListener()
   window.e2e = {
     getSettings,
-    setSettings,
     isPageFocused,
     isTabActive,
     waitUntilMessagingIsReady,
