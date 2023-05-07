@@ -17,6 +17,7 @@ export function MSwitch(props: IProps) {
             class="mdc-switch__native-control"
             role="switch"
             onChange={() => props.onToggle()}
+            checked={props.isOn}
           />
         </div>
       </div>
