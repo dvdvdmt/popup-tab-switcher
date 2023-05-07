@@ -16,7 +16,7 @@
     "prepare": "husky install",
     "start": "webpack watch --env development",
     "test": "mocha --require ts-node/register --bail ./src/**/*-test.{js,ts}",
-    "test:e2e": "npx mocha --require ts-node/register --slow 6000 --extension test.ts --recursive ./e2e/",
+    "test:e2e": "npm run build:e2e && npx mocha --require ts-node/register --slow 6000 --extension test.ts --recursive ./e2e/",
     "test:e2e:ci": "npm run build:e2e && mocha --require ts-node/register --slow 6000 --extension test.ts --retries 3 --exclude \"**/*-view/*\" --recursive ./e2e/",
     "test:e2e:visual": "npm run build:e2e && mocha --require ts-node/register --slow 6000 --extension test.ts --recursive ./e2e/**/*-view/",
     "test:e2e:mac": "PUPPETEER_EXEC_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' npm run test:e2e",
