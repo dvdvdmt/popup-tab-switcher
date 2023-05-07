@@ -1,5 +1,5 @@
 import {Show} from 'solid-js/web'
-import {ISettingsStore} from './settings-store'
+import {ISettingsStoreObject} from './settings-store'
 import {MBanner} from './components/m-banner/m-banner'
 import styles from './settings.module.scss'
 import {MSwitch} from './components/m-switch'
@@ -8,7 +8,7 @@ import {MNumberInput} from './components/m-text-field/m-number-input'
 import {MButton} from './components/m-button/m-button'
 
 interface IProps {
-  store: ISettingsStore
+  store: ISettingsStoreObject
   setKeyboardShortcutsEnabled: (enabled: boolean) => void
   setSettingsOptions: (options: Partial<ISettings>) => void
   restoreDefaultSettings: () => void
@@ -216,7 +216,12 @@ export function SettingsForm(props: IProps) {
         />
       </div>
       <div class={styles.bottomActions}>
-        <MButton icon="restore" text="Set defaults" onClick={props.restoreDefaultSettings} />
+        <MButton
+          icon="restore"
+          text="Set defaults"
+          onClick={props.restoreDefaultSettings}
+          testId="resetButton"
+        />
       </div>
     </form>
   )

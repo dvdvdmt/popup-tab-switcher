@@ -77,15 +77,6 @@ async function initForE2ETests(handlers: Partial<IHandlers>) {
     [Message.E2E_SET_ZOOM]: ({zoomFactor}) => {
       browser.tabs.setZoom(zoomFactor)
     },
-    [Message.SetSettings]: async ({settings}) => {
-      log(`[Settings received]`, settings)
-      const currentSettings = await ServiceFactory.getSettings()
-      if (settings) {
-        await currentSettings.update(settings)
-      } else {
-        await currentSettings.reset()
-      }
-    },
     [Message.E2E_RELOAD_EXTENSION]: async () => {
       await browser.runtime.reload()
     },
@@ -251,6 +242,20 @@ function messageHandlers(): Partial<IHandlers> {
         settings,
         zoomFactor: await browser.tabs.getZoom(),
       }
+    },
+    [Message.SetSettings]: async ({settings}) => {
+      log(`[Settings received]`, settings)
+      const currentSettings = await ServiceFactory.getSettings()
+      if (settings) {
+        await currentSettings.update(settings)
+      } else {
+        await currentSettings.reset()
+      }
+    },
+    [Message.GetSettings]: async () => {
+      log(`[Settings requested]`)
+      const currentSettings = await ServiceFactory.getSettings()
+      return currentSettings.getSettingsObject()
     },
   }
 }
