@@ -1,6 +1,5 @@
 const path = require('path')
 const webpack = require('webpack')
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const deepmerge = require('deepmerge')
 
@@ -20,12 +19,8 @@ const conf = {
     background: './src/background.ts',
     content: './src/content-script/index.ts',
     settings: {
-      import: './src/settings/index.js',
+      import: './src/settings/index.ts',
       filename: 'settings/index.js',
-    },
-    settingsSolid: {
-      import: './src/settings/solid-js-index.ts',
-      filename: 'settings/solid-js-index.js',
     },
   },
 
@@ -51,28 +46,6 @@ const conf = {
             ],
           },
         },
-      },
-      {
-        test: /\.vue$/,
-        use: 'vue-loader',
-      },
-      {
-        test: /\.scss$/,
-        include: settingsDir,
-        exclude: /module\.scss/,
-        // type: 'asset/resource',
-        use: [
-          'vue-style-loader',
-          'css-loader',
-          {
-            loader: 'sass-loader',
-            options: {
-              sassOptions: {
-                includePaths: [nodeModulesDir, stylesDir],
-              },
-            },
-          },
-        ],
       },
       {
         test: /\.module\.scss$/,
@@ -177,7 +150,6 @@ module.exports = (env) => {
         PRODUCTION: 'true',
         DEVELOPMENT: 'false',
       }),
-      new VueLoaderPlugin(),
     ]
   } else if (env.development) {
     conf.plugins = [
@@ -195,7 +167,6 @@ module.exports = (env) => {
       //       },
       //     })
       //   : () => {},
-      new VueLoaderPlugin(),
     ]
   } else if (env.e2e) {
     conf.output.path = buildE2eDir
@@ -208,7 +179,6 @@ module.exports = (env) => {
         PRODUCTION: 'false',
         DEVELOPMENT: 'false',
       }),
-      new VueLoaderPlugin(),
     ]
   }
   return conf
