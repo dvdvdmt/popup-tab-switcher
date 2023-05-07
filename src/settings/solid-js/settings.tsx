@@ -51,9 +51,5 @@ export function Settings(props: ISettingsProps) {
 export async function initSettings() {
   const settings = await ServiceFactory.getSettings()
   window.settings = settings
-  // TODO: Render the app right into the body element
-  const appRootElement = document.createElement('div')
-  render(() => <Settings settingsService={settings} />, appRootElement)
-
-  document.body.appendChild(appRootElement)
+  render(() => <Settings settingsService={settings} />, document.body)
 }

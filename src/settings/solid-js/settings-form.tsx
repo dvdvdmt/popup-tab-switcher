@@ -34,13 +34,12 @@ export function SettingsForm(props: IProps) {
         />
       </Show>
       <div class={styles.settings__row} title="Turns on or off the dark theme">
-        {/* TODO: remove all '-new' postfixes */}
-        <label for="isDarkTheme-new" class={styles.settings__label} data-test="darkModeToggle">
+        <label for="isDarkTheme" class={styles.settings__label} data-test="darkModeToggle">
           <i class={styles.iconInLabel}>brightness_3</i>
           Dark theme
         </label>
         <MSwitch
-          id="isDarkTheme-new"
+          id="isDarkTheme"
           isOn={props.store.settings.isDarkTheme}
           onToggle={() => {
             props.setSettingsOptions({isDarkTheme: !props.store.settings.isDarkTheme})
@@ -48,12 +47,12 @@ export function SettingsForm(props: IProps) {
         />
       </div>
       <div class={styles.settings__row} title="Sets the popup width">
-        <label for="popupWidth-new" class={styles.settings__label}>
+        <label for="popupWidth" class={styles.settings__label}>
           <i class={styles.iconInLabel}>border_horizontal</i>
           Popup width
         </label>
         <MNumberInput
-          id="popupWidth-new"
+          id="popupWidth"
           suffix="px"
           value={props.store.settings.popupWidth}
           onInput={(value) => {
@@ -62,12 +61,12 @@ export function SettingsForm(props: IProps) {
         />
       </div>
       <div class={styles.settings__row} title="Sets the popup height">
-        <label for="tabHeight-new" class={styles.settings__label}>
+        <label for="tabHeight" class={styles.settings__label}>
           <i class={styles.iconInLabel}>format_line_spacing</i>
           Tab height
         </label>
         <MNumberInput
-          id="tabHeight-new"
+          id="tabHeight"
           suffix="px"
           value={props.store.settings.tabHeight}
           onInput={(value) => {
@@ -79,12 +78,12 @@ export function SettingsForm(props: IProps) {
         class={styles.settings__row}
         title="Specifies how many recently used tabs to show in the popup"
       >
-        <label for="numberOfTabsToShow-new" class={styles.settings__label}>
+        <label for="numberOfTabsToShow" class={styles.settings__label}>
           <i class={styles.iconInLabel}>format_list_numbered</i>
           Max number of tabs
         </label>
         <MNumberInput
-          id="numberOfTabsToShow-new"
+          id="numberOfTabsToShow"
           value={props.store.settings.numberOfTabsToShow}
           onInput={(value) => {
             props.setSettingsOptions({numberOfTabsToShow: value})
@@ -92,12 +91,12 @@ export function SettingsForm(props: IProps) {
         />
       </div>
       <div class={styles.settings__row} title="Sets the size of the tab title text">
-        <label for="fontSize-new" class={styles.settings__label}>
+        <label for="fontSize" class={styles.settings__label}>
           <i class={styles.iconInLabel}>format_size</i>
           Font size
         </label>
         <MNumberInput
-          id="fontSize-new"
+          id="fontSize"
           suffix="px"
           value={props.store.settings.fontSize}
           onInput={(value) => {
@@ -106,12 +105,12 @@ export function SettingsForm(props: IProps) {
         />
       </div>
       <div class={styles.settings__row} title="Sets the size of the tab icon">
-        <label for="iconSize-new" class={styles.settings__label}>
+        <label for="iconSize" class={styles.settings__label}>
           <i class={styles.iconInLabel}>crop_original</i>
           Icon size
         </label>
         <MNumberInput
-          id="iconSize-new"
+          id="iconSize"
           suffix="px"
           value={props.store.settings.iconSize}
           onInput={(value) => {
@@ -120,12 +119,12 @@ export function SettingsForm(props: IProps) {
         />
       </div>
       <div class={styles.settings__row} title="Sets popup opacity (0 - invisible, 100 - visible)">
-        <label for="opacity-new" class={styles.settings__label}>
+        <label for="opacity" class={styles.settings__label}>
           <i class={styles.iconInLabel}>opacity</i>
           Opacity
         </label>
         <MNumberInput
-          id="opacity-new"
+          id="opacity"
           value={props.store.settings.opacity}
           suffix="%"
           min={0}
@@ -139,12 +138,12 @@ export function SettingsForm(props: IProps) {
         class={styles.settings__row}
         title="If a page has no focus (address bar or search field is focused, etc.) then the extension starts a timer by the end of which it will switch a user to the selected tab. This timer restarts on each selection command (Alt+Y or Alt+Shift+Y by default)"
       >
-        <label for="autoSwitchingTimeout-new" class={styles.settings__label}>
+        <label for="autoSwitchingTimeout" class={styles.settings__label}>
           <i class={styles.iconInLabel}>timelapse</i>
           Auto switching timeout
         </label>
         <MNumberInput
-          id="autoSwitchingTimeout-new"
+          id="autoSwitchingTimeout"
           suffix="ms"
           value={props.store.settings.autoSwitchingTimeout}
           onInput={(value) => {
@@ -156,12 +155,12 @@ export function SettingsForm(props: IProps) {
         class={styles.settings__row}
         title="If a tab title is wider than the popup then its overflowing part will be hidden. When such a tab is selected its text will be scrolled. This option delays the start of the scrolling"
       >
-        <label for="textScrollDelay-new" class={styles.settings__label}>
+        <label for="textScrollDelay" class={styles.settings__label}>
           <i class={styles.iconInLabel}>timer</i>
           Text scroll delay
         </label>
         <MNumberInput
-          id="textScrollDelay-new"
+          id="textScrollDelay"
           suffix="ms"
           value={props.store.settings.textScrollDelay}
           onInput={(value) => {
@@ -170,12 +169,12 @@ export function SettingsForm(props: IProps) {
         />
       </div>
       <div class={styles.settings__row} title="Sets the speed of a selected tab text scrolling">
-        <label for="textScrollCoefficient-new" class={styles.settings__label}>
+        <label for="textScrollCoefficient" class={styles.settings__label}>
           <i class={styles.iconInLabel}>text_rotation_none</i>
           Text scroll speed
         </label>
         <MNumberInput
-          id="textScrollCoefficient-new"
+          id="textScrollCoefficient"
           value={props.store.settings.textScrollCoefficient}
           onInput={(value) => {
             props.setSettingsOptions({textScrollCoefficient: value})
@@ -186,12 +185,12 @@ export function SettingsForm(props: IProps) {
         class={styles.settings__row}
         title="Switch to a previously active tab when the current one closes"
       >
-        <label for="isSwitchingToPreviouslyUsedTab-new" class={styles.settings__label}>
+        <label for="isSwitchingToPreviouslyUsedTab" class={styles.settings__label}>
           <i class={styles.iconInLabel}>low_priority</i>
           Switch to a previously used tab
         </label>
         <MSwitch
-          id="isSwitchingToPreviouslyUsedTab-new"
+          id="isSwitchingToPreviouslyUsedTab"
           isOn={props.store.settings.isSwitchingToPreviouslyUsedTab}
           onToggle={() => {
             props.setSettingsOptions({
@@ -204,12 +203,12 @@ export function SettingsForm(props: IProps) {
         class={styles.settings__row}
         title="The switcher stays open and stops switching tabs on a modifier key release"
       >
-        <label for="isStayingOpen-new" class={styles.settings__label}>
+        <label for="isStayingOpen" class={styles.settings__label}>
           <i class={styles.iconInLabel}>flip_to_front</i>
           Stay open
         </label>
         <MSwitch
-          id="isStayingOpen-new"
+          id="isStayingOpen"
           isOn={props.store.settings.isStayingOpen}
           onToggle={() => {
             props.setSettingsOptions({isStayingOpen: !props.store.settings.isStayingOpen})
