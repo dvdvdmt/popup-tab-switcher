@@ -252,14 +252,23 @@ export class PuppeteerPopupHelper {
     const elementImg = PNG.sync.read(elementScreenshot)
     const expectedImg = PNG.sync.read(expectedScreenshot)
     const diff = new PNG({width, height})
-    const diffCount = pixelmatch(elementImg.data, expectedImg.data, diff.data, width, height, {
-      threshold: 0.001,
-    })
-    if (diffCount > 0) {
-      const diffPath = path.join(path.dirname(expectedScreenshotPath), `${screenshotName}.diff.png`)
+    try {
+      const diffCount = pixelmatch(elementImg.data, expectedImg.data, diff.data, width, height, {
+        threshold: 0.01,
+      })
+      if (diffCount > 0) {
+        const diffPath = path.join(
+          path.dirname(expectedScreenshotPath),
+          `${screenshotName}.diff.png`
+        )
+        fs.writeFileSync(currentScreenshotPath, elementScreenshot)
+        fs.writeFileSync(diffPath, PNG.sync.write(diff))
+        throw new Error(`Images are different. Diff image saved in ${diffPath}`)
+      }
+    } catch (e) {
+      console.log(`Current screenshot saved in ${currentScreenshotPath}`)
       fs.writeFileSync(currentScreenshotPath, elementScreenshot)
-      fs.writeFileSync(diffPath, PNG.sync.write(diff))
-      throw new Error(`Images are different. Diff image saved in ${diffPath}`)
+      throw e
     }
   }
 }

@@ -37,6 +37,7 @@ describe('Settings view', function () {
     await helper.openPage('settings')
 
     // When the default settings are applied.
+    await waitFor(100)
 
     // It should look as expected.
     const screenshotPath = path.join(__dirname, 'settings-view-default.expected.png')
@@ -48,7 +49,9 @@ describe('Settings view', function () {
     const page = await helper.openPage('settings')
 
     // When the dark mode is enabled.
+    await page.waitForSelector(settingsPage.darkModeToggle)
     await page.click(settingsPage.darkModeToggle)
+    await waitFor(100)
 
     // It should look as expected.
     const screenshotPath = path.join(__dirname, 'settings-view-dark.expected.png')
