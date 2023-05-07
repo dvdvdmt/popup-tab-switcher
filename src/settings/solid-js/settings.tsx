@@ -1,14 +1,13 @@
 import {Match, render, Switch} from 'solid-js/web'
 import styles from './settings.module.scss'
-import {ServiceFactory} from '../../service-factory'
-import {ISettingsService} from '../../utils/settings'
-import {createSettingsStore, PageTab} from './settings-store'
+import {createSettingsStore, ISettingsStore, IStoreSettingsService, PageTab} from './settings-store'
 import {MTabBar} from './components/m-tab-bar'
 import {SettingsForm} from './settings-form'
 import {Contribute} from './contribute/contribute'
+import areShortcutsSet from '../../utils/are-shortcuts-set'
 
 interface ISettingsProps {
-  settingsService: ISettingsService
+  settingsStore: ISettingsStore
 }
 
 export function Settings(props: ISettingsProps) {
@@ -19,7 +18,7 @@ export function Settings(props: ISettingsProps) {
     setKeyboardShortcutsEnabled,
     setSettingsOptions,
     restoreDefaultSettings,
-  } = createSettingsStore(props)
+  } = props.settingsStore
   return (
     <div
       class={`${styles.settings} mdc-typography`}
@@ -48,8 +47,16 @@ export function Settings(props: ISettingsProps) {
   )
 }
 
-export async function initSettings() {
-  const settings = await ServiceFactory.getSettings()
-  window.settings = settings
-  render(() => <Settings settingsService={settings} />, document.body)
+export async function renderSettingsPage(settingsService: IStoreSettingsService) {
+  const [initialSettings, areShortcutsEnabled] = await Promise.all([
+    settingsService.getSettingsObject(),
+    areShortcutsSet(),
+  ])
+  const settingsStore = await createSettingsStore({
+    settingsService,
+    initialSettings,
+    areShortcutsEnabled,
+  })
+  window.settings = initialSettings
+  render(() => <Settings settingsStore={settingsStore} />, document.body)
 }

@@ -1,13 +1,29 @@
 import {createStore} from 'solid-js/store'
-import {ISettings, ISettingsService} from '../../utils/settings'
+import {ISettings} from '../../utils/settings'
 import {IPageTab} from './components/m-tab-bar'
-import areShortcutsSet from '../../utils/are-shortcuts-set'
+
+export interface IStoreSettingsService {
+  update(settings: Partial<ISettings>): Promise<void>
+  reset(): Promise<void>
+  getSettingsObject(): Promise<ISettings>
+}
 
 interface ISettingsStoreProps {
-  settingsService: ISettingsService
+  areShortcutsEnabled: boolean
+  initialSettings: ISettings
+  settingsService: IStoreSettingsService
 }
 
 export interface ISettingsStore {
+  pageTabs: IPageTab[]
+  restoreDefaultSettings: () => Promise<void>
+  setCurrentPageTab: (tabId: string) => void
+  setKeyboardShortcutsEnabled: (enabled: boolean) => void
+  setSettingsOptions: (options: Partial<ISettings>) => void
+  store: ISettingsStoreObject
+}
+
+export interface ISettingsStoreObject {
   settings: ISettings
   currentPageTabId: string
   isKeyboardShortcutsEnabled: boolean
@@ -18,28 +34,29 @@ export const enum PageTab {
   Contribute = 'contribute',
 }
 
-export function createSettingsStore({settingsService}: ISettingsStoreProps) {
+export function createSettingsStore({
+  settingsService,
+  initialSettings,
+  areShortcutsEnabled,
+}: ISettingsStoreProps): ISettingsStore {
   const pageTabs: IPageTab[] = [
     {id: PageTab.Settings, icon: 'settings'},
     {id: PageTab.Contribute, icon: 'favorite'},
   ]
 
-  const [store, setStore] = createStore<ISettingsStore>({
-    settings: settingsService.getSettingsObject(), // Store can work only with plain objects.
+  const [store, setStore] = createStore<ISettingsStoreObject>({
+    settings: initialSettings, // Store can work only with plain objects.
     currentPageTabId: PageTab.Settings,
-    isKeyboardShortcutsEnabled: true,
+    isKeyboardShortcutsEnabled: areShortcutsEnabled,
   })
 
-  areShortcutsSet().then(setKeyboardShortcutsEnabled)
-
   return {
-    store,
-    setStore,
     pageTabs,
+    restoreDefaultSettings,
     setCurrentPageTab,
     setKeyboardShortcutsEnabled,
     setSettingsOptions,
-    restoreDefaultSettings,
+    store,
   }
 
   function setCurrentPageTab(tabId: string) {
@@ -56,9 +73,8 @@ export function createSettingsStore({settingsService}: ISettingsStoreProps) {
     })
   }
 
-  function restoreDefaultSettings() {
-    settingsService.reset().then(() => {
-      setStore('settings', settingsService.getSettingsObject())
-    })
+  async function restoreDefaultSettings() {
+    await settingsService.reset()
+    setStore('settings', await settingsService.getSettingsObject())
   }
 }

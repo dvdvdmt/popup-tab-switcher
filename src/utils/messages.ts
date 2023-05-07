@@ -19,6 +19,7 @@ export enum Message {
   E2E_RELOAD_EXTENSION = 'E2E_RELOAD_EXTENSION',
   E2E_RELOAD_EXTENSION_FINISHED = 'E2E_RELOAD_EXTENSION_FINISHED',
   SetSettings = 'SetSettings',
+  GetSettings = 'GetSettings',
   E2E_SET_ZOOM = 'E2E_SET_ZOOM',
   GET_MODEL = 'GET_MODEL',
   SELECT_TAB = 'SELECT_TAB',
@@ -54,6 +55,10 @@ export function e2eSetZoom(zoomFactor: number) {
 
 export function setSettings(settings?: Partial<ISettings>) {
   return {type: Message.SetSettings, settings} as const
+}
+
+export function getSettings() {
+  return {type: Message.GetSettings} as const
 }
 
 export function e2eIsPageActive() {
@@ -95,6 +100,7 @@ interface IMessageTypeToObjectMap {
   [Message.E2E_RELOAD_EXTENSION]: ReturnType<typeof e2eReloadExtension>
   [Message.E2E_RELOAD_EXTENSION_FINISHED]: ReturnType<typeof e2eReloadExtensionFinished>
   [Message.SetSettings]: ReturnType<typeof setSettings>
+  [Message.GetSettings]: ReturnType<typeof getSettings>
   [Message.E2E_SET_ZOOM]: ReturnType<typeof e2eSetZoom>
   [Message.GET_MODEL]: ReturnType<typeof getModel>
   [Message.SELECT_TAB]: ReturnType<typeof selectTab>
@@ -115,6 +121,8 @@ export type IMessageResponse<Message extends IMessage> = Message extends ReturnT
   ? boolean
   : Message extends ReturnType<typeof e2eIsMessagingReady>
   ? boolean
+  : Message extends ReturnType<typeof getSettings>
+  ? ISettings
   : void
 
 export type IHandlers = {

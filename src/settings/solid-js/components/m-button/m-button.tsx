@@ -5,6 +5,7 @@ import {MDCRipple} from '@material/ripple/index'
 import styles from './m-button.module.scss'
 
 interface IProps {
+  testId?: string
   raised?: boolean
   unelevated?: boolean
   outlined?: boolean
@@ -45,6 +46,7 @@ function MHyperlinkButton(props: IPropsWithRef) {
       href={props.href}
       role="button"
       onClick={props.onClick}
+      data-test={props.testId}
     >
       <i class={styles.icon}>{props.icon}</i>
       {props.text}
@@ -66,6 +68,7 @@ function MButtonWithIcon(props: IPropsWithRef) {
         event.preventDefault()
         props.onClick?.()
       }}
+      data-test={props.testId}
     >
       <i class={styles.icon}>{props.icon}</i>
       {props.text}
