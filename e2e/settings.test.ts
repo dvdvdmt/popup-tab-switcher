@@ -2,6 +2,7 @@ import assert from 'assert'
 import {Page} from 'puppeteer'
 import {defaultSettings, ISettings} from '../src/utils/settings'
 import {closeTabs, startPuppeteer, stopPuppeteer, timeoutDurationMS} from './utils/puppeteer-utils'
+import {settingsPage as selectors} from './selectors/settings-page'
 import {PuppeteerPopupHelper} from './utils/puppeteer-popup-helper'
 
 declare global {
@@ -131,7 +132,7 @@ describe('settings', function TestSettings() {
     assert.deepStrictEqual(actual, newSettings, 'settings in form are different')
     actual = await settingsPage.evaluate(() => window.e2e.getSettings())
     assert.deepStrictEqual(actual, newSettings, 'settings were not updated in storage')
-    await settingsPage.click('[data-test=resetButton]')
+    await settingsPage.click(selectors.resetButton)
     actual = await getSettingsFromPage(settingsPage)
     assert.deepStrictEqual(actual, defaultSettings, 'set defaults')
   })
@@ -169,7 +170,7 @@ describe('settings', function TestSettings() {
     )
 
     await settingsPage.bringToFront()
-    await settingsPage.click('[data-test=resetButton]')
+    await settingsPage.click(selectors.resetButton)
     await page.bringToFront()
     await helper.selectTabForward()
     actual = await page.queryPopup('.card', getSettingsFromContentScript())
@@ -187,7 +188,7 @@ describe('settings', function TestSettings() {
 
   it('validates inserted values', async () => {
     const settingsPage = await helper.openPage('settings')
-    await settingsPage.click('[data-test=resetButton]')
+    await settingsPage.click(selectors.resetButton)
     await input(settingsPage, '#textScrollDelay', '-1500')
     await input(settingsPage, '#popupWidth', 'asdf')
     const isValuesCorrect = await settingsPage.evaluate(() => {
@@ -206,7 +207,7 @@ describe('settings', function TestSettings() {
 
   it('controls automatic switching to a previously used tab when the current one closes', async () => {
     const settingsPage = await helper.openPage('settings')
-    await settingsPage.click('[data-test=resetButton]')
+    await settingsPage.click(selectors.resetButton)
     await settingsPage.click('#isSwitchingToPreviouslyUsedTab') // Turns off the setting
     const pageWikipedia = await helper.openPage('wikipedia.html')
     await helper.openPage('example.html')
@@ -220,7 +221,7 @@ describe('settings', function TestSettings() {
 
   it('controls hiding of the switcher when modifier key is released', async () => {
     const settingsPage = await helper.openPage('settings')
-    await settingsPage.click('[data-test=resetButton]')
+    await settingsPage.click(selectors.resetButton)
     await settingsPage.click('#isStayingOpen')
     await helper.openPage('wikipedia.html')
     await helper.openPage('example.html')
@@ -232,7 +233,7 @@ describe('settings', function TestSettings() {
 
   it('limits the height of the popup to the height of the window and allows scrolling if there are many tabs', async () => {
     const settingsPage = await helper.openPage('settings')
-    await settingsPage.click('[data-test=resetButton]')
+    await settingsPage.click(selectors.resetButton)
     await input(settingsPage, '#tabHeight', '250')
     await input(settingsPage, '#numberOfTabsToShow', '10')
     for (let i = 0; i < 10; i += 1) {
