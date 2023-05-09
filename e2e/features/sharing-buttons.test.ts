@@ -19,7 +19,11 @@ describe(`Sharing`, function () {
 
   afterEach(closeTabs)
 
-  it('copies link to the extension', async () => {
+  it('copies link to the extension', async function () {
+    if (process.env.CI) {
+      // TODO: Turn on in CI after https://github.com/puppeteer/puppeteer/issues/10103 is fixed
+      this.skip()
+    }
     // Given the Contribute page is open.
     // When the Copy button is clicked.
     // Then the link to the extension should be copied to the clipboard.
