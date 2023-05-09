@@ -1,7 +1,7 @@
 import {renderSettingsPage} from './solid-js/settings'
 import {Port} from '../utils/constants'
 import {IStoreSettingsService} from './solid-js/settings-store'
-import {getSettings, setSettings} from '../utils/messages'
+import {demoSettings, getSettings, setSettings} from '../utils/messages'
 
 // eslint-disable-next-line no-undef
 if (E2E) {
@@ -13,12 +13,15 @@ if (E2E) {
 document.addEventListener('DOMContentLoaded', () => {
   // The connection is necessary for tracking settings popup closing (https://stackoverflow.com/q/15798516/3167855)
   chrome.runtime.connect({name: Port.POPUP_SCRIPT})
+  chrome.runtime.sendMessage(demoSettings())
   const settingsService: IStoreSettingsService = {
     async update(settings): Promise<void> {
       await chrome.runtime.sendMessage(setSettings(settings))
+      await chrome.runtime.sendMessage(demoSettings())
     },
     async reset() {
       await chrome.runtime.sendMessage(setSettings())
+      await chrome.runtime.sendMessage(demoSettings())
     },
     async getSettingsObject() {
       return chrome.runtime.sendMessage(getSettings())
