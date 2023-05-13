@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill'
 import {For, render, Show} from 'solid-js/web'
 import {createEffect, onCleanup, onMount} from 'solid-js'
 import styles from './popup.scss'
@@ -33,14 +32,14 @@ export function Popup({element}: IProps) {
   onMount(() => {
     log(`[start switcher]`)
     cleanUpListeners = setUpListeners()
-    browser.runtime.sendMessage(contentScriptStarted())
+    chrome.runtime.sendMessage(contentScriptStarted())
   })
 
   onCleanup(() => {
     log(`[stop switcher]`)
     cleanUpListeners()
     disposeAutoSwitchingTimeout()
-    browser.runtime.sendMessage(contentScriptStopped())
+    chrome.runtime.sendMessage(contentScriptStopped())
   })
 
   createEffect(() => {
@@ -144,7 +143,7 @@ export function Popup({element}: IProps) {
   }
 
   function switchTo(selectedTab: ITab) {
-    browser.runtime.sendMessage(switchTab(selectedTab))
+    chrome.runtime.sendMessage(switchTab(selectedTab))
     closePopup()
   }
 
@@ -183,7 +182,7 @@ export function Popup({element}: IProps) {
         }
       },
     })
-    browser.runtime.onMessage.addListener(messageListener)
+    chrome.runtime.onMessage.addListener(messageListener)
 
     const disposeFixUnfocusedDocumentInPdfFiles = fixUnfocusedDocumentInPdfFiles()
 
@@ -193,7 +192,7 @@ export function Popup({element}: IProps) {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('blur', onWindowBlur)
       window.removeEventListener('resize', onWindowResize)
-      browser.runtime.onMessage.removeListener(messageListener)
+      chrome.runtime.onMessage.removeListener(messageListener)
       disposeFixUnfocusedDocumentInPdfFiles()
     }
   }
@@ -247,7 +246,8 @@ export function Popup({element}: IProps) {
    * When PDF file opens 'document.hasFocus() === false' which turns ON
    * the auto switching behaviour by timer.
    * This fix force focus the PDF embed element and solves the issue.
-   * More on this: https://stackoverflow.com/questions/58702747/window-events-with-pdf-document-via-chrome/75570258#75570258
+   * More on this:
+   * https://stackoverflow.com/questions/58702747/window-events-with-pdf-document-via-chrome/75570258#75570258
    */
   function fixUnfocusedDocumentInPdfFiles(): () => void {
     if (document.contentType !== 'application/pdf') {
