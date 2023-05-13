@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill'
 import {getSettings, ISettingsService} from './utils/settings'
 import TabRegistry from './utils/tab-registry'
 import {checkTab, ITab} from './utils/check-tab'
@@ -14,7 +13,7 @@ export class ServiceFactory {
     if (!reload && ServiceFactory.settingsCache) {
       return ServiceFactory.settingsCache
     }
-    const settings = await getSettings(browser.storage.local)
+    const settings = await getSettings(chrome.storage.local)
     ServiceFactory.settingsCache = settings
     log(`[Settings initialized]`, settings)
     return settings
@@ -42,15 +41,15 @@ export class ServiceFactory {
 }
 
 async function getSavedTabs(): Promise<ITab[]> {
-  const {tabs} = await browser.storage.local.get('tabs')
+  const {tabs} = await chrome.storage.local.get('tabs')
   return tabs || []
 }
 
 function saveTabs(tabs: ITab[]): void {
-  browser.storage.local.set({tabs})
+  chrome.storage.local.set({tabs})
 }
 
 async function getOpenTabs(): Promise<ITab[]> {
-  const windows = await browser.windows.getAll({populate: true})
+  const windows = await chrome.windows.getAll({populate: true})
   return windows.flatMap((w) => w.tabs || []).map(checkTab)
 }
