@@ -1,4 +1,3 @@
-import browser, {Runtime, Tabs} from 'webextension-polyfill'
 import {Command, Port, uninstallURL} from './utils/constants'
 import {
   closePopup,
@@ -14,8 +13,10 @@ import {checkTab, ITab} from './utils/check-tab'
 import {log} from './utils/logger'
 import {ServiceFactory} from './service-factory'
 
-type Tab = Tabs.Tab
 type ChromeTab = chrome.tabs.Tab
+type IPort = chrome.runtime.Port
+
+const browser = chrome
 
 // NOTE: This is somehow related to the test "focuses previously active window on a tab closing".
 // TODO: Describe the problem in more details.
@@ -138,7 +139,7 @@ async function handleWindowActivation(windowId: number) {
   await handleTabActivation()
 }
 
-async function handleTabActivation(info?: Tabs.OnActivatedActiveInfoType) {
+async function handleTabActivation(info?: chrome.tabs.TabActiveInfo) {
   const registry = await ServiceFactory.getTabRegistry()
   log(`[handleTabActivation info]`, info)
   const isNotTheTargetTab = tabIdToBeActivated && tabIdToBeActivated !== info?.tabId
@@ -161,7 +162,7 @@ async function handleTabActivation(info?: Tabs.OnActivatedActiveInfoType) {
   log(`[current registry]`, registry.titles())
 }
 
-async function handleTabCreation(tab: Tab) {
+async function handleTabCreation(tab: ChromeTab) {
   const registry = await ServiceFactory.getTabRegistry()
   if (tab.active) {
     registry.push(checkTab(tab))
@@ -172,7 +173,11 @@ async function handleTabCreation(tab: Tab) {
   log(`[current registry]`, registry.titles())
 }
 
-async function handleTabUpdate(tabId: number, changeInfo: Tabs.OnUpdatedChangeInfoType, tab: Tab) {
+async function handleTabUpdate(
+  tabId: number,
+  changeInfo: chrome.tabs.TabChangeInfo,
+  tab: ChromeTab
+) {
   const registry = await ServiceFactory.getTabRegistry()
   if (changeInfo.status === 'complete') {
     log(`[handleTabUpdate tabId]`, tabId, tab.title)
@@ -274,7 +279,7 @@ async function initializeContentScript(tab: ITab): Promise<boolean> {
   return newInitialization.promise
 }
 
-async function getActiveTab(): Promise<Tab | undefined> {
+async function getActiveTab(): Promise<ChromeTab | undefined> {
   const [activeTab] = await browser.tabs.query({
     active: true,
     currentWindow: true,
@@ -288,6 +293,7 @@ async function activateTab({id, windowId}: ChromeTab) {
   try {
     // The tab can already be removed from the browser, for example when a user quickly closes multiple tabs.
     // To handle this situation without an error we can use debounce technique.
+    // @ts-expect-error Todo: fix this
     await browser.tabs.update(id, {active: true})
     if (isBrowserFocused()) {
       await browser.windows.update(windowId, {focused: true})
@@ -300,7 +306,7 @@ async function activateTab({id, windowId}: ChromeTab) {
   }
 }
 
-function handleConnection(port: Runtime.Port) {
+function handleConnection(port: IPort) {
   if (Port.POPUP_SCRIPT === port.name) {
     port.onDisconnect.addListener(closeSwitcherInActiveTab)
   }
