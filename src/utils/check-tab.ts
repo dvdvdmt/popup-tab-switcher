@@ -1,6 +1,4 @@
-import type {Tabs} from 'webextension-polyfill'
-
-type Tab = Tabs.Tab
+type Tab = chrome.tabs.Tab
 
 /**
  * This interface guarantees the presence of potentially undefined fields in a tab object

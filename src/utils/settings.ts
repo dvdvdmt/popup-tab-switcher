@@ -1,6 +1,4 @@
-import type {Storage} from 'webextension-polyfill'
-
-type LocalStorageArea = Storage.LocalStorageArea
+type LocalStorageArea = chrome.storage.LocalStorageArea
 
 export interface ISettings {
   textScrollDelay: number
