@@ -161,7 +161,11 @@ function getSender(senderOrPort: MessageSender | Port): MessageSender {
 }
 
 export function handleMessage(handlers: Partial<IHandlers>) {
-  return (message: unknown, sender: MessageSender | Port) => {
+  return (
+    message: unknown,
+    sender: MessageSender | Port,
+    sendResponse: (response?: any) => void
+  ) => {
     if (!isTypedObject(message)) {
       console.error("Message must have the 'type' property of string value.", message)
       return
@@ -181,6 +185,26 @@ export function handleMessage(handlers: Partial<IHandlers>) {
     }
     // @ts-expect-error
     // TODO: How to guarantee correspondence of a message and handler types?
-    return handler(message, getSender(sender))
+    const response = handler(message, getSender(sender))
+    if (response) {
+      Promise.resolve(response).then(sendResponse)
+      return true // indicates that response will be sent asynchronously
+    }
   }
+}
+
+/**
+ * Sends message and returns a promise that resolves with the response.
+ * Note, that simple promise resolution from chrome.runtime.sendMessage is not enough,
+ * because it resolves with undefined if there were no synchronous listeners which send a response
+ * instantly.
+ */
+export function sendMessageAndGetResponse<Message extends IMessage>(
+  message: Message
+): Promise<IMessageResponse<Message>> {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(message, (response) => {
+      resolve(response)
+    })
+  })
 }

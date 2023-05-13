@@ -1,6 +1,6 @@
 import {createStore, reconcile} from 'solid-js/store'
 import {defaultSettings, ISettings} from '../utils/settings'
-import {getModel, IGetModelResponse} from '../utils/messages'
+import {getModel, sendMessageAndGetResponse} from '../utils/messages'
 import {log} from '../utils/logger'
 
 interface IStore {
@@ -30,7 +30,7 @@ export function createPopupStore() {
   }
 
   const syncStoreWithBackground = async () => {
-    const model: IGetModelResponse = await chrome.runtime.sendMessage(getModel())
+    const model = await sendMessageAndGetResponse(getModel())
     log(`[syncStoreWithBackground model]`, model)
     setStore({
       zoomFactor: model.zoomFactor,
