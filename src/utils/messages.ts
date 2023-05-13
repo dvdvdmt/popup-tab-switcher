@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-// import type {Runtime} from 'webextension-polyfill'
 import {Command} from './constants'
 import {ISettings} from './settings'
 
