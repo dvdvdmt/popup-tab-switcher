@@ -3,7 +3,12 @@ import {
   IMessageFromNewContentScript,
   IMessagePackage,
 } from './page-scripts/send-message'
-import {IMessage, IMessageResponse, Message} from '../../src/utils/messages'
+import {
+  IMessage,
+  IMessageResponse,
+  Message,
+  sendMessageAndGetResponse,
+} from '../../src/utils/messages'
 import {log} from '../../src/utils/logger'
 
 declare global {
@@ -23,7 +28,7 @@ function messageFromNewMe(): IMessageFromNewContentScript {
 async function sendMessageToBackground(e: MessageEvent<IMessagePackage>): Promise<any> {
   let response: any
   try {
-    response = await chrome.runtime.sendMessage(e.data.message)
+    response = await sendMessageAndGetResponse(e.data.message as IMessage)
   } catch (err) {
     response = false
   }

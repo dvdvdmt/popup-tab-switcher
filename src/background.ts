@@ -16,8 +16,6 @@ import {ServiceFactory} from './service-factory'
 type ChromeTab = chrome.tabs.Tab
 type IPort = chrome.runtime.Port
 
-const browser = chrome
-
 // NOTE: This is somehow related to the test "focuses previously active window on a tab closing".
 // TODO: Describe the problem in more details.
 let tabIdToBeActivated: undefined | number
@@ -31,15 +29,15 @@ function initListeners() {
    *  2. Window activated (focus changed)
    *  3. Tab activated
    */
-  browser.tabs.onCreated.addListener(handleTabCreation)
-  browser.windows.onFocusChanged.addListener(handleWindowActivation)
-  browser.tabs.onActivated.addListener(handleTabActivation)
-  browser.tabs.onUpdated.addListener(handleTabUpdate)
-  browser.tabs.onRemoved.addListener(handleTabRemove)
-  browser.runtime.onConnect.addListener(handleConnection)
-  browser.commands.onCommand.addListener(handleCommand)
+  chrome.tabs.onCreated.addListener(handleTabCreation)
+  chrome.windows.onFocusChanged.addListener(handleWindowActivation)
+  chrome.tabs.onActivated.addListener(handleTabActivation)
+  chrome.tabs.onUpdated.addListener(handleTabUpdate)
+  chrome.tabs.onRemoved.addListener(handleTabRemove)
+  chrome.runtime.onConnect.addListener(handleConnection)
+  chrome.commands.onCommand.addListener(handleCommand)
   const handlers = messageHandlers()
-  browser.runtime.onMessage.addListener(handleMessage(handlers))
+  chrome.runtime.onMessage.addListener(handleMessage(handlers))
   if (PRODUCTION) {
     initForProduction()
   }
@@ -49,20 +47,20 @@ function initListeners() {
 }
 
 function initForProduction() {
-  browser.runtime.setUninstallURL(uninstallURL)
+  chrome.runtime.setUninstallURL(uninstallURL)
 }
 
 async function initForE2ETests(handlers: Partial<IHandlers>) {
   const isAllowedUrl = (url: string) => url !== 'about:blank' && !url.startsWith('chrome')
   async function executeContentScript(tab: ITab) {
     if (isAllowedUrl(tab.url)) {
-      await browser.scripting.executeScript({
+      await chrome.scripting.executeScript({
         target: {tabId: tab.id},
         files: ['e2e-content-script.js'],
       })
     }
   }
-  browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     await executeContentScript(checkTab(tab))
   })
   const active = await getActiveTab()
@@ -76,10 +74,10 @@ async function initForE2ETests(handlers: Partial<IHandlers>) {
       await handleCommand(command)
     },
     [Message.E2E_SET_ZOOM]: ({zoomFactor}) => {
-      browser.tabs.setZoom(zoomFactor)
+      chrome.tabs.setZoom(zoomFactor)
     },
     [Message.E2E_RELOAD_EXTENSION]: async () => {
-      await browser.runtime.reload()
+      await chrome.runtime.reload()
     },
     [Message.E2E_IS_MESSAGING_READY]: async () => true,
     [Message.E2E_IS_PAGE_ACTIVE]: async (_message, sender) => {
@@ -119,7 +117,7 @@ async function handleCommand(command: string) {
     // when the document.hasFocus() returns false.
     await activateTab(activeTab as ChromeTab)
     // send the command to the content script
-    await browser.tabs.sendMessage(active.id, selectTab(command === Command.NEXT ? 1 : -1))
+    await chrome.tabs.sendMessage(active.id, selectTab(command === Command.NEXT ? 1 : -1))
   } else {
     // Tab initialization may fail due to different reasons:
     // - the page is not loaded,
@@ -133,7 +131,7 @@ async function handleWindowActivation(windowId: number) {
   log(`[handleWindowActivation start]`, windowId)
   // Do not react on windows without ids.
   // This happens on each window activation in some Linux window managers.
-  if (windowId === browser.windows.WINDOW_ID_NONE) {
+  if (windowId === chrome.windows.WINDOW_ID_NONE) {
     return
   }
   await handleTabActivation()
@@ -234,7 +232,7 @@ function messageHandlers(): Partial<IHandlers> {
         return
       }
       if (await initializeContentScript(active)) {
-        await browser.tabs.sendMessage(active.id, demoSettings())
+        await chrome.tabs.sendMessage(active.id, demoSettings())
       } else {
         // TODO: Show extension in a separate window
       }
@@ -245,7 +243,7 @@ function messageHandlers(): Partial<IHandlers> {
       return {
         tabs: registry.getTabsToShow() as chrome.tabs.Tab[],
         settings,
-        zoomFactor: await browser.tabs.getZoom(),
+        zoomFactor: await chrome.tabs.getZoom(),
       }
     },
     [Message.SetSettings]: async ({settings}) => {
@@ -280,7 +278,7 @@ async function initializeContentScript(tab: ITab): Promise<boolean> {
 }
 
 async function getActiveTab(): Promise<ChromeTab | undefined> {
-  const [activeTab] = await browser.tabs.query({
+  const [activeTab] = await chrome.tabs.query({
     active: true,
     currentWindow: true,
   })
@@ -294,9 +292,9 @@ async function activateTab({id, windowId}: ChromeTab) {
     // The tab can already be removed from the browser, for example when a user quickly closes multiple tabs.
     // To handle this situation without an error we can use debounce technique.
     // @ts-expect-error Todo: fix this
-    await browser.tabs.update(id, {active: true})
+    await chrome.tabs.update(id, {active: true})
     if (isBrowserFocused()) {
-      await browser.windows.update(windowId, {focused: true})
+      await chrome.windows.update(windowId, {focused: true})
     }
   } catch (e) {
     console.error(`Can not activate the tab id: ${id}, windowId: ${windowId}`, e)
@@ -316,6 +314,6 @@ async function closeSwitcherInActiveTab() {
   const registry = await ServiceFactory.getTabRegistry()
   const currentTab = await getActiveTab()
   if (currentTab && registry.isInitialized(checkTab(currentTab))) {
-    await browser.tabs.sendMessage(checkTab(currentTab).id, closePopup())
+    await chrome.tabs.sendMessage(checkTab(currentTab).id, closePopup())
   }
 }
