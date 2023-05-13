@@ -1,10 +1,11 @@
 /* eslint-disable no-console */
-import type {Runtime} from 'webextension-polyfill'
+// import type {Runtime} from 'webextension-polyfill'
 import {Command} from './constants'
 import {ISettings} from './settings'
 
-type MessageSender = Runtime.MessageSender
-type Port = Runtime.Port
+// type MessageSender = Runtime.MessageSender
+type MessageSender = chrome.runtime.MessageSender
+type Port = chrome.runtime.Port
 type ChromeTab = chrome.tabs.Tab
 
 // TODO: Rename Message entries to consistent PascalCase
