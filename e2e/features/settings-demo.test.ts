@@ -38,7 +38,6 @@ describe(`Settings demo`, function () {
 
     // Simulate the click on the extension button.
     await extWorker.evaluate(() => {
-      // @ts-expect-error The solution works, but the type definition is missing. See: https://github.com/puppeteer/puppeteer/issues/2486#issuecomment-1159705685
       chrome.action.openPopup()
     })
 
