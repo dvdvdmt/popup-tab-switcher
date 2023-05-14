@@ -12,6 +12,8 @@ import {isBrowserFocused} from './utils/is-browser-focused'
 import {checkTab, ITab} from './utils/check-tab'
 import {log} from './utils/logger'
 import {ServiceFactory} from './service-factory'
+import {BackgroundTestHelper} from './background/background-test-helper'
+import {getActiveTab} from './background/get-active-tab'
 
 type ChromeTab = chrome.tabs.Tab
 type IPort = chrome.runtime.Port
@@ -19,10 +21,16 @@ type IPort = chrome.runtime.Port
 // NOTE: This is somehow related to the test "focuses previously active window on a tab closing".
 // TODO: Describe the problem in more details.
 let tabIdToBeActivated: undefined | number
+let testHelper: undefined | BackgroundTestHelper
+if (E2E) {
+  testHelper = new BackgroundTestHelper()
+}
 
 initListeners()
 
 function initListeners() {
+  testHelper?.initContentScript()
+  testHelper?.registerListeners()
   /** NOTE:
    *  The order of events on tab creation in a new window:
    *  1. Tab created
@@ -36,59 +44,15 @@ function initListeners() {
   chrome.tabs.onRemoved.addListener(handleTabRemove)
   chrome.runtime.onConnect.addListener(handleConnection)
   chrome.commands.onCommand.addListener(handleCommand)
-  const handlers = messageHandlers()
+  const handlers = {...messageHandlers(), ...testHelper?.messageHandlers}
   chrome.runtime.onMessage.addListener(handleMessage(handlers))
   if (PRODUCTION) {
     initForProduction()
-  }
-  if (E2E) {
-    initForE2ETests(handlers)
   }
 }
 
 function initForProduction() {
   chrome.runtime.setUninstallURL(uninstallURL)
-}
-
-async function initForE2ETests(handlers: Partial<IHandlers>) {
-  const isAllowedUrl = (url: string) => url !== 'about:blank' && !url.startsWith('chrome')
-  async function executeContentScript(tab: ITab) {
-    if (isAllowedUrl(tab.url)) {
-      await chrome.scripting.executeScript({
-        target: {tabId: tab.id},
-        files: ['e2e-content-script.js'],
-      })
-    }
-  }
-  chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    await executeContentScript(checkTab(tab))
-  })
-  const active = await getActiveTab()
-  if (active) {
-    await executeContentScript(checkTab(active))
-  }
-
-  Object.assign(handlers, {
-    [Message.COMMAND]: async ({command}) => {
-      log(`[Command received]`, command)
-      await handleCommand(command)
-    },
-    [Message.E2E_SET_ZOOM]: ({zoomFactor}) => {
-      chrome.tabs.setZoom(zoomFactor)
-    },
-    [Message.E2E_RELOAD_EXTENSION]: async () => {
-      await chrome.runtime.reload()
-    },
-    [Message.E2E_IS_MESSAGING_READY]: async () => true,
-    [Message.E2E_IS_PAGE_ACTIVE]: async (_message, sender) => {
-      const activeTab = await getActiveTab()
-      const sourceTab = sender.tab
-      if (sourceTab && activeTab) {
-        return sourceTab.id === activeTab.id && sourceTab.windowId === activeTab.windowId
-      }
-      return false
-    },
-  } as Partial<IHandlers>)
 }
 
 async function switchToPreviousTab() {
@@ -99,7 +63,7 @@ async function switchToPreviousTab() {
   }
 }
 
-async function handleCommand(command: string) {
+export async function handleCommand(command: string) {
   const activeTab = await getActiveTab()
   if (!activeTab) {
     return
@@ -275,14 +239,6 @@ async function initializeContentScript(tab: ITab): Promise<boolean> {
   }
   const newInitialization = registry.startInitialization(tab)
   return newInitialization.promise
-}
-
-async function getActiveTab(): Promise<ChromeTab | undefined> {
-  const [activeTab] = await chrome.tabs.query({
-    active: true,
-    currentWindow: true,
-  })
-  return activeTab
 }
 
 async function activateTab({id, windowId}: ChromeTab) {

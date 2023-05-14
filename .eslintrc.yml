@@ -54,6 +54,7 @@ rules:
   no-unused-expressions: off
   semi: off
   consistent-return: off
+  class-methods-use-this: off
 overrides:
   - files: ['webpack.config.js']
     rules:
