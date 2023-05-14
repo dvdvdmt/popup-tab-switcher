@@ -3,7 +3,7 @@ import {Browser, Page} from 'puppeteer'
 import * as fs from 'fs'
 import {PNG} from 'pngjs'
 import pixelmatch from 'pixelmatch'
-import {IMessage} from '../../src/utils/messages'
+import {IMessage, IMessageResponse} from '../../src/utils/messages'
 
 export const settingsPageUrl =
   'chrome-extension://meonejnmljcnoodabklmloagmnmcmlam/settings/index.html'
@@ -160,9 +160,13 @@ export class PuppeteerPopupHelper {
     return Object.assign(page, pageMixin)
   }
 
-  async sendMessage(message: IMessage) {
+  async sendMessage<Message extends IMessage>(
+    message: Message
+  ): Promise<IMessageResponse<Message>> {
     const page = await this.getActivePage()
-    await page.evaluate((m) => window.e2e.sendMessage(m), message)
+    return page.evaluate((m) => window.e2e.sendMessage(m), message) as Promise<
+      IMessageResponse<Message>
+    >
   }
 
   newPagePromise() {
