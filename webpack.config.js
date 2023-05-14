@@ -142,6 +142,7 @@ module.exports = (env) => {
     ],
   }
   if (env.production) {
+    conf.mode = 'production'
     conf.output.path = buildProdDir
     conf.plugins = [
       new CopyWebpackPlugin(copyWebpackPluginOptions),
@@ -169,6 +170,7 @@ module.exports = (env) => {
       //   : () => {},
     ]
   } else if (env.e2e) {
+    conf.mode = 'production'
     conf.output.path = buildE2eDir
     conf.entry['e2e-page-scripts'] = path.join(e2eDir, 'utils', 'page-scripts', 'index.ts')
     conf.entry['e2e-content-script'] = path.join(e2eDir, 'utils', 'e2e-content-script.ts')

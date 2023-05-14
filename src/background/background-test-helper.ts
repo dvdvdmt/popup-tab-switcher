@@ -1,13 +1,17 @@
 import {checkTab, ITab} from '../utils/check-tab'
 import {getActiveTab} from './get-active-tab'
 import {IHandlers, Message} from '../utils/messages'
-import {log} from '../utils/logger'
+import {getLogs, log} from '../utils/logger'
 import {handleCommand} from '../background'
 
 /**
  * Contains different methods to help with E2E tests.
  */
 export class BackgroundTestHelper {
+  private startRenderingTime: number
+
+  private endRenderingTime: number
+
   async initContentScript(tab?: ITab): Promise<void> {
     const active = tab ?? (await getActiveTab())
     if (isAllowedUrl(active)) {
@@ -45,7 +49,21 @@ export class BackgroundTestHelper {
         }
         return false
       },
+      [Message.PopupShown]: () => {
+        log(`[PopupShown received]`)
+        this.measureEndRenderingTime()
+      },
+      [Message.GetRenderingTime]: async () => this.endRenderingTime - this.startRenderingTime,
+      [Message.GetLogs]: async () => getLogs(),
     }
+  }
+
+  measureStartRenderingTime(): void {
+    this.startRenderingTime = performance.now()
+  }
+
+  measureEndRenderingTime(): void {
+    this.endRenderingTime = performance.now()
   }
 }
 

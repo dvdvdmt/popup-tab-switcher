@@ -1,7 +1,6 @@
 import {Command} from './constants'
 import {ISettings} from './settings'
 
-// type MessageSender = Runtime.MessageSender
 type MessageSender = chrome.runtime.MessageSender
 type Port = chrome.runtime.Port
 type ChromeTab = chrome.tabs.Tab
@@ -23,6 +22,9 @@ export enum Message {
   GET_MODEL = 'GET_MODEL',
   SELECT_TAB = 'SELECT_TAB',
   SWITCH_TAB = 'SWITCH_TAB',
+  PopupShown = 'PopupShown',
+  GetRenderingTime = 'GetRenderingTime',
+  GetLogs = 'GetLogs',
 }
 
 export function demoSettings() {
@@ -31,6 +33,18 @@ export function demoSettings() {
 
 export function switchTab(selectedTab: ChromeTab) {
   return {type: Message.SWITCH_TAB, selectedTab} as const
+}
+
+export function popupShown() {
+  return {type: Message.PopupShown} as const
+}
+
+export function getRenderingTime() {
+  return {type: Message.GetRenderingTime} as const
+}
+
+export function getLogs() {
+  return {type: Message.GetLogs} as const
 }
 
 export function selectTab(increment: number) {
@@ -104,6 +118,9 @@ interface IMessageTypeToObjectMap {
   [Message.GET_MODEL]: ReturnType<typeof getModel>
   [Message.SELECT_TAB]: ReturnType<typeof selectTab>
   [Message.SWITCH_TAB]: ReturnType<typeof switchTab>
+  [Message.PopupShown]: ReturnType<typeof popupShown>
+  [Message.GetRenderingTime]: ReturnType<typeof getRenderingTime>
+  [Message.GetLogs]: ReturnType<typeof getLogs>
 }
 
 export type IMessage = IMessageTypeToObjectMap[keyof IMessageTypeToObjectMap]
@@ -122,6 +139,10 @@ export type IMessageResponse<Message extends IMessage> = Message extends ReturnT
   ? boolean
   : Message extends ReturnType<typeof getSettings>
   ? ISettings
+  : Message extends ReturnType<typeof getRenderingTime>
+  ? number
+  : Message extends ReturnType<typeof getLogs>
+  ? string
   : void
 
 export type IHandlers = {

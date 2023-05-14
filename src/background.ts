@@ -64,6 +64,7 @@ async function switchToPreviousTab() {
 }
 
 export async function handleCommand(command: string) {
+  testHelper?.measureStartRenderingTime()
   const activeTab = await getActiveTab()
   if (!activeTab) {
     return
