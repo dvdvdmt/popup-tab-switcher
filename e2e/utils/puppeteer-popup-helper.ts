@@ -178,10 +178,15 @@ export class PuppeteerPopupHelper {
   }
 
   newPagePromise() {
-    return new Promise<Page>((resolve) =>
-      this.browser.on('targetcreated', (target) => {
+    return new Promise<Page>((resolve, reject) =>
+      this.browser.on('targetcreated', async (target) => {
         if (target.type() === 'page') {
-          resolve(target.page())
+          const page = await target.page()
+          if (!page) {
+            reject(new Error('Page is not found'))
+            return
+          }
+          resolve(page)
         }
       })
     )
