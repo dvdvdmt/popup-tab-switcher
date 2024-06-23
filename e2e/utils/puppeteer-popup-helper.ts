@@ -70,6 +70,14 @@ export class PuppeteerPopupHelper {
     await Promise.all(frames.map((frame) => frame.evaluate(e2ePageScripts)))
   }
 
+  // TODO: Try replace this method with the CDP (Chrome DevTools Protocol) method.
+  // async function getActiveTab(page) {
+  //   const client = await page.target().createCDPSession();
+  //   const { targetId } = await client.send('Target.getTargetInfo', { targetId: page.target()._targetId });
+  //   const { windowId } = await client.send('Browser.getWindowForTarget', { targetId });
+  //   const tabs = await client.send('Browser.getTabs');
+  //   return tabs.tabs.find(tab => tab.active && tab.windowId === windowId);
+  // }
   async getActivePage(): Promise<HelperPage> {
     const pages = await this.browser.pages()
     const promises = pages.map((p, index) =>
