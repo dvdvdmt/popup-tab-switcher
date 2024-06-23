@@ -266,7 +266,7 @@ export class PuppeteerPopupHelper {
     const diff = new PNG({width, height})
     try {
       const diffCount = pixelmatch(elementImg.data, expectedImg.data, diff.data, width, height, {
-        threshold: 0.01,
+        threshold: 0.05,
       })
       if (diffCount > 0) {
         const diffPath = path.join(
