@@ -71,34 +71,47 @@
   border-top-right-radius: var(--popup-border-radius);
   outline: none;
   cursor: default;
+  overflow: hidden;
 
   &:hover {
+    --text-crop-gradient-color: var(--tab_hover-background);
     background-color: var(--tab_hover-background);
     z-index: 10;
 
     .tab__cornerIcon {
       fill: var(--tab_hover-background);
     }
+  }
 
-    .tab__text::after {
-      --start-color: var(--tab_hover-background);
-    }
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: var(--tab-text-padding);
+    height: 100%;
+    background: linear-gradient(to right, transparent, var(--text-crop-gradient-color));
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--tab-text-padding);
+    height: 100%;
+    background: linear-gradient(to left, transparent, var(--text-crop-gradient-color));
+    z-index: 1;
   }
 
   &_selected,
   &_selected:hover {
+    --text-crop-gradient-color: var(--tab_selected-background);
     background-color: var(--tab_selected-background);
     z-index: 20;
 
     .tab__cornerIcon {
       fill: var(--tab_selected-background);
-    }
-
-    .tab__text::after {
-      --start-color: var(--tab_selected-background);
-      right: initial;
-      left: 0;
-      transform: rotate(180deg);
     }
   }
 }
@@ -138,18 +151,11 @@
   width: 100%;
   max-height: var(--tab-height);
   white-space: nowrap;
+  margin-left: var(--tab-text-padding);
   overflow: hidden;
-  padding-left: var(--tab-text-padding);
 
-  &::after {
-    --start-color: var(--card-background-color);
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: var(--tab-text-padding);
-    height: 100%;
-    background: linear-gradient(to left, var(--start-color), transparent);
+  &.tab__text_scrolled {
+    overflow: visible;
   }
 }
 

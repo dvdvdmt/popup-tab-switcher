@@ -53,32 +53,36 @@ export function PopupTab(props: IProps) {
   )
 
   function scrollLongTextOfSelectedTab() {
-    const textOverflow = titleElement.scrollWidth - titleElement.offsetWidth
+    const textOverflow = titleElement.scrollWidth - titleElement.clientWidth
+    const pixelsPerSecond = 90
     if (textOverflow > 0) {
-      const scrollTime = (textOverflow / titleElement.offsetWidth) * props.textScrollCoefficient
-      const duration = scrollTime + 2 * props.textScrollDelay
-      const startDelayOffset = props.textScrollDelay / duration
+      const scrollTimeMs = (textOverflow / pixelsPerSecond) * 1000
+      const durationMs = scrollTimeMs + 2 * props.textScrollDelay
+      const startDelayOffset = props.textScrollDelay / durationMs
       const endDelayOffset = 1 - startDelayOffset
-      titleElement.style.setProperty('text-overflow', 'initial')
+      titleElement.classList.toggle('tab__text_scrolled', true)
       titleElement.animate(
         [
           {
-            textIndent: 'initial',
+            transform: 'initial',
+            offset: 0,
           },
           {
-            textIndent: 'initial',
+            transform: 'initial',
             offset: startDelayOffset,
           },
           {
-            textIndent: `-${textOverflow}px`,
+            transform: `translateX(-${textOverflow}px)`,
             offset: endDelayOffset,
           },
           {
-            textIndent: `-${textOverflow}px`,
+            transform: `translateX(-${textOverflow}px)`,
+            offset: 1,
           },
         ],
         {
-          duration,
+          duration: durationMs,
+          direction: 'normal',
           iterations: Infinity,
         }
       )
