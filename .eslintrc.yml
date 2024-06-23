@@ -61,3 +61,6 @@ overrides:
       '@typescript-eslint/no-var-requires': off
       '@typescript-eslint/camelcase': off
       '@typescript-eslint/no-empty-function': off
+  - files: ['scripts/**/*.ts']
+    rules:
+      no-console: off
