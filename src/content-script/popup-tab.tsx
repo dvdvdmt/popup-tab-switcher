@@ -15,14 +15,15 @@ interface IProps {
 
 export function PopupTab(props: IProps) {
   let tabElement: HTMLDivElement
-  let titleElement: HTMLElement
+  let tabTextElement: HTMLDivElement
+  let tabTextContentElement: HTMLElement
 
   createEffect(() => {
     if (props.isSelected) {
       scrollLongTextOfSelectedTab()
       tabElement.focus()
     } else {
-      titleElement.getAnimations().forEach((animation) => animation.cancel())
+      tabTextContentElement.getAnimations().forEach((animation) => animation.cancel())
     }
   })
 
@@ -46,22 +47,23 @@ export function PopupTab(props: IProps) {
       <Show when={!props.isLast}>
         <TabCornerIcon type="bottom" />
       </Show>
-      <span ref={titleElement!} class="tab__text">
-        {props.tab.title}
-      </span>
+      <div ref={tabTextElement!} class="tab__text">
+        <span class="tab__textContent" ref={tabTextContentElement!}>
+          {props.tab.title}
+        </span>
+      </div>
     </div>
   )
 
   function scrollLongTextOfSelectedTab() {
-    const textOverflow = titleElement.scrollWidth - titleElement.clientWidth
+    const textOverflow = tabTextContentElement.scrollWidth - tabTextElement.clientWidth
     const pixelsPerSecond = 90
     if (textOverflow > 0) {
       const scrollTimeMs = (textOverflow / pixelsPerSecond) * 1000
       const durationMs = scrollTimeMs + 2 * props.textScrollDelay
       const startDelayOffset = props.textScrollDelay / durationMs
       const endDelayOffset = 1 - startDelayOffset
-      titleElement.classList.toggle('tab__text_scrolled', true)
-      titleElement.animate(
+      tabTextContentElement.animate(
         [
           {
             transform: 'initial',
