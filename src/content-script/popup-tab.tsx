@@ -56,10 +56,13 @@ export function PopupTab(props: IProps) {
   )
 
   function scrollLongTextOfSelectedTab() {
-    const textOverflow = tabTextContentElement.scrollWidth - tabTextElement.clientWidth
+    const horizontalPadding = 10
+    const fullTextWidthWithoutOnePadding = tabTextContentElement.scrollWidth - horizontalPadding
+    const textOverflow = fullTextWidthWithoutOnePadding - tabTextElement.clientWidth
     const pixelsPerSecond = 90
     if (textOverflow > 0) {
-      const scrollTimeMs = (textOverflow / pixelsPerSecond) * 1000
+      const hiddenTextWidthWithPadding = textOverflow + horizontalPadding
+      const scrollTimeMs = (hiddenTextWidthWithPadding / pixelsPerSecond) * 1000
       const durationMs = scrollTimeMs + 2 * props.textScrollDelay
       const startDelayOffset = props.textScrollDelay / durationMs
       const endDelayOffset = 1 - startDelayOffset
@@ -74,11 +77,11 @@ export function PopupTab(props: IProps) {
             offset: startDelayOffset,
           },
           {
-            transform: `translateX(-${textOverflow}px)`,
+            transform: `translateX(-${hiddenTextWidthWithPadding}px)`,
             offset: endDelayOffset,
           },
           {
-            transform: `translateX(-${textOverflow}px)`,
+            transform: `translateX(-${hiddenTextWidthWithPadding}px)`,
             offset: 1,
           },
         ],
