@@ -65,7 +65,7 @@
   display: flex;
   align-items: center;
   height: var(--tab-height);
-  padding: 0 var(--tab-horizontal-padding);
+  padding-left: var(--tab-horizontal-padding);
   position: relative;
   border-bottom-right-radius: var(--popup-border-radius);
   border-top-right-radius: var(--popup-border-radius);
@@ -134,6 +134,18 @@
   white-space: nowrap;
   overflow: hidden;
   align-items: center;
+  //margin-left: var(--tab-text-padding);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--tab-text-padding);
+    height: calc(100% - var(--tab-timeout-indicator-height));
+    background: linear-gradient(to left, transparent, var(--text-crop-gradient-color));
+    z-index: 1;
+  }
 
   &::after {
     content: '';
@@ -144,22 +156,12 @@
     height: calc(100% - var(--tab-timeout-indicator-height));
     background: linear-gradient(to right, transparent, var(--text-crop-gradient-color));
   }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: calc(0 - var(--tab-text-padding));
-    width: var(--tab-text-padding);
-    height: calc(100% - var(--tab-timeout-indicator-height));
-    background: linear-gradient(to left, transparent, var(--text-crop-gradient-color));
-    z-index: 1;
-  }
 }
 
 .tab__textContent {
   position: absolute;
-  left: var(--tab-text-padding);
+  padding-left: var(--tab-text-padding);
+  padding-right: var(--tab-text-padding);
 }
 
 .tab__timeoutIndicator {
