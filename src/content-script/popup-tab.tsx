@@ -9,7 +9,7 @@ interface IProps {
   isFirst: boolean
   tab: chrome.tabs.Tab
   onClick: () => void
-  textScrollCoefficient: number
+  textScrollSpeed: number
   textScrollDelay: number
 }
 
@@ -59,7 +59,7 @@ export function PopupTab(props: IProps) {
     const horizontalPadding = 10
     const fullTextWidthWithoutOnePadding = tabTextContentElement.scrollWidth - horizontalPadding
     const textOverflow = fullTextWidthWithoutOnePadding - tabTextElement.clientWidth
-    const pixelsPerSecond = 90
+    const pixelsPerSecond = 90 * props.textScrollSpeed
     if (textOverflow > 0) {
       const hiddenTextWidthWithPadding = textOverflow + horizontalPadding
       const scrollTimeMs = (hiddenTextWidthWithPadding / pixelsPerSecond) * 1000
