@@ -2,7 +2,7 @@ type LocalStorageArea = chrome.storage.LocalStorageArea
 
 export interface ISettings {
   textScrollDelay: number
-  textScrollCoefficient: number
+  textScrollSpeed: number
   autoSwitchingTimeout: number
   numberOfTabsToShow: number
   isDarkTheme: boolean
@@ -17,7 +17,7 @@ export interface ISettings {
 
 export const defaultSettings: ISettings = {
   textScrollDelay: 1000,
-  textScrollCoefficient: 2500,
+  textScrollSpeed: 1,
   autoSwitchingTimeout: 1000,
   numberOfTabsToShow: 7,
   isDarkTheme: false,
@@ -52,7 +52,7 @@ export async function getSettings(storage: LocalStorageArea): Promise<ISettingsS
     getSettingsObject(this: ISettingsService): ISettings {
       return {
         textScrollDelay: this.textScrollDelay,
-        textScrollCoefficient: this.textScrollCoefficient,
+        textScrollSpeed: this.textScrollSpeed,
         autoSwitchingTimeout: this.autoSwitchingTimeout,
         numberOfTabsToShow: this.numberOfTabsToShow,
         isDarkTheme: this.isDarkTheme,

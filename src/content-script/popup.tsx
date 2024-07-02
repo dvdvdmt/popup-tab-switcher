@@ -77,7 +77,7 @@ export function Popup({element}: IProps) {
                   onClick={() => {
                     switchTo(tab)
                   }}
-                  textScrollCoefficient={store.settings.textScrollCoefficient}
+                  textScrollSpeed={store.settings.textScrollSpeed}
                   textScrollDelay={store.settings.textScrollDelay}
                 />
               )}

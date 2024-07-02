@@ -169,15 +169,16 @@ export function SettingsForm(props: IProps) {
         />
       </div>
       <div class={styles.settings__row} title="Sets the speed of a selected tab text scrolling">
-        <label for="textScrollCoefficient" class={styles.settings__label}>
+        <label for="textScrollSpeed" class={styles.settings__label}>
           <i class={styles.iconInLabel}>text_rotation_none</i>
           Text scroll speed
         </label>
         <MNumberInput
-          id="textScrollCoefficient"
-          value={props.store.settings.textScrollCoefficient}
+          id="textScrollSpeed"
+          suffix="%"
+          value={Math.round(props.store.settings.textScrollSpeed * 100)}
           onInput={(value) => {
-            props.setSettingsOptions({textScrollCoefficient: value})
+            props.setSettingsOptions({textScrollSpeed: value / 100})
           }}
         />
       </div>
