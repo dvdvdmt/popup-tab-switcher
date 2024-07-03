@@ -26,8 +26,8 @@ async function input(page: Page, selector: string, text: string) {
 async function getSettingsFromPage(page: Page) {
   // @ts-expect-error
   const textScrollDelay = await page.$eval('#textScrollDelay', (el: HTMLInputElement) => +el.value)
-  const textScrollCoefficient = await page.$eval(
-    '#textScrollCoefficient',
+  const textScrollSpeed = await page.$eval(
+    '#textScrollSpeed',
     // @ts-expect-error
     (el: HTMLInputElement) => +el.value
   )
@@ -62,7 +62,7 @@ async function getSettingsFromPage(page: Page) {
   const isStayingOpen = await page.$eval('#isStayingOpen', (el: HTMLInputElement) => el.checked)
   return {
     textScrollDelay,
-    textScrollCoefficient,
+    textScrollSpeed,
     autoSwitchingTimeout,
     numberOfTabsToShow,
     isDarkTheme,
@@ -80,7 +80,7 @@ const newSettings = {
   ...defaultSettings,
   ...{
     textScrollDelay: 1500,
-    textScrollCoefficient: 777,
+    textScrollSpeed: 777,
     autoSwitchingTimeout: 699,
     numberOfTabsToShow: 5,
     isDarkTheme: true,
@@ -94,7 +94,7 @@ const newSettings = {
 
 async function setSettingsManually(page: Page) {
   await input(page, '#textScrollDelay', `${newSettings.textScrollDelay}`)
-  await input(page, '#textScrollCoefficient', `${newSettings.textScrollCoefficient}`)
+  await input(page, '#textScrollSpeed', `${newSettings.textScrollSpeed}`)
   await input(page, '#autoSwitchingTimeout', `${newSettings.autoSwitchingTimeout}`)
   await input(page, '#numberOfTabsToShow', `${newSettings.numberOfTabsToShow}`)
   await page.click('#isDarkTheme')
