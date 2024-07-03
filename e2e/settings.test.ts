@@ -119,22 +119,87 @@ describe('settings', function TestSettings() {
   afterEach(closeTabs)
 
   it('renders', async () => {
-    const expected = defaultSettings
     const settingsPage = await helper.openPage('settings')
     const actual = await getSettingsFromPage(settingsPage)
-    assert.deepStrictEqual(actual, expected)
+    assert.deepStrictEqual(actual, {
+      autoSwitchingTimeout: 1000,
+      fontSize: 16,
+      iconSize: 24,
+      isDarkTheme: false,
+      isStayingOpen: false,
+      isSwitchingToPreviouslyUsedTab: true,
+      numberOfTabsToShow: 7,
+      opacity: 100,
+      popupWidth: 420,
+      tabHeight: 40,
+      textScrollDelay: 1000,
+      textScrollSpeed: 100,
+    })
   })
 
   it('modifies and resets', async () => {
     const settingsPage = await helper.openPage('settings')
     await setSettingsManually(settingsPage)
-    let actual = await getSettingsFromPage(settingsPage)
-    assert.deepStrictEqual(actual, newSettings, 'settings in form are different')
-    actual = await settingsPage.evaluate(() => window.e2e.getSettings())
-    assert.deepStrictEqual(actual, newSettings, 'settings were not updated in storage')
+    const settingsInPage = await getSettingsFromPage(settingsPage)
+    assert.deepStrictEqual(
+      settingsInPage,
+      {
+        autoSwitchingTimeout: 699,
+        fontSize: 20,
+        iconSize: 55,
+        isDarkTheme: true,
+        isStayingOpen: false,
+        isSwitchingToPreviouslyUsedTab: true,
+        numberOfTabsToShow: 5,
+        opacity: 30,
+        popupWidth: 444,
+        tabHeight: 30,
+        textScrollDelay: 1500,
+        textScrollSpeed: 777,
+      },
+      'settings in form are different'
+    )
+    // Saves
+    const valuesInStore = await settingsPage.evaluate(() => window.e2e.getSettings())
+    assert.deepStrictEqual(
+      valuesInStore,
+      {
+        autoSwitchingTimeout: 699,
+        fontSize: 20,
+        iconSize: 55,
+        isDarkTheme: true,
+        isStayingOpen: false,
+        isSwitchingToPreviouslyUsedTab: true,
+        numberOfTabsToShow: 5,
+        opacity: 30,
+        popupWidth: 444,
+        tabHeight: 30,
+        textScrollDelay: 1500,
+        textScrollSpeed: 7.77,
+      },
+      'settings were not updated in storage'
+    )
+    // Resets
     await settingsPage.click(selectors.resetButton)
-    actual = await getSettingsFromPage(settingsPage)
-    assert.deepStrictEqual(actual, defaultSettings, 'set defaults')
+    const settingsInPageAfterReset = await getSettingsFromPage(settingsPage)
+    assert.deepStrictEqual(
+      settingsInPageAfterReset,
+      {
+        autoSwitchingTimeout: 1000,
+        fontSize: 16,
+        iconSize: 24,
+        isDarkTheme: false,
+        isStayingOpen: false,
+        isSwitchingToPreviouslyUsedTab: true,
+        numberOfTabsToShow: 7,
+        opacity: 100,
+        popupWidth: 420,
+        tabHeight: 40,
+        textScrollDelay: 1000,
+        textScrollSpeed: 100,
+      },
+      'set defaults'
+    )
   })
 
   it('passes settings to the content script', async () => {
