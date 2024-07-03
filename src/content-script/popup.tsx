@@ -167,7 +167,7 @@ export function Popup({element}: IProps) {
         await syncStoreWithBackground()
         openPopup()
       },
-      // [Message.CLOSE_POPUP]: closePopup, // TODO: Uncomment when the feature is implemented
+      [Message.CLOSE_POPUP]: closePopup,
       [Message.SELECT_TAB]: async ({increment}) => {
         await syncStoreWithBackground()
         openPopup()
