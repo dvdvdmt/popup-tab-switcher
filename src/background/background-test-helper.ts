@@ -1,7 +1,7 @@
 import {checkTab, ITab} from '../utils/check-tab'
 import {getActiveTab} from './get-active-tab'
 import {IHandlers, Message} from '../utils/messages'
-import {getLogs, log} from '../utils/logger'
+import {log} from '../utils/logger'
 import {handleCommand} from '../background'
 
 /**
@@ -54,7 +54,6 @@ export class BackgroundTestHelper {
         this.measureEndRenderingTime()
       },
       [Message.GetRenderingTime]: async () => this.endRenderingTime - this.startRenderingTime,
-      [Message.GetLogs]: async () => getLogs(),
     }
   }
 

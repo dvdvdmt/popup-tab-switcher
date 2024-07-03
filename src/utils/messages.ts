@@ -24,7 +24,6 @@ export enum Message {
   SWITCH_TAB = 'SWITCH_TAB',
   PopupShown = 'PopupShown',
   GetRenderingTime = 'GetRenderingTime',
-  GetLogs = 'GetLogs',
 }
 
 export function demoSettings() {
@@ -41,10 +40,6 @@ export function popupShown() {
 
 export function getRenderingTime() {
   return {type: Message.GetRenderingTime} as const
-}
-
-export function getLogs() {
-  return {type: Message.GetLogs} as const
 }
 
 export function selectTab(increment: number) {
@@ -120,7 +115,6 @@ interface IMessageTypeToObjectMap {
   [Message.SWITCH_TAB]: ReturnType<typeof switchTab>
   [Message.PopupShown]: ReturnType<typeof popupShown>
   [Message.GetRenderingTime]: ReturnType<typeof getRenderingTime>
-  [Message.GetLogs]: ReturnType<typeof getLogs>
 }
 
 export type IMessage = IMessageTypeToObjectMap[keyof IMessageTypeToObjectMap]
@@ -141,8 +135,6 @@ export type IMessageResponse<Message extends IMessage> = Message extends ReturnT
   ? ISettings
   : Message extends ReturnType<typeof getRenderingTime>
   ? number
-  : Message extends ReturnType<typeof getLogs>
-  ? string
   : void
 
 export type IHandlers = {
