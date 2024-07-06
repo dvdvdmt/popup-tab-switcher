@@ -55,6 +55,7 @@ rules:
   semi: off
   consistent-return: off
   class-methods-use-this: off
+  no-shadow: off
 overrides:
   - files: ['webpack.config.js']
     rules:
