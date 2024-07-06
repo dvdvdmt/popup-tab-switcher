@@ -10,7 +10,7 @@
   "scripts": {
     "build:dev": "rm -rf build-dev && webpack build --env development",
     "build:e2e": "rm -rf build-e2e && webpack build --env e2e",
-    "build:prod": "rm -rf build-prod && webpack build --env production && cd build-prod/ && zip -r archive.zip .",
+    "build:prod": "ts-node ./scripts/build-prod.ts",
     "clean": "rm -rf build*",
     "lint": "eslint --ext .ts,.js ./",
     "prepare": "husky install",
