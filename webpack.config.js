@@ -2,6 +2,7 @@ const path = require('path')
 const webpack = require('webpack')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const deepmerge = require('deepmerge')
+const {exec} = require('child_process')
 
 const buildProdDir = path.join(__dirname, 'build-prod')
 const buildDevDir = path.join(__dirname, 'build-dev')
@@ -114,7 +115,7 @@ module.exports = (env) => {
             const e2eProps = {
               key: developmentProps.key,
             }
-            return JSON.stringify(
+            const updatedManifest = JSON.stringify(
               deepmerge.all([
                 original,
                 env.development ? developmentProps : {},
@@ -123,6 +124,7 @@ module.exports = (env) => {
               null,
               2
             )
+            return updatedManifest
           },
         },
       },
@@ -160,14 +162,13 @@ module.exports = (env) => {
         PRODUCTION: 'false',
         DEVELOPMENT: 'true',
       }),
-      // env.WEBPACK_WATCH
-      //   ? new ChromeExtensionReloader({
-      //       entries: {
-      //         contentScript: 'content',
-      //         background: 'background',
-      //       },
-      //     })
-      //   : () => {},
+      {
+        apply: (compiler) => {
+          compiler.hooks.afterEmit.tap('ReloadExtensionPlugin', () => {
+            exec('open "https://popuptabswitcher/reload"')
+          })
+        },
+      },
     ]
   } else if (env.e2e) {
     conf.mode = 'production'

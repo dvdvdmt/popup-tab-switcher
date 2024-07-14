@@ -24,13 +24,25 @@ let tabIdToBeActivated: undefined | number
 let testHelper: undefined | BackgroundTestHelper
 if (E2E) {
   testHelper = new BackgroundTestHelper()
+  testHelper.initContentScript()
+  testHelper.registerListeners()
+}
+
+if (DEVELOPMENT) {
+  chrome.tabs.onCreated.addListener(async (tab) => {
+    const url = tab.url || tab.pendingUrl
+    const isReloadUrl = url === 'https://popuptabswitcher/reload'
+    if (isReloadUrl) {
+      log(`[Reload extension]`)
+      chrome.tabs.remove(tab.id!)
+      chrome.runtime.reload()
+    }
+  })
 }
 
 initListeners()
 
 function initListeners() {
-  testHelper?.initContentScript()
-  testHelper?.registerListeners()
   /** NOTE:
    *  The order of events on tab creation in a new window:
    *  1. Tab created
