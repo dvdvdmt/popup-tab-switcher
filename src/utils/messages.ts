@@ -1,5 +1,6 @@
 import {Command} from './constants'
 import {ISettings} from './settings'
+import {log} from './logger'
 
 type MessageSender = chrome.runtime.MessageSender
 type Port = chrome.runtime.Port
@@ -196,6 +197,7 @@ export function handleMessage(handlers: Partial<IHandlers>) {
       console.error(`There is no handler for the message.type = ${message.type}`, message)
       return
     }
+    log(`[Message received]`, message)
     // @ts-expect-error
     // TODO: How to guarantee correspondence of a message and handler types?
     const response = handler(message, getSender(sender))
