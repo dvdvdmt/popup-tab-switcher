@@ -1,3 +1,5 @@
+import {log} from '../utils/logger'
+
 export class SelectionAndFocus {
   private activeWindow: Window | null
 
@@ -43,7 +45,17 @@ export class SelectionAndFocus {
       return null
     }
     if (activeElement instanceof HTMLIFrameElement && activeElement.contentWindow) {
-      return SelectionAndFocus.getActiveWindow(activeElement.contentWindow)
+      try {
+        // Attempt to access the iframe's contentWindow
+        // This will throw an error if cross-origin access is blocked
+        // eslint-disable-next-line no-unused-expressions
+        activeElement.contentWindow.document // Check if access is allowed
+        return SelectionAndFocus.getActiveWindow(activeElement.contentWindow)
+      } catch (error) {
+        // Cross-origin access is blocked, return the current window
+        log('Cross-origin iframe access blocked:', error)
+        return current
+      }
     }
     return current
   }

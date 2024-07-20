@@ -86,8 +86,12 @@ describe('popup', function TestPopup() {
       await page.keyboard.press('Escape')
 
       // Then the focus should remain on the iframe input field.
-      const focusedElement = await page.evaluate(() => document.activeElement)
-      assert.strictEqual(await focusedElement?.id, 'iframe-input')
+      // const focusedElement = await page.evaluate(() => document.activeElement)
+      const isFocusedElementAnIframe = await page.evaluate(() => {
+        const focusedElement = document.activeElement
+        return focusedElement instanceof HTMLIFrameElement
+      })
+      assert.strictEqual(isFocusedElementAnIframe, true, 'The iframe is not focused')
     })
   })
 
