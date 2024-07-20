@@ -74,6 +74,21 @@ describe('popup', function TestPopup() {
       )
       assert.strictEqual(display, 'none', 'The popup is closed')
     })
+
+    it('handles cross-origin iframes gracefully', async () => {
+      // Given a page with a cross-origin iframe and an input field inside the iframe.
+      const page = await helper.openPage('cross-origin-iframe.html')
+
+      // When the iframe input field is focused and the popup is opened and closed.
+      await page.click('iframe')
+      await helper.selectTabForward()
+      await page.isVisible(contentScript.root)
+      await page.keyboard.press('Escape')
+
+      // Then the focus should remain on the iframe input field.
+      const focusedElement = await page.evaluate(() => document.activeElement)
+      assert.strictEqual(await focusedElement?.id, 'iframe-input')
+    })
   })
 
   context('many pages', () => {
