@@ -31,6 +31,7 @@ rules:
   '@typescript-eslint/member-delimiter-style': off
   '@typescript-eslint/no-empty-function': [warn]
   '@typescript-eslint/camelcase': [warn]
+  '@typescript-eslint/no-non-null-assertion': off
   prefer-arrow-callback: off
   object-curly-spacing: [error, never]
   arrow-parens: [error, always]
